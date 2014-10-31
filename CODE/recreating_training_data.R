@@ -1,17 +1,14 @@
 
 #recreate space20140129v01.Rdata
-setwd('C:/Users/scolm/Desktop/FOOD_INSPECTIONS')
-list.files()
-
+setwd('./')
 
 library(snowfall)
 library(sqldf)
 
-CPUs <- 4
+CPUs <- 8
 
 #load project custom built functions
 source("./CODE/myfun.R")
-
 
 #read in food inspections records from SODA URL
 source("./CODE/liveReadInFoodInspections.R")
