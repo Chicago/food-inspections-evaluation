@@ -2,9 +2,6 @@
 #recreate space20140129v01.Rdata
 setwd('./')
 
-
-‘gsubfn’, ‘proto’, ‘RSQLite’, ‘RSQLite.extfuns’, ‘DBI’, ‘chron’ are not available for package ‘sqldf’
-
 library(snowfall)
 # library(sqldf) Current version is incompatible with 3.0.x
 
