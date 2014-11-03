@@ -1,24 +1,15 @@
-
-setwd('C:/Users/scolm/Desktop/FOOD_INSPECTIONS')
 list.files()
-
 
 library(ggplot2)
 library(glmnet)
 
 # workspace from creating the train/tune/evaluate data sets
-load("./DATA/original_training_data_20140129v01.Rdata")
+load("./DATA/original_training_data_20141129v01.Rdata")
 # load("./DATA/recreated_training_data_20141031v01.Rdata")
 
 # rename the evaluate dataset to 'test'
 test <- evaluate
 rm(evaluate)
-
-
-
-
-
-
 
 #loading evaluation data from pilot
 load("./DATA/pilot_evaluation_20140404v01.Rdata")
