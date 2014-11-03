@@ -206,4 +206,4 @@ evaluate <- subset(foodInspect, paste(inspection_id, license_, sep = "_") %in% p
 
 
 rm(list = setdiff(ls(),c('train','tune','evaluate')))
-save(list=ls(),file="./DATA/recreated_training_data_20141031v01.Rdata")
+save(list=ls(),file="./DATA/recreated_training_data_20141103v01.Rdata")
