@@ -3,7 +3,7 @@
 setwd('./')
 
 library(snowfall)
-# library(sqldf) Current version is incompatible with 3.0.x
+library(sqldf) #Current version is incompatible with 3.0.x
 
 # Install and load older SQLDF library 
 install.packages('chron')
@@ -16,21 +16,22 @@ install.packages(RSQLite_0.8_0, contriburl=NULL, type="source")
 sqldf_0.4_6 <- "http://cran.r-project.org/src/contrib/Archive/sqldf/sqldf_0.4-6.tar.gz" # Compatible with R >= 2.14 https://code.google.com/p/sqldf/source/browse/trunk/DESCRIPTION?r=104
 install.packages(sqldf_0.4_7, contriburl=NULL, type="source")
 
-CPUs <- 2
+CPUs <- 8
 
 #load project custom built functions
 source("./CODE/myfun.R")
 
 #read in food inspections records from SODA URL
-source("./CODE/liveReadInFoodInspections.R")
+#source("./CODE/liveReadInFoodInspections.R")
 
 #read in busines licenses 
-source("./CODE/liveReadInBusinessLicense.R")
+source("./CODE/liveReadInBusinessLicense.R") 
 
 #filter to food inspections with a valid license number
 foodInspect <- subset(foodInspect, license_ %in% business$license_number)
 
-
+## Side-load intermediate data for test
+# foodInspect <- read.csv("./DATA/foodInspect-intermediate.csv")
 
 #get location, name, and license info from business license data
 foodInspect <- sqldf("
@@ -94,15 +95,17 @@ foodInspect <- sqldf("
                      on (a.license_ = b.license_number and
                      ((a.inspection_date <= b.expiration_date and
                      a.inspection_date >= b.license_start_date) or
-                     (a.inspection_date <b.license_start_date and
+                     (a.inspection_date < b.license_start_date and
                      b.license_start_date = a.minDate) or
-                     (a.inspection_date >b.expiration_date and
+                     (a.inspection_date > b.expiration_date and
                      b.expiration_date = a.maxDate))
                      )
                      
                      
                      ", method="name__class")
-
+# foodInspect_business_merge <- "./DATA/foodInspect-business-merge.csv"
+# write.csv(foodInspect, file=foodInspect_business_merge)
+# foodInspect <- read.csv(foodInspect_business_merge)
 
 foodInspect <- subset(foodInspect,!is.na(latitude) & !is.na(longitude))
 
