@@ -64,11 +64,16 @@ source("./CODE/addPast.R")
 
 
 #subset to data to time period
+## Time period for model training
+# foodInspect <- subset(foodInspect, 
+#                       inspection_date < as.POSIXct(strptime("09/01/2013",format="%m/%d/%Y")) & 
+#                         inspection_date >= as.POSIXct(strptime("09/01/2011",format="%m/%d/%Y"))
+# )
+## Time period for results
 foodInspect <- subset(foodInspect, 
-                      inspection_date < as.POSIXct(strptime("09/01/2013",format="%m/%d/%Y")) & 
-                        inspection_date >= as.POSIXct(strptime("09/01/2011",format="%m/%d/%Y"))
+                      inspection_date < as.POSIXct(strptime("09/01/2014",format="%m/%d/%Y")) & 
+                        inspection_date >= as.POSIXct(strptime("10/31/2014",format="%m/%d/%Y"))
 )
-
 
 
 
