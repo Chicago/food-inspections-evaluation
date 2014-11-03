@@ -1,4 +1,5 @@
 /FoodInspectionEvaluation.zip
 /.project
-.Rproj.user
-.Rproj
+*.Rproj.user
+*.Rproj
+food-inspections-evaluation.Rproj
