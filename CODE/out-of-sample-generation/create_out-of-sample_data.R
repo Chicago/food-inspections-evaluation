@@ -22,7 +22,7 @@ CPUs <- 8
 source("./CODE/myfun.R")
 
 #read in food inspections records from SODA URL
-source("./CODE/liveReadInFoodInspections.R")
+source("./CODE/out-of-sample-generation/liveReadInFoodInspectionsLatest.R")
 
 #read in busines licenses 
 source("./CODE/liveReadInBusinessLicense.R") 
@@ -126,8 +126,6 @@ foodInspect$ageAtInspection <- pmin(as.integer(foodInspect$inspection_date - foo
 foodInspect <- subset(foodInspect, licenseRecord=="Between")
 foodInspect$licenseRecord <- NULL
 
-
-
 #turn some character fields into 'factor' data types
 lapply(c("facility_type","risk","results"),FUN= function(x) {
   foodInspect[,x] <<- factor(foodInspect[,x],levels=names(table(foodInspect[,x])[order(-table(foodInspect[,x]))]))
@@ -198,12 +196,4 @@ source("./CODE/liveReadInGarbageCarts.R")
 foodInspect$heat_garbage <- merge_heat(events=garbageCarts, dateCol="creation_date", window=30, nGroups=CPUs)
 rm(garbageCarts)
 
-load('./DATA/partitions.Rdata')
-
-train <- subset(foodInspect, paste(inspection_id, license_, sep = "_") %in% partitions[['train']])
-tune <- subset(foodInspect, paste(inspection_id, license_, sep = "_") %in% partitions[['tune']])
-evaluate <- subset(foodInspect, paste(inspection_id, license_, sep = "_") %in% partitions[['evaluate']])
-
-
-rm(list = setdiff(ls(),c('train','tune','evaluate')))
 save(list=ls(),file="./DATA/recreated_training_data_20141103v02.Rdata")
