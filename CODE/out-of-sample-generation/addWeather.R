@@ -1,5 +1,8 @@
 
-load("./DATA/weather.Rdata")
+weather <- read.csv("./DATA/weather-update.csv")
+weather$date <- as.POSIXct(strptime(weather$date, format="%m/%d/%y"))
+weather <- subset(weather, date < as.POSIXct("2014-10-31") &
+                    date >= as.POSIXct("2014-08-28"))
 
 n <- nrow(weather)
 weather <- weather[n:1,]
@@ -10,10 +13,8 @@ threeDay <- threeDay / 3
 threeDay$date <- weather$date[1:(n-3)]
 
 food_license <- foodInspect[,c("license_","inspection_date")]
-food_license$date <- as.Date(food_license$inspection_date)
-food_license$row <- sapply(1:nrow(food_license), function(row) which(threeDay$date==food_license$date[row]))
+food_license$date <- food_license$inspection_date
 
-
-foodInspect <- cbind(foodInspect,threeDay[food_license$row,colnames(threeDay)!="date"])
+food_license$row <- match(food_license$date, threeDay$date)
 
 rm(food_license, threeDay, n, weather); gc()
