@@ -22,7 +22,7 @@ CPUs <- 8
 source("./CODE/myfun.R")
 
 #read in food inspections records from SODA URL
-#source("./CODE/liveReadInFoodInspections.R")
+source("./CODE/liveReadInFoodInspections.R")
 
 #read in busines licenses 
 source("./CODE/liveReadInBusinessLicense.R") 
@@ -206,4 +206,4 @@ evaluate <- subset(foodInspect, paste(inspection_id, license_, sep = "_") %in% p
 
 
 rm(list = setdiff(ls(),c('train','tune','evaluate')))
-save(list=ls(),file="./DATA/recreated_training_data_20141103v01.Rdata")
+save(list=ls(),file="./DATA/recreated_training_data_20141103v02.Rdata")
