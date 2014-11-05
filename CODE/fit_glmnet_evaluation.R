@@ -149,10 +149,10 @@ mm <- model.matrix(myFormula, data=rbind(train_w_inspector[,all.vars(myFormula)]
                                          tune_w_inspector[,all.vars(myFormula)],
                                          test_w_inspector[,all.vars(myFormula)]))
 
-## THese columns have no data
-mm <- mm[ , !colnames(mm) %in% c("Inspector.AssignedBrian Turkaly", 
-                                 #     "I(ifelse(ageAtInspection > 4, 1, 0))",
-                                 "Inspector.AssignedOther")]
+# ## THese columns have no data
+# mm <- mm[ , !colnames(mm) %in% c("Inspector.AssignedBrian Turkaly", 
+#                                  #     "I(ifelse(ageAtInspection > 4, 1, 0))",
+#                                  "Inspector.AssignedOther")]
 
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
 net <- glmnet(x=mm[1:nrow(train),-1],y=mm[1:nrow(train),1],
@@ -195,8 +195,9 @@ mm <- model.matrix(myFormula, data=evaluate_w_inspector)
 
 # score the inspector model on the 700 pilot inspections
 # evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,-1], s=lam, type="response"))
-rm_j <- which(colnames(mm)%in%c("Inspector.AssignedOther","Inspector.AssignedBrian Turkaly"))
-evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,-c(1, rm_j)], s=lam, type="response"))
+jj <- intersect(colnames(mm), dimnames(net$beta)[[1]])
+evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,jj], 
+                                                          s=lam, type="response"))
 
 #train data average violation rate
 mean(train$criticalFound)
@@ -211,15 +212,22 @@ gini(evaluate_w_inspector$pred_inspector, evaluate_w_inspector$criticalFound, pl
 
 
 hist(tune_w_inspector$glm_pred)
-boxplot(tune_w_inspector$results, tune_w_inspector$glm_pred)
+# boxplot(tune_w_inspector$criticalFound, tune_w_inspector$glm_pred)
+# plot(tune_w_inspector$glm_pred, tune_w_inspector$criticalFound)
 boxplot(evaluate_w_inspector$pass_flag, evaluate_w_inspector$pred_inspector)
 hist(evaluate_w_inspector$pred_inspector)
 
 evaluate_w_inspector$pass_flag <- as.factor(evaluate_w_inspector$pass_flag)
 tune_w_inspector$pass_flag <- as.factor(tune_w_inspector$pass_flag)
 
-ggplot(evaluate_w_inspector) + aes(y=pred_inspector, x=pass_flag, fill=pass_flag) + geom_boxplot()
-ggplot(tune_w_inspector) + aes(y=glm_pred, x=pass_flag, fill=pass_flag) + geom_boxplot()
+ggplot(evaluate_w_inspector) + aes(y=pred_inspector, x=as.factor(criticalFound), 
+                                   fill=as.factor(criticalFound)) + geom_boxplot()
+quantile(evaluate_w_inspector$pred_inspector, .5)
+sapply(split(evaluate_w_inspector$pred_inspector, evaluate_w_inspector$criticalFound),
+       quantile, .5)
+
+ggplot(tune_w_inspector) + aes(y=glm_pred, x=as.factor(criticalFound), 
+                               fill=as.factor(criticalFound)) + geom_boxplot()
 
 lattice::bwplot( ~ pred_inspector | pass_flag, data = evaluate_w_inspector, layout = c(1,2), fill = "salmon")
 lattice::bwplot( ~ glm_pred | pass_flag, data = tune_w_inspector, layout = c(1,2), fill = "salmon")
@@ -238,8 +246,6 @@ ggplot(reshape2::melt(as.data.table(confusion_values_tune),
                       id.vars="r")) + 
     aes(x=r, y=value, colour=variable) + geom_line() + 
     geom_hline(yintercept = c(0,1))
-
-
 
 ## Calculate confusion matrix values for evaluate
 calculate_confusion_values(actual = evaluate_w_inspector$criticalFound,
