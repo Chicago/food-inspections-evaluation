@@ -4,7 +4,8 @@ library(ggplot2)
 library(glmnet)
 
 # workspace from creating the train/tune/evaluate data sets
-load("./DATA/original_training_data_20141129v01.Rdata")
+load("./DATA/original_training_data_20140129v01.Rdata")  ## ORIGINAL (WORKED)
+# load("./DATA/original_training_data_20141129v01.Rdata")
 # load("./DATA/recreated_training_data_20141031v01.Rdata")
 
 # rename the evaluate dataset to 'test'
@@ -12,7 +13,10 @@ test <- evaluate
 rm(evaluate)
 
 #loading evaluation data from pilot
-load("./DATA/pilot_evaluation_20140404v01.Rdata")
+load("./DATA/pilot_evaluation_20140404v01.Rdata") ## ORIGINAL WORKED
+# evaluate <- readRDS("./DATA/recreated_evaluate_data_20141104v01.Rds")  ## TOM's FILE
+# colnames(evaluate) <- gsub("license_","license_number",colnames(evaluate))
+
 evaluate$criticalFound <- 0
 colnames(evaluate) <- gsub("risk.x","risk",colnames(evaluate), fixed=TRUE)
 colnames(evaluate) <- gsub("facility_type.x","facility_type",colnames(evaluate), fixed=TRUE)
@@ -150,7 +154,11 @@ gini <- function(p,y, plot=FALSE){
 
 
 # see what regularization parameter 'lambda' is optimal on tune set
-errors <- sapply(net$lambda, function(lam) logLik(p=as.numeric(predict(net, newx=mm[(nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector)),-1], s=lam, type="response")), y=mm[(nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector)),1]))
+ii <-  (nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector))
+errors <- sapply(net$lambda, 
+                 function(lam) 
+                     logLik(p = as.numeric(predict(net, newx = mm[ii,-1], s=lam, type="response")), 
+                            y = mm[ii ,1]))
 plot(x=log(net$lambda), y=errors, type="l")
 
 
