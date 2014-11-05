@@ -9,6 +9,7 @@ library(glmnet)
 library(data.table)
 source("CODE/functions/gini.R")
 source("CODE/functions/logLik.R")
+source("CODE/functions/calculate_confusion_values.R")
 
 ##------------------------------------------------------------------------------
 ## LOAD DATA
@@ -28,6 +29,7 @@ rm(evaluate)
 ## Loading evaluation data from pilot
 # load("./DATA/pilot_evaluation_20140404v01.Rdata") ## ORIGINAL WORKED
 evaluate <- as.data.table(readRDS("./DATA/recreated_evaluate_data_20141104v01.Rds"))  ## TOM's FILE
+evaluate <- droplevels(evaluate)
 setnames(evaluate, "license_", "license_number")
 evaluate[ , criticalFound := 0]
 
@@ -75,10 +77,15 @@ inspectors_old$N <- NULL
 setkey(inspectors_new, License.Number, Inspection.Date)
 setkey(inspectors_old, License.Number, Inspection.Date)
 
-lvl_new <- c(sort(names(table(inspectors_new$Inspector.Assigned))),"Other")
-lvl_old <- c(sort(names(table(inspectors_old$Inspector.Assigned))),"Other")
-inspectors_new[,Inspector.Assigned := factor(Inspector.Assigned, levels = lvl_new)]
-inspectors_old[,Inspector.Assigned := factor(Inspector.Assigned, levels = lvl_old)]
+# lvl_new <- c(sort(names(table(inspectors_new$Inspector.Assigned))),"Other")
+# lvl_old <- c(sort(names(table(inspectors_old$Inspector.Assigned))),"Other")
+# inspectors_new[,Inspector.Assigned := factor(Inspector.Assigned, levels = lvl_new)]
+# inspectors_old[,Inspector.Assigned := factor(Inspector.Assigned, levels = lvl_old)]
+lvl_all <- c(sort(unique(c(inspectors_new$Inspector.Assigned, 
+                           inspectors_old$Inspector.Assigned))),
+             "Other")
+inspectors_new[,Inspector.Assigned := factor(Inspector.Assigned, levels = lvl_all)]
+inspectors_old[,Inspector.Assigned := factor(Inspector.Assigned, levels = lvl_all)]
 
 
 # clean up facility license number to do the merge
@@ -146,8 +153,6 @@ mm <- model.matrix(myFormula, data=rbind(train_w_inspector[,all.vars(myFormula)]
 mm <- mm[ , !colnames(mm) %in% c("Inspector.AssignedBrian Turkaly", 
                                  #     "I(ifelse(ageAtInspection > 4, 1, 0))",
                                  "Inspector.AssignedOther")]
-colnames(mm)
-str(mm)
 
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
 net <- glmnet(x=mm[1:nrow(train),-1],y=mm[1:nrow(train),1],
@@ -177,7 +182,8 @@ coef[!grepl("^Inspector.Assigned",names(coef))]
 
 
 # show gini performance of inspector model on tune data set
-tune_w_inspector$glm_pred <- as.numeric(predict(net, newx=mm[(nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector)),-1], s=lam, type="response"))
+ii = (nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector))
+tune_w_inspector$glm_pred <- as.numeric(predict(net, newx=mm[ii,-1], s=lam, type="response"))
 gini(tune_w_inspector$glm_pred,tune_w_inspector$criticalFound, plot=TRUE)
 
 
@@ -188,29 +194,73 @@ evaluate_w_inspector$criticalFound <- 0
 mm <- model.matrix(myFormula, data=evaluate_w_inspector)
 
 # score the inspector model on the 700 pilot inspections
-summary(mm[,-1])
-evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,-1], s=lam, type="response"))
-
-
+# evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,-1], s=lam, type="response"))
+rm_j <- which(colnames(mm)%in%c("Inspector.AssignedOther","Inspector.AssignedBrian Turkaly"))
+evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,-c(1, rm_j)], s=lam, type="response"))
 
 #train data average violation rate
 mean(train$criticalFound)
 
-
-evaluate_w_inspector$criticalFound <- ifelse(evaluate_w_inspector$criticalCount>0, 1L, 0L)
 #actual results
-with(evaluate_w_inspector, mean(criticalFound[type %in% c('test','both')])) 
-with(evaluate_w_inspector, mean(criticalFound[type %in% c('control','both')]))
+evaluate_w_inspector$criticalFound <- ifelse(evaluate_w_inspector$criticalCount>0, 1L, 0L)
+mean(evaluate_w_inspector$criticalFound)
 
-#predicted results (based on zipcode rather than inspector)
-with(evaluate_w_inspector, mean(prediction[type %in% c('test','both')])) 
-with(evaluate_w_inspector, mean(prediction[type %in% c('control','both')]))
-
-
-#predicted results using inspector rather than zip
-with(evaluate_w_inspector, mean(pred_inspector[type %in% c('test','both')])) 
-with(evaluate_w_inspector, mean(pred_inspector[type %in% c('control','both')]))
+mean(evaluate_w_inspector$pred_inspector)
+gini(evaluate_w_inspector$pred_inspector, evaluate_w_inspector$criticalFound, plot=TRUE)
 
 
 
-#projected lift cuts in half on these 700 pilot inspections when accounting for sanitarian rather than zip
+hist(tune_w_inspector$glm_pred)
+boxplot(tune_w_inspector$results, tune_w_inspector$glm_pred)
+boxplot(evaluate_w_inspector$pass_flag, evaluate_w_inspector$pred_inspector)
+hist(evaluate_w_inspector$pred_inspector)
+
+evaluate_w_inspector$pass_flag <- as.factor(evaluate_w_inspector$pass_flag)
+tune_w_inspector$pass_flag <- as.factor(tune_w_inspector$pass_flag)
+
+ggplot(evaluate_w_inspector) + aes(y=pred_inspector, x=pass_flag, fill=pass_flag) + geom_boxplot()
+ggplot(tune_w_inspector) + aes(y=glm_pred, x=pass_flag, fill=pass_flag) + geom_boxplot()
+
+lattice::bwplot( ~ pred_inspector | pass_flag, data = evaluate_w_inspector, layout = c(1,2), fill = "salmon")
+lattice::bwplot( ~ glm_pred | pass_flag, data = tune_w_inspector, layout = c(1,2), fill = "salmon")
+
+
+## Calculate confusion matrix values for tune
+calculate_confusion_values(actual = tune_w_inspector$criticalFound,
+                           expected = tune_w_inspector$glm_pred, 
+                           r = .25)
+confusion_values_tune <- t(sapply(seq(0, 1 ,.01), 
+                                  calculate_confusion_values,
+                                  actual = tune_w_inspector$criticalFound,
+                                  expected = tune_w_inspector$glm_pred))
+confusion_values_tune
+ggplot(reshape2::melt(as.data.table(confusion_values_tune), 
+                      id.vars="r")) + 
+    aes(x=r, y=value, colour=variable) + geom_line() + 
+    geom_hline(yintercept = c(0,1))
+
+
+
+## Calculate confusion matrix values for evaluate
+calculate_confusion_values(actual = evaluate_w_inspector$criticalFound,
+                           expected = evaluate_w_inspector$pred_inspector, 
+                           r = .25)
+confusion_values_eval <- t(sapply(seq(0, 1 ,.01), 
+                                  calculate_confusion_values,
+                                  actual = evaluate_w_inspector$criticalFound,
+                                  expected = evaluate_w_inspector$pred_inspector))
+confusion_values_eval
+ggplot(reshape2::melt(as.data.table(confusion_values_eval), 
+                      id.vars="r")) + 
+    aes(x=r, y=value, colour=variable) + geom_line() + 
+    geom_hline(yintercept = c(0,1))
+
+
+
+
+
+
+
+
+
+
