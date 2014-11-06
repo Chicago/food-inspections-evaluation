@@ -1,12 +1,32 @@
 This repository contains the necessary data and scripts to evaluate the effectiveness of the City of Chicago's food inspections pilot. This repository contains the training data and evaluation data.
 
-# Important FIles
+## Important FIles
 + ```./CODE/recreating_training_data.R``` - Generates training data from September 2011 through January 2014.
 + ```./CODE/out-of-sample-generation/create_out-of-sample_data.R``` - Generates out-of-sample data to evaluate the effectiveness of the model.
 + ```./CODE/fit_glmnet.R``` - fits the analytical model, generates coefficients.
 + ```./OUT/evaluation-summary.html``` - summarizes the findings of the program's evaluation. This was created with knitr and the underlying analytics can be seen in ```./OUT/evaluation-summary.R```.
 
-# License
+## Running files
+
+### Generating training data
+Execute ```recreating_training_data.R``` to generate training data:
+```shell
+Rscript /path/to/food-inspections-evaluation/CODE/recreating_training_data.R
+```
+
+### Generating evaluation / out-of-sample data
+Execute ```create_out-of-sample_data.R``` to generate the out-of-sample data used for the evaluation:
+```shell
+Rscript /path/to/food-inspections-evaluation/CODE/out-of-sample-generation/recreating_training_data.R
+```
+
+### Generating evaluation / out-of-sample data
+Execute ```fit_glmnet_evaluation.R``` to generate the out-of-sample data used for the evaluation:
+```shell
+Rscript /path/to/food-inspections-evaluation/CODE/fit_glmnet_evaluation.R
+```
+
+## License
 Copyright, 2014 City of Chicago
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
