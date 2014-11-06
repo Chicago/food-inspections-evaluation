@@ -6,15 +6,15 @@ library(snowfall)
 library(sqldf) #Current version is incompatible with 3.0.x
 
 # Install and load older SQLDF library 
-install.packages('chron')
-install.packages('proto')
-install.packages('gsubfn')
-DBI_0.2_5 <- "http://cran.r-project.org/src/contrib/Archive/DBI/DBI_0.2-5.tar.gz" # Compatible with RSQLite_0.9.1
-RSQLite_0.9_1 <- "http://cran.r-project.org/src/contrib/Archive/RSQLite/RSQLite_0.9-1.tar.gz" # This version is compatible with sqldf_0.4_7.1
-install.packages('RSQLite.exfuns')
-install.packages(RSQLite_0.8_0, contriburl=NULL, type="source")
-sqldf_0.4_6 <- "http://cran.r-project.org/src/contrib/Archive/sqldf/sqldf_0.4-6.tar.gz" # Compatible with R >= 2.14 https://code.google.com/p/sqldf/source/browse/trunk/DESCRIPTION?r=104
-install.packages(sqldf_0.4_7, contriburl=NULL, type="source")
+# install.packages('chron')
+# install.packages('proto')
+# install.packages('gsubfn')
+# DBI_0.2_5 <- "http://cran.r-project.org/src/contrib/Archive/DBI/DBI_0.2-5.tar.gz" # Compatible with RSQLite_0.9.1
+# RSQLite_0.9_1 <- "http://cran.r-project.org/src/contrib/Archive/RSQLite/RSQLite_0.9-1.tar.gz" # This version is compatible with sqldf_0.4_7.1
+# install.packages('RSQLite.exfuns')
+# install.packages(RSQLite_0.8_0, contriburl=NULL, type="source")
+# sqldf_0.4_6 <- "http://cran.r-project.org/src/contrib/Archive/sqldf/sqldf_0.4-6.tar.gz" # Compatible with R >= 2.14 https://code.google.com/p/sqldf/source/browse/trunk/DESCRIPTION?r=104
+# install.packages(sqldf_0.4_7, contriburl=NULL, type="source")
 
 CPUs <- 8
 
