@@ -196,4 +196,4 @@ source("./CODE/liveReadInGarbageCarts.R")
 foodInspect$heat_garbage <- merge_heat(events=garbageCarts, dateCol="creation_date", window=30, nGroups=CPUs)
 rm(garbageCarts)
 
-save(list=ls(),file="./DATA/recreated_training_data_20141103v02.Rdata")
+saveRDS(foodInspect, file='./DATA/recreated_evaluate_data_20141105v01.Rds')

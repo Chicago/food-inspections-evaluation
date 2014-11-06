@@ -28,7 +28,7 @@ rm(evaluate)
 
 ## Loading evaluation data from pilot
 # load("./DATA/pilot_evaluation_20140404v01.Rdata") ## ORIGINAL WORKED
-evaluate <- as.data.table(readRDS("./DATA/recreated_evaluate_data_20141104v01.Rds"))  ## TOM's FILE
+evaluate <- as.data.table(readRDS("./DATA/recreated_evaluate_data_20141105v01.Rds"))  ## TOM's FILE
 evaluate <- droplevels(evaluate)
 setnames(evaluate, "license_", "license_number")
 evaluate[ , criticalFound := 0]
