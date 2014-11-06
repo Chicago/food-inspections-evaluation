@@ -1,3 +1,5 @@
+# Food inspection forecasting evaluation
+
 This repository contains the necessary data and scripts to evaluate the effectiveness of the City of Chicago's food inspections pilot. This repository contains the training data and evaluation data.
 
 ## Important FIles
@@ -25,6 +27,9 @@ Execute ```fit_glmnet_evaluation.R``` to generate the out-of-sample data used fo
 ```shell
 Rscript /path/to/food-inspections-evaluation/CODE/fit_glmnet_evaluation.R
 ```
+
+### Compatibility
+These files currently use several packages that are compatible with R >= 3.1. You may experience issues using older versions of R, including 3.0.x and 2.x.
 
 ## License
 Copyright, 2014 City of Chicago
