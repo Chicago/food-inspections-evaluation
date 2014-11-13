@@ -18,8 +18,11 @@ geneorama::sourceDir("functions/")
 mytoken <- "NCxdKMXKT2fPVvmZQnCdziPel"  ## gmail account
 mytoken <- "YPSdn0B006OmWzSQkhIBpDc0R"  ## city account
 
-multi <- FALSE
-# multi <- TRUE
+# multi <- FALSE
+multi <- TRUE
+if(multi){
+    geneorama::loadinstall_libraries(c("doMC", "parallel", "iterators"))
+}
 
 ##==============================================================================
 ## DOWNLOAD FILES FROM DATA PORTAL AS CSV
@@ -29,7 +32,7 @@ chi_dp_downloader(db="r5kz-chrr", outdir = "data/bus_license", multicore=multi,
 chi_dp_downloader(db="ijzp-q8t2", outdir = "data/crime", multicore=multi, 
                   apptoken=mytoken, useaskey="id")
 chi_dp_downloader(db="4ijn-s7e5", outdir = "data/food_inspections", multicore=multi, 
-                  apptoken=mytoken, useaskey="inspection_id")
+                  apptoken=mytoken, useaskey="inspection_id", rowlimit=25000)
 chi_dp_downloader(db="9ksk-na4q", outdir = "data/garbage_carts", multicore=multi, 
                   apptoken=mytoken, useaskey="service_request_number")
 chi_dp_downloader(db="me59-5fac", outdir = "data/sanitation_code", multicore=multi, 
