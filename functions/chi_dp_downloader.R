@@ -34,6 +34,8 @@ chi_dp_downloader <- function(db, apptoken="NCxdKMXKT2fPVvmZQnCdziPel",
     } else {
         q_all_parts <- paste(q_apptoken, q_limit, q_offset, q_order, sep = "&")
     }
+    ## Take out offset of zero
+    q_all_parts <- gsub("&$offset=0", "", q_all_parts)
     ## Combine parts
     queries <- paste0(url_base, q_all_parts)
     
