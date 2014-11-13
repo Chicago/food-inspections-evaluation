@@ -1,11 +1,26 @@
+##==============================================================================
+## INITIALIZE
+##==============================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+## Check for dependencies
+if(!"geneorama" %in% rownames(installed.packages())){
+    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
+    devtools::install_github('geneorama/geneorama')}
+## Load libraries
+geneorama::detach_nonstandard_packages()
+geneorama::loadinstall_libraries(c("geneorama", "ggplot2", "glmnet")))
+sourceDir("functions/")
+
+##==============================================================================
+## Load data
+##==============================================================================
+# setwd('C:/Users/scolm/Desktop/FOOD_INSPECTIONS')
 list.files()
 
-library(ggplot2)
-library(glmnet)
-
 # workspace from creating the train/tune/evaluate data sets
-load("./DATA/original_training_data_20140129v01.Rdata")  ## ORIGINAL (WORKED)
-# load("./DATA/original_training_data_20141129v01.Rdata")
+load("./DATA_ORIGINAL/original_training_data_20140129v01.Rdata")
 # load("./DATA/recreated_training_data_20141031v01.Rdata")
 
 # rename the evaluate dataset to 'test'
@@ -13,17 +28,19 @@ test <- evaluate
 rm(evaluate)
 
 #loading evaluation data from pilot
-load("./DATA/pilot_evaluation_20140404v01.Rdata") ## ORIGINAL WORKED
-# evaluate <- readRDS("./DATA/recreated_evaluate_data_20141104v01.Rds")  ## TOM's FILE
-# colnames(evaluate) <- gsub("license_","license_number",colnames(evaluate))
+load("./DATA_ORIGINAL/pilot_evaluation_20140404v01.Rdata")
 
+##==============================================================================
+## Manipulate data
+##==============================================================================
 evaluate$criticalFound <- 0
+
 colnames(evaluate) <- gsub("risk.x","risk",colnames(evaluate), fixed=TRUE)
 colnames(evaluate) <- gsub("facility_type.x","facility_type",colnames(evaluate), fixed=TRUE)
 
 
 # read in inspector id, to fit model by inspector
-inspectors <-read.csv("./DATA/InspectionsGarrisonExport20112014.csv", stringsAsFactors=FALSE)
+inspectors <-read.csv("./DATA_ORIGINAL/InspectionsGarrisonExport20112014.csv", stringsAsFactors=FALSE)
 inspectors <- inspectors[inspectors$Inspection.Purpose=="Canvass",c("License.Number","Inspector.Assigned","Inspection.Date")]
 
 
@@ -33,11 +50,11 @@ inspectors <- subset(inspectors, nchar(License.Number) > 3 & Inspector.Assigned 
 
 #thinking letters out front, and numbers trailing hyphen are not needed (e.g. -1006 I believe is the code for retail food license)
 inspectors$License.Number <- sapply(regmatches(inspectors$License.Number,regexec("[0-9]{4,}",inspectors$License.Number)),function(v) {
-  if (length(v)<=1) {
-    return(v)
-  } else {
-    return(v[1])
-  }
+    if (length(v)<=1) {
+        return(v)
+    } else {
+        return(v[1])
+    }
 })
 
 #cleaning any leading zeros
@@ -60,53 +77,53 @@ evaluate$License.Number <- gsub("^[0]+","",evaluate$license_number)
 
 
 train_w_inspector <- merge(
-  x=train,
-  y=inspectors,
-  by.x=c("License.Number","inspection_date"),
-  by.y=c("License.Number","Inspection.Date"),
-  all.x=FALSE,
-  all.y=FALSE)
+    x=train,
+    y=inspectors,
+    by.x=c("License.Number","inspection_date"),
+    by.y=c("License.Number","Inspection.Date"),
+    all.x=FALSE,
+    all.y=FALSE)
 
 tune_w_inspector <- merge(
-  x=tune,
-  y=inspectors,
-  by.x=c("License.Number","inspection_date"),
-  by.y=c("License.Number","Inspection.Date"),
-  all.x=FALSE,
-  all.y=FALSE)
+    x=tune,
+    y=inspectors,
+    by.x=c("License.Number","inspection_date"),
+    by.y=c("License.Number","Inspection.Date"),
+    all.x=FALSE,
+    all.y=FALSE)
 
 test_w_inspector <- merge(
-  x=test,
-  y=inspectors,
-  by.x=c("License.Number","inspection_date"),
-  by.y=c("License.Number","Inspection.Date"),
-  all.x=FALSE,
-  all.y=FALSE)
+    x=test,
+    y=inspectors,
+    by.x=c("License.Number","inspection_date"),
+    by.y=c("License.Number","Inspection.Date"),
+    all.x=FALSE,
+    all.y=FALSE)
 
 evaluate_w_inspector <- merge(
-  x=evaluate,
-  y=inspectors,
-  by.x=c("License.Number","inspection_date"),
-  by.y=c("License.Number","Inspection.Date"),
-  all.x=FALSE,
-  all.y=FALSE)
+    x=evaluate,
+    y=inspectors,
+    by.x=c("License.Number","inspection_date"),
+    by.y=c("License.Number","Inspection.Date"),
+    all.x=FALSE,
+    all.y=FALSE)
 
 
 
 # glm model formula
 myFormula <- ~ -1 + criticalFound + Inspector.Assigned +
-  I(ifelse(pastSerious > 0, 1L, 0L)) + 
-  I(ifelse(ageAtInspection > 4, 1L, 0L)) + 
-  I(ifelse(pastCritical > 0, 1L, 0L)) + 
-  consumption_on_premises_incidental_activity + 
-  tobacco_retail_over_counter +
-  temperatureMax + 
-  I(pmin(heat_sanitation, 70)) +
-  I(pmin(heat_garbage, 50)) + 
-  I(pmin(heat_burglary, 70)) + 
-  risk +
-  facility_type +
-  timeSinceLast 
+    I(ifelse(pastSerious > 0, 1L, 0L)) + 
+    I(ifelse(ageAtInspection > 4, 1L, 0L)) + 
+    I(ifelse(pastCritical > 0, 1L, 0L)) + 
+    consumption_on_premises_incidental_activity + 
+    tobacco_retail_over_counter +
+    temperatureMax + 
+    I(pmin(heat_sanitation, 70)) +
+    I(pmin(heat_garbage, 50)) + 
+    I(pmin(heat_burglary, 70)) + 
+    risk +
+    facility_type +
+    timeSinceLast 
 
 
 # make design matrix for glmnet using all train, tune, test data (will subset to train only in call to fit)
@@ -120,45 +137,13 @@ net <- glmnet(x=mm[1:nrow(train),-1],y=mm[1:nrow(train),1],
               penalty.factor=ifelse(grepl("^Inspector.Assigned",colnames(mm)),1,0))
 
 
-# function to calculate the binomial likelihood
-logLik <- function(p,y) {
-  p <- pmin(pmax(p,0.0000000000001),0.999999999999)
-  -sum(y*log(p) + (1-y)*log(1-p))
-}
 
 
-# function to calculate the normalized gini coeficient
-gini <- function(p,y, plot=FALSE){
-  sorted <- cbind(p,y)
-  y.val <- sum(y)
-  sorted <- cbind(sorted[order(-p),-1],c(1:y.val,rep(y.val,nrow(sorted)-y.val)))
-  sorted <- cbind(sorted,cumsum(sorted[,1]))
-  sorted <- cbind(sorted,cumsum(rep(y.val/length(y),length(y))))
-  csum <- colSums(sorted[,2:4])
-  gini <- (csum[2]-csum[3])/(csum[1]-csum[3])
-  
-  if (plot){
-    plot(
-      x=1:nrow(sorted)/nrow(sorted),
-      y=sorted[,3]/y.val,
-      main="Cummulative Captured",
-      xlab="% Investigated",
-      ylab="% Captured")
-    lines(x=1:nrow(sorted)/nrow(sorted),y=sorted[,2]/y.val)
-    text(x=0.8,y=0.2,labels=paste("Gini: ",round(gini*100,1),"%",sep=""))
-    
-  }
-  gini
-}
 
 
 
 # see what regularization parameter 'lambda' is optimal on tune set
-ii <-  (nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector))
-errors <- sapply(net$lambda, 
-                 function(lam) 
-                     logLik(p = as.numeric(predict(net, newx = mm[ii,-1], s=lam, type="response")), 
-                            y = mm[ii ,1]))
+errors <- sapply(net$lambda, function(lam) logLik(p=as.numeric(predict(net, newx=mm[(nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector)),-1], s=lam, type="response")), y=mm[(nrow(train_w_inspector)+1):(nrow(train_w_inspector)+nrow(tune_w_inspector)),1]))
 plot(x=log(net$lambda), y=errors, type="l")
 
 

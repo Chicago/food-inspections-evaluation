@@ -1,0 +1,29 @@
+## Crime database:
+https://data.cityofchicago.org/resource/ijzp-q8t2.json
+
+## Simple offset and limit example
+https://data.cityofchicago.org/resource/ijzp-q8t2.json?$limit=5&$offset=150
+
+## COUNT query
+https://data.cityofchicago.org/resource/ijzp-q8t2.json?$select=count(*)
+
+## Order by examples
+https://data.cityofchicago.org/resource/ijzp-q8t2.json?$limit=5&$offset=150&$order=date
+https://data.cityofchicago.org/resource/ijzp-q8t2.json?$limit=5&$offset=150&$order=id
+
+
+## Using app token
+https://data.cityofchicago.org/resource/ijzp-q8t2.json?$$app_token=NCxdKMXKT2fPVvmZQnCdziPel
+https://data.cityofchicago.org/resource/ijzp-q8t2.json?$$app_token=NCxdKMXKT2fPVvmZQnCdziPel&$limit=5
+
+gleynes@gmail.com
+
+App token:    NCxdKMXKT2fPVvmZQnCdziPel
+Secret token: DN45wNgWHBfHq5eStzuLl4TYRvFabtJGAcx2
+
+Name 			FoodInsp_coc_2014
+Description 	Private food inspection app development
+App Token 		YPSdn0B006OmWzSQkhIBpDc0R
+Secret Token 	rG9b7MnJI0HxotbeEBiyKSiAF5hI207ShKrp
+
+
