@@ -29,7 +29,26 @@ sanitationComplaints <- readRDS("DATA/sanitation_code_filtered.Rds")
 ##==============================================================================
 ## FOOD INSPECTIONS
 ##==============================================================================
-#omit records with a missing inspection date
+
+## Add a 19 prefix to any License for "schools"
+## The 19 works as a prefix because the max license is under 100m
+## The 19 is symbolic of "s" for school
+# range(foodInspect$License)
+# range(foodInspect$License+1.9e8)
+# foodInspect[,.N,list(Facility_Type)][order(N),Facility_Type]
+# school_fields <- 
+#     c("School", "COLLEGE", "ALTERNATIVE SCHOOL", "School Cafeteria",
+#       "AFTER SCHOOL PROGRAM", "after school program", "UNIVERSITY CAFETERIA", 
+#       "1023 CHILDERN'S SERVICE S FACILITY", "RESEARCH KITCHEN", 
+#       "A-Not-For-Profit Chef Training Program", "COLLEGE", "SCHOOL", 
+#       "daycare under 2 and daycare above 2", "CULINARY ARTS SCHOOL", 
+#       "1023-CHILDREN'S SERVICES FACILITY", "Private School", 
+#       "CITY OF CHICAGO COLLEGE", "BEFORE AND AFTER SCHOOL PROGRAM", 
+#       "PASTRY school", "PUBLIC SHCOOL", "1023 CHILDERN'S SERVICES FACILITY", 
+#       "DAYCARE", "Children's Services Facility", "Daycare (2 Years)", 
+#       "Daycare (Under 2 Years)", "Daycare Above and Under 2 Years", 
+#       "Daycare Combo 1586", "Daycare (2 - 6 Years)")
+# foodInspect[Facility_Type %in% school_fields, License := License+1.9e8]
 
 ## Tabluate voilation types
 ## 1) Split violoation description by "|"
@@ -73,13 +92,7 @@ foodInspect[i = TRUE ,
 foodInspect[ , firstRecord := 0]
 foodInspect[is.na(timeSinceLast), firstRecord := 1]
 foodInspect[is.na(timeSinceLast), timeSinceLast := 2]
-# hist(foodInspect$timeSinceLast)
-# foodInspect[, timeSinceLast := pmin(timeSinceLast, 2)]
-# hist(foodInspect$timeSinceLast)
-
-# foodInspect[License==40]
-# foodInspect[License==62]
-# foodInspect[License==104]
+foodInspect[, timeSinceLast := pmin(timeSinceLast, 2)]
 
 ##==============================================================================
 ## ATTACH BUSINESS LICENSE DATA
@@ -87,45 +100,10 @@ foodInspect[is.na(timeSinceLast), timeSinceLast := 2]
 
 business[ , WP :=paste("w",WARD,"p",PRECINCT,sep="_")]
 
+# fid <- foodInspect[!License %in% business[,unique(LICENSE_NUMBER)], License] 
+# business[fid-1.9e8, geneorama::inin(fid-1.9e8, LICENSE_NUMBER)]
 
-## Matching food licenses in business:
-# inin(foodInspect$License, business$LICENSE_NUMBER)
-# table(unique(foodInspect$License) %in% business$LICENSE_NUMBER)
-# found <- unique(foodInspect$License)[unique(foodInspect$License) %in% business$LICENSE_NUMBER]
-# notfound <- unique(foodInspect$License)[!unique(foodInspect$License) %in% business$LICENSE_NUMBER]
-# set.seed(1);clipper(sample(found)[1:10])
-# set.seed(1);clipper(sample(notfound)[1:10])
-# rm(found, notfound)
-
-
-# load("DATA_ORIGINAL/original_training_data_20140129v01.Rdata")
-# inin(train$license_, found)
-# inin(train$license_, notfound)
-# train[train$license_==notfound[1]]
-
-# train[grep("104", train$license_),]
-# train[train$license_=="104",]
-
-# range(foodInspect$Inspection_Date)
-# range(business$DATE_ISSUED)
-# range(business$APPLICATION_CREATED_DATE, na.rm=T)
-# range(business$DATE_ISSUED, na.rm=T)
-# range(business$LICENSE_STATUS_CHANGE_DATE, na.rm=T)
-
-business[,.N,LICENSE_NUMBER]
-foodInspect[License=="349"]
-business[LICENSE_NUMBER=="349"]
-foodInspect[License=="1593938"]
-business[LICENSE_NUMBER=="1593938"]
-foodInspect[License=="1892716"]
-business[LICENSE_NUMBER=="1892716"]
-foodInspect[License=="18236"]
-business[LICENSE_NUMBER=="18236"]
-
-bus <- business[LICENSE_TERM_START_DATE < LICENSE_TERM_EXPIRATION_DATE, LICENSE_NUMBER]
-fd <- foodInspect[,License] 
-length(unique(bus))
-geneorama::inin(bus, fd)
+business[,.N,LICENSE_DESCRIPTION][order(N)][,LICENSE_DESCRIPTION]
 
 ## Merge over time periods
 dat <- foverlaps(foodInspect[i = TRUE,
@@ -141,13 +119,16 @@ dat <- foverlaps(foodInspect[i = TRUE,
                  mult="first", 
                  type="any", nomatch=NA)
 str(dat)
-
+geneorama::NAsummary(dat)
 dat[,table(is.na(ID))]
 
+setkey(dat, License)
 business[,list(minDate=min(DATE_ISSUED),
-               maxDate=max(LICENSE_TERM_EXPIRATION_DATE),
-               payment_date=min(PAYMENT_DATE),
-               license_start_date=min(LICENSE_TERM_START_DATE))]
+                   maxDate=max(LICENSE_TERM_EXPIRATION_DATE),
+                   payment_date=min(PAYMENT_DATE),
+                   license_start_date=min(LICENSE_TERM_START_DATE)),
+             keyby=LICENSE_NUMBER][dat]
+
 
 business[,list(SSA), list(License=LICENSE_NUMBER), mult="first"]
 business[,.N, list(License=LICENSE_NUMBER, SSA)]
