@@ -20,11 +20,11 @@ geneorama::sourceDir("functions/")
 ##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-business <- readRDS("data/bus_license_filtered.Rds")
-crime <-  readRDS("data/crime_filtered.Rds")
-foodInspect <- readRDS("data/food_inspections_filtered.Rds")
-garbageCarts <- readRDS("data/garbage_carts_filtered.Rds")
-sanitationComplaints <- readRDS("data/sanitation_code_filtered.Rds")
+business <- readRDS("DATA/bus_license_filtered.Rds")
+crime <-  readRDS("DATA/crime_filtered.Rds")
+foodInspect <- readRDS("DATA/food_inspections_filtered.Rds")
+garbageCarts <- readRDS("DATA/garbage_carts_filtered.Rds")
+sanitationComplaints <- readRDS("DATA/sanitation_code_filtered.Rds")
 
 ##==============================================================================
 ## FOOD INSPECTIONS

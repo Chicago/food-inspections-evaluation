@@ -17,11 +17,11 @@ geneorama::loadinstall_libraries(c("data.table"))
 ##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-business <- readRDS("data/bus_license.Rds")
-crime <-  readRDS("data/crime.Rds")
-foodInspect <- readRDS("data/food_inspections.Rds")
-garbageCarts <- readRDS("data/garbage_carts.Rds")
-sanitationComplaints <- readRDS("data/sanitation_code.Rds")
+business <- readRDS("DATA/bus_license.Rds")
+crime <-  readRDS("DATA/crime.Rds")
+foodInspect <- readRDS("DATA/food_inspections.Rds")
+garbageCarts <- readRDS("DATA/garbage_carts.Rds")
+sanitationComplaints <- readRDS("DATA/sanitation_code.Rds")
 
 ##==============================================================================
 ## BUSINESS
@@ -29,7 +29,7 @@ sanitationComplaints <- readRDS("data/sanitation_code.Rds")
 business <- business[!is.na(LICENSE_TERM_START_DATE)]
 business <- business[!is.na(LICENSE_TERM_EXPIRATION_DATE)]
 business <- business[!(APPLICATION_TYPE %in% c("C_CAPA","C_SBA"))]
-saveRDS(business, "data/bus_license_filtered.Rds")
+saveRDS(business, "DATA/bus_license_filtered.Rds")
 
 ##==============================================================================
 ## CRIME
@@ -37,7 +37,7 @@ saveRDS(business, "data/bus_license_filtered.Rds")
 crime <- crime[Date>as.IDate('2011-07-01')]
 crime <- crime[!(is.na(Latitude) | is.na(Longitude) | is.na(Date))]
 crime <- crime[Primary_Type=="BURGLARY"]
-saveRDS(crime, "data/crime_filtered.Rds")
+saveRDS(crime, "DATA/crime_filtered.Rds")
 
 ##==============================================================================
 ## FOOD INSPECTIONS
@@ -47,7 +47,7 @@ foodInspect <- foodInspect[!duplicated(Inspection_ID)]
 foodInspect <- foodInspect[License != 0]
 foodInspect <- foodInspect[Inspection_Date > as.IDate("2011-09-01")]
 foodInspect <- foodInspect[Inspection_Type == "Canvass"]
-saveRDS(foodInspect, "data/food_inspections_filtered.Rds")
+saveRDS(foodInspect, "DATA/food_inspections_filtered.Rds")
 
 ##==============================================================================
 ## garbage subsets
@@ -55,7 +55,7 @@ saveRDS(foodInspect, "data/food_inspections_filtered.Rds")
 garbageCarts <- garbageCarts[!is.na(Latitude) & !is.na(Longitude) & !is.na(Creation_Date)]
 garbageCarts <- garbageCarts[Status %in% c("Completed", "Open")]
 # garbageCarts$status <- NULL
-saveRDS(garbageCarts, "data/garbage_carts_filtered.Rds")
+saveRDS(garbageCarts, "DATA/garbage_carts_filtered.Rds")
 
 ##==============================================================================
 ## sanitation subsets
@@ -63,6 +63,6 @@ saveRDS(garbageCarts, "data/garbage_carts_filtered.Rds")
 sanitationComplaints <- sanitationComplaints[!is.na(Latitude) & !is.na(Longitude) & !is.na(Creation_Date)]
 sanitationComplaints <- sanitationComplaints[Status %in% c("Completed", "Open")]
 # sanitationComplaints$status <- NULL
-saveRDS(sanitationComplaints, "data/sanitation_code_filtered.Rds")
+saveRDS(sanitationComplaints, "DATA/sanitation_code_filtered.Rds")
 
 
