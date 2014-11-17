@@ -119,35 +119,24 @@ dat <- foverlaps(foodInspect[i = TRUE,
                  mult="first", 
                  type="any", nomatch=NA)
 str(dat)
-geneorama::NAsummary(dat)
-dat[,table(is.na(ID))]
-
+if(FALSE){
+    ## Luckily the restaurants with missing business data mostly appear to have
+    ## lower counts of critical and serious violations
+    geneorama::NAsummary(dat)
+    dat[,table(is.na(ID))]
+    dat[i = TRUE,
+        j = list(mean_critical = mean(criticalCount), sd_critical = sd(criticalCount),
+                 mean_serious = mean(seriousCount), sd_serious = sd(seriousCount),
+                 mean_minor = mean(minorCount), sd_minor = sd(minorCount)), 
+        is.na(ID)]
+}
+dat <- dat[!is.na(ID)]
 setkey(dat, License)
-business[,list(minDate=min(DATE_ISSUED),
-                   maxDate=max(LICENSE_TERM_EXPIRATION_DATE),
-                   payment_date=min(PAYMENT_DATE),
-                   license_start_date=min(LICENSE_TERM_START_DATE)),
-             keyby=LICENSE_NUMBER][dat]
 
+dat[,.N, LICENSE_DESCRIPTION]
+business[,.N, LICENSE_DESCRIPTION]
 
-business[,list(SSA), list(License=LICENSE_NUMBER), mult="first"]
-business[,.N, list(License=LICENSE_NUMBER, SSA)]
-
-NAsummary(business)
-nrow(foodInspect)
-temp <- merge(foodInspect, all.y=F,
-              business[,list(.N), list(License=LICENSE_NUMBER, SSA)], 
-              by="License")
-nrow(temp)
-nrow(foodInspect)
-nrow(business)
-
-merge(foodInspect, business[,list(SSA, License=LICENSE_ID)], by="License")
-merge(foodInspect, 
-      business[,list(SSA), keyby=list(License=LICENSE_ID)], 
-      by="License")
-
-
+geneorama::lll()
 
 
 
