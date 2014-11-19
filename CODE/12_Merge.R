@@ -18,9 +18,11 @@ geneorama::loadinstall_libraries(c("data.table"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES
+## DEFINE GLOBAL VARIABLES / MANUAL CODE
 ##==============================================================================
 DataDir <- "DATA/20141110"
+
+weather <- as.data.frame(read.csv("DATA/20141031_weather/weather-update.csv"))
 
 ##==============================================================================
 ## LOAD CACHED RDS FILES
@@ -165,7 +167,6 @@ dat
 ## ATTACH WEATHER DATA
 ##==============================================================================
 
-weather <- as.data.frame(read.csv("DATA/weather-update.csv"))
 nr <- nrow(weather)
 weather <- weather[nr:1,]
 threeDay <- weather[2:(nr-2), colnames(weather) != "date"] + 
