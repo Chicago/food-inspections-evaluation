@@ -100,6 +100,10 @@ foodInspect[, timeSinceLast := pmin(timeSinceLast, 2)]
 
 business[ , WP :=paste("w",WARD,"p",PRECINCT,sep="_")]
 
+
+business[ , minDate := min(LICENSE_TERM_START_DATE), LICENSE_NUMBER]
+business[ , maxDate := max(LICENSE_TERM_EXPIRATION_DATE), LICENSE_NUMBER]
+
 # fid <- foodInspect[!License %in% business[,unique(LICENSE_NUMBER)], License] 
 # business[fid-1.9e8, geneorama::inin(fid-1.9e8, LICENSE_NUMBER)]
 
@@ -131,8 +135,11 @@ if(FALSE){
         is.na(ID)]
 }
 dat <- dat[!is.na(ID)]
+dat[ , Inspection_Date_end := NULL]
 dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
 
+## Calculate age at inspection
+dat[,ageAtInspection := as.numeric(Inspection_Date - minDate) / 365]
 
 ## CALCULATE AND MERGE IN OTHER CATEGORIES
 OtherCategories <- GenerateOtherLicenseInfo(dat, business, max_cat = 12)
@@ -146,9 +153,42 @@ for (j in match(colnames(OtherCategories)[-1], colnames(dat))) {
     set(x = dat, i = which(is.na(dat[[j]])), j = j, value = 0)
     set(x = dat, j = j, value = pmin(dat[[j]], 1))
 }
-
+dat
 # geneorama::wtf(dat)
 
+##==============================================================================
+## ATTACH WEATHER DATA
+##==============================================================================
+
+weather <- as.data.frame(read.csv("DATA/weather-update.csv"))
+nr <- nrow(weather)
+weather <- weather[nr:1,]
+threeDay <- weather[2:(nr-2), colnames(weather) != "date"] + 
+    weather[3:(nr - 1), colnames(weather) != "date"] +
+    weather[4:(nr - 0), colnames(weather) != "date"] 
+threeDay <- threeDay / 3
+threeDay$date <- weather$date[1:(nr-3)]
+
+threeDay <- as.data.table(threeDay)
+threeDay[ , date := as.IDate(date, format="%m/%d/%y")]
+setnames(threeDay, 'date', "Inspection_Date")
+setkey(threeDay, Inspection_Date)
+
+head(threeDay)
+
+class(dat$Inspection_Date)
+class(threeDay$Inspection_Date)
+
+dat <- merge(dat, threeDay, by="Inspection_Date")
+
+rm(threeDay, nr, weather)
+gc()
+
+
+##==============================================================================
+## ATTACH CRIME DATA
+##==============================================================================
+foodInspect$heat_burglary <- merge_heat(events=burglary, dateCol="date", window=90, nGroups=CPUs)
 
 
 
