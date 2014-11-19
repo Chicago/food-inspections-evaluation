@@ -192,5 +192,21 @@ geneorama::inin(bus, fd)
 rm(bus, fd)
 
 
+##==============================================================================
+## LICENSE DESCRIPTIONS
+##==============================================================================
+dat[,.N, LICENSE_DESCRIPTION][order(-N)]
+dat[,.N, LICENSE_DESCRIPTION][order(LICENSE_DESCRIPTION)]
+business[,.N, LICENSE_DESCRIPTION][order(-N)]
+
+business[,.N, LICENSE_DESCRIPTION][order(LICENSE_DESCRIPTION)][grep("fill|gas", LICENSE_DESCRIPTION, ignore.case=T)]
+foodInspect[,.N, Facility_Type][order(Facility_Type)][grep("fill|gas", Facility_Type, ignore.case=T)]
+
+business[,.N, LICENSE_DESCRIPTION][order(LICENSE_DESCRIPTION)]
+business[,.N, LICENSE_DESCRIPTION][order(N)]
+business[,.N, LICENSE_DESCRIPTION][order(-N)][1:15]
+business[,.N, LICENSE_DESCRIPTION][order(-N)][1:100]
+foodInspect[,.N, Facility_Type][order(-N)][1:100]
+
 
 

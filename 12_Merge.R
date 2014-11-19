@@ -141,9 +141,10 @@ setkey(dat, Inspection_ID)
 dat <- merge(dat, OtherCategories, all.x = T)
 dat
 
-## Remove NAs in category columns
+## Remove NAs in category columns and set max value to 1
 for (j in match(colnames(OtherCategories)[-1], colnames(dat))) {
-    set(dat, which(is.na(dat[[j]])),j,0)
+    set(x = dat, i = which(is.na(dat[[j]])), j = j, value = 0)
+    set(x = dat, j = j, value = pmin(dat[[j]], 1))
 }
 
 # geneorama::wtf(dat)
