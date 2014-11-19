@@ -103,7 +103,7 @@ business[ , WP :=paste("w",WARD,"p",PRECINCT,sep="_")]
 # fid <- foodInspect[!License %in% business[,unique(LICENSE_NUMBER)], License] 
 # business[fid-1.9e8, geneorama::inin(fid-1.9e8, LICENSE_NUMBER)]
 
-business[,.N,LICENSE_DESCRIPTION][order(N)][,LICENSE_DESCRIPTION]
+# business[,.N,LICENSE_DESCRIPTION][order(N)][,LICENSE_DESCRIPTION]
 
 ## Merge over time periods
 dat <- foverlaps(foodInspect[i = TRUE,
@@ -131,12 +131,24 @@ if(FALSE){
         is.na(ID)]
 }
 dat <- dat[!is.na(ID)]
-setkey(dat, License)
+dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
 
-dat[,.N, LICENSE_DESCRIPTION]
-business[,.N, LICENSE_DESCRIPTION]
 
-geneorama::lll()
+## CALCULATE AND MERGE IN OTHER CATEGORIES
+OtherCategories <- GenerateOtherLicenseInfo(dat, business, max_cat = 12)
+setkey(OtherCategories, Inspection_ID)
+setkey(dat, Inspection_ID)
+dat <- merge(dat, OtherCategories, all.x = T)
+dat
+
+## Remove NAs in category columns
+for (j in match(colnames(OtherCategories)[-1], colnames(dat))) {
+    set(dat, which(is.na(dat[[j]])),j,0)
+}
+
+# geneorama::wtf(dat)
+
+
 
 
 
