@@ -14,7 +14,7 @@ if(!"geneorama" %in% rownames(installed.packages())){
 ## Load libraries
 geneorama::detach_nonstandard_packages()
 # geneorama::loadinstall_libraries(c("geneorama", "data.table"))
-geneorama::loadinstall_libraries(c("data.table", "glmnet"))
+geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
@@ -131,87 +131,21 @@ xmat$glm_pred <- as.numeric(predict(net, newx=mm[, -(1:2)],
 xmat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 dat[iiTest, gini(glm_pred, criticalCount, plot=TRUE)]
 
+## Calculate confusion matrix values for evaluation
+calculate_confusion_values(actual = xmat[iiTest, criticalFound],
+                           expected = xmat[iiTest, glm_pred], 
+                           r = .25)
 
-
-# evaluate_w_inspector$criticalFound <- 0
-# 
-# # make design matrix for scoring
-# mm <- model.matrix(myFormula, data=evaluate_w_inspector)
-# 
-# # score the inspector model on the 700 pilot inspections
-# # evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,-1], s=lam, type="response"))
-# jj <- intersect(colnames(mm), dimnames(net$beta)[[1]])
-# evaluate_w_inspector$pred_inspector <- as.numeric(predict(net, newx=mm[,jj], 
-#                                                           s=lam, type="response"))
-# 
-# #train data average violation rate
-# mean(train$criticalFound)
-# 
-# #actual results
-# evaluate_w_inspector$criticalFound <- ifelse(evaluate_w_inspector$criticalCount>0, 1L, 0L)
-# mean(evaluate_w_inspector$criticalFound)
-# 
-# mean(evaluate_w_inspector$pred_inspector)
-# gini(evaluate_w_inspector$pred_inspector, evaluate_w_inspector$criticalFound, plot=TRUE)
-# 
-# 
-# 
-# hist(tune_w_inspector$glm_pred)
-# # boxplot(tune_w_inspector$criticalFound, tune_w_inspector$glm_pred)
-# # plot(tune_w_inspector$glm_pred, tune_w_inspector$criticalFound)
-# boxplot(evaluate_w_inspector$pass_flag, evaluate_w_inspector$pred_inspector)
-# hist(evaluate_w_inspector$pred_inspector)
-# 
-# evaluate_w_inspector$pass_flag <- as.factor(evaluate_w_inspector$pass_flag)
-# tune_w_inspector$pass_flag <- as.factor(tune_w_inspector$pass_flag)
-# 
-# ggplot(evaluate_w_inspector) + aes(y=pred_inspector, x=as.factor(criticalFound), 
-#                                    fill=as.factor(criticalFound)) + geom_boxplot()
-# quantile(evaluate_w_inspector$pred_inspector, .5)
-# sapply(split(evaluate_w_inspector$pred_inspector, evaluate_w_inspector$criticalFound),
-#        quantile, .5)
-# 
-# ggplot(tune_w_inspector) + aes(y=glm_pred, x=as.factor(criticalFound), 
-#                                fill=as.factor(criticalFound)) + geom_boxplot()
-# 
-# lattice::bwplot( ~ pred_inspector | pass_flag, data = evaluate_w_inspector, layout = c(1,2), fill = "salmon")
-# lattice::bwplot( ~ glm_pred | pass_flag, data = tune_w_inspector, layout = c(1,2), fill = "salmon")
-# 
-# 
-# ## Calculate confusion matrix values for tune
-# calculate_confusion_values(actual = tune_w_inspector$criticalFound,
-#                            expected = tune_w_inspector$glm_pred, 
-#                            r = .25)
-# confusion_values_tune <- t(sapply(seq(0, 1 ,.01), 
-#                                   calculate_confusion_values,
-#                                   actual = tune_w_inspector$criticalFound,
-#                                   expected = tune_w_inspector$glm_pred))
-# confusion_values_tune
-# ggplot(reshape2::melt(as.data.table(confusion_values_tune), 
-#                       id.vars="r")) + 
-#     aes(x=r, y=value, colour=variable) + geom_line() + 
-#     geom_hline(yintercept = c(0,1))
-# 
-# ## Calculate confusion matrix values for evaluate
-# calculate_confusion_values(actual = evaluate_w_inspector$criticalFound,
-#                            expected = evaluate_w_inspector$pred_inspector, 
-#                            r = .25)
-# confusion_values_eval <- t(sapply(seq(0, 1 ,.01), 
-#                                   calculate_confusion_values,
-#                                   actual = evaluate_w_inspector$criticalFound,
-#                                   expected = evaluate_w_inspector$pred_inspector))
-# confusion_values_eval
-# ggplot(reshape2::melt(as.data.table(confusion_values_eval), 
-#                       id.vars="r")) + 
-#     aes(x=r, y=value, colour=variable) + geom_line() + 
-#     geom_hline(yintercept = c(0,1))
-# 
-# 
-
-
-
-
-
+## Calculate matrix of confusion matrix values for evaluation
+confusion_values_test <- t(sapply(seq(0, 1 ,.01), 
+                                  calculate_confusion_values,
+                                  actual = xmat[iiTest, criticalFound],
+                                  expected = xmat[iiTest, glm_pred]))
+confusion_values_test
+ggplot(reshape2::melt(as.data.table(confusion_values_test), 
+                      id.vars="r")) + 
+    aes(x=r, y=value, colour=variable) + geom_line() + 
+    geom_hline(yintercept = c(0,1))
 
 
 

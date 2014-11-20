@@ -55,7 +55,7 @@ inspectors_new <- inspectors_new[Inspection.Purpose=="Canvass",
 
 ## Cleaning up the merge key of License.Number
 
-## Thinking letters out front, and numbers trailing hyphen are not needed 
+## Removing letters out front, and numbers trailing hyphen are not needed 
 ## (e.g. -1006 I believe is the code for retail food license)
 inspectors_new[ , License.Number := gsub('[A-z]+|-.+$', "", License.Number)]
 inspectors_old[ , License.Number := gsub('[A-z]+|-.+$', "", License.Number)]
