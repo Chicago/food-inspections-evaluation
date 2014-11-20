@@ -281,8 +281,63 @@ heat_garbage <- rbindlist(lapply(II, function(ii) {
                              h = c(.01, .01)),
                       keyby = Inspection_ID]}))
 
+## Merge in results of heat calculations:
+setnames(heat_burglary, "V1", "heat_burglary")
+setnames(heat_garbage, "V1", "heat_garbage")
+setnames(heat_sanitation, "V1", "heat_sanitation")
+setkey(dat, Inspection_ID)
+setkey(heat_burglary, Inspection_ID)
+setkey(heat_garbage, Inspection_ID)
+setkey(heat_sanitation, Inspection_ID)
+dat <- dat[heat_burglary][heat_garbage][heat_sanitation]
+rm(heat_burglary, heat_garbage, heat_sanitation)
 
 
+inspectors_old<- as.data.table(read.csv("./DATA/20130830/InspectionsGarrisonExport20112014.csv", 
+                                        stringsAsFactors=FALSE))
+inspectors_new <- as.data.table(read.csv("DATA/20141105_GarrisonUpdate/InspectionsGarrisonExport20141105.csv",
+                                stringsAsFactors=FALSE))
+inspectors_new$RowLabels <- NULL
+setnames(inspectors_old, c("DBA", "Address", "License", "License_Type",
+                           "Inspector_Assigned", "Inspection_Date", "Inspection_Purpose"))
+setnames(inspectors_new, c("DBA", "Address", "License", "License_Type",
+                           "Inspector_Assigned", "Inspection_Date", "Inspection_Purpose"))
+inspectors_old[ , origin := paste0("old_", sprintf("%06.0f", 1:nrow(inspectors_old)))]
+inspectors_new[ , origin := paste0("new_", sprintf("%06.0f", 1:nrow(inspectors_new)))]
+inspectors_old[ , Inspection_Date := as.IDate(Inspection_Date, format="%m/%d/%Y")]
+inspectors_new[ , Inspection_Date := as.IDate(Inspection_Date)]
+inspectors_old[ , range(Inspection_Date)]
+inspectors_new[ , range(Inspection_Date)]
+inspectors <- rbind(inspectors_new, inspectors_old)
+rm(inspectors_new, inspectors_old)
+
+## Removing letters out front, and numbers trailing hyphen are not needed 
+## (e.g. -1006 I believe is the code for retail food license)
+inspectors[ , License := gsub('[A-z]+|-.+$', "", License)]
+## cleaning any leading zeros
+inspectors[ , License := gsub('^[0]+', "", License)]
+## removing possibly invalid license numbers
+inspectors <- inspectors[nchar(License) > 3 & Inspector_Assigned != " "]
+## if multiple inspections for same license number, then seeking the inspector 
+## on the first inspection
+inspectors <- inspectors[ , .N, by=list(License, Inspection_Date, Inspector_Assigned)]
+inspectors$N <- NULL
+## Convert to integer to match 
+inspectors[ , License := as.integer(License)]
+setkey(inspectors, License, Inspection_Date)
+setkey(dat, License, Inspection_Date)
+
+
+dat_w_inspector <- merge(
+    x = dat,
+    y = inspectors,
+    by = c("License","Inspection_Date"),
+    all.x = FALSE,
+    all.y = FALSE)
+dim(dat_w_inspector)
+
+dat_w_inspector
+saveRDS(dat_w_inspector, file.path(DataDir, "dat_with_inspector.Rds"))
 
 
 
