@@ -14,7 +14,7 @@ if(!"geneorama" %in% rownames(installed.packages())){
 ## Load libraries
 geneorama::detach_nonstandard_packages()
 # geneorama::loadinstall_libraries(c("geneorama", "data.table"))
-geneorama::loadinstall_libraries(c("data.table"))
+geneorama::loadinstall_libraries(c("data.table", "MASS"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
@@ -22,7 +22,10 @@ geneorama::sourceDir("CODE/functions/")
 ##==============================================================================
 DataDir <- "DATA/20141110"
 
-weather <- as.data.frame(read.csv("DATA/20141031_weather/weather-update.csv"))
+weather_data_old <- "DATA/20130830/weather.Rdata"
+weather_data_new <- "DATA/20141031_weather/weather-update.csv"
+
+
 
 ##==============================================================================
 ## LOAD CACHED RDS FILES
@@ -32,6 +35,19 @@ crime <-  readRDS(file.path(DataDir, "crime_filtered.Rds"))
 foodInspect <- readRDS(file.path(DataDir, "food_inspections_filtered.Rds"))
 garbageCarts <- readRDS(file.path(DataDir, "garbage_carts_filtered.Rds"))
 sanitationComplaints <- readRDS(file.path(DataDir, "sanitation_code_filtered.Rds"))
+
+load(weather_data_old)
+weather_new <- as.data.frame(read.csv(weather_data_new, stringsAsFactors = FALSE))
+
+## FIX FOOD INSPECTIONS LATITUDE
+## (THIS SHOULD HAPPEN IN THE 10 IMPORT STEP)
+foodInspect[ , Latitude := as.numeric(Latitude)]
+## FIX SANITATION LATITUDE
+## (THIS SHOULD HAPPEN IN THE 10 IMPORT STEP)
+sanitationComplaints[ , Latitude := as.numeric(Latitude)]
+## FIX GARBAGE CART LATITUDE
+## (THIS SHOULD HAPPEN IN THE 10 IMPORT STEP)
+garbageCarts[ , Latitude := as.numeric(Latitude)]
 
 ##==============================================================================
 ## FOOD INSPECTIONS
@@ -161,11 +177,22 @@ for (j in match(colnames(OtherCategories)[-1], colnames(dat))) {
     set(x = dat, j = j, value = pmin(dat[[j]], 1))
 }
 dat
-# geneorama::wtf(dat)
 
 ##==============================================================================
 ## ATTACH WEATHER DATA
 ##==============================================================================
+# load(weather_data_old)
+# weather_new <- as.data.frame(read.csv(weather_data_new, stringsAsFactors = FALSE))
+
+str(weather)
+str(weather_new)
+weather$date <- as.IDate(weather$date)
+weather_new$date <- as.IDate(weather_new$date, format="%m/%d/%y")
+weather <- weather[order(weather$date), ]
+weather[nrow(weather), ]
+weather_new[1, ]
+weather <- rbind(weather, weather_new[-1, ])
+rm(weather_new)
 
 nr <- nrow(weather)
 weather <- weather[nr:1,]
@@ -194,7 +221,66 @@ gc()
 ##==============================================================================
 ## ATTACH CRIME DATA
 ##==============================================================================
-foodInspect$heat_burglary <- merge_heat(events=burglary, dateCol="date", window=90, nGroups=CPUs)
+
+WINDOW <- 90
+N <- nrow(dat)
+PAGE <- 500
+II <- mapply(`:`, seq(1,N,PAGE), c(seq(1,N,PAGE)[-1]-1,N))
+
+heat_burglary <- rbindlist(lapply(II, function(ii) {
+    print(paste(sys.call()[2], "out of", length(II)))
+    foverlaps(    
+        x = dat[i = ii, 
+                j = list(Inspection_ID, 
+                         Latitude, 
+                         Longitude), 
+                keyby = list(start = Inspection_Date - WINDOW, 
+                             end = Inspection_Date)],
+        y = crime[i = TRUE, 
+                  j = list(Latitude, Longitude),
+                  keyby = list(start = Date,  end = Date)],
+        type = "any")[ , kde(new=c(i.Latitude[1], i.Longitude[1]), 
+                             x = Latitude, 
+                             y = Longitude, 
+                             h = c(.01, .01)),
+                      keyby = Inspection_ID]}))
+
+heat_sanitation <- rbindlist(lapply(II, function(ii) {
+    print(paste(sys.call()[2], "out of", length(II)))
+    foverlaps(    
+        x = dat[i = ii, 
+                j = list(Inspection_ID, 
+                         Latitude, 
+                         Longitude), 
+                keyby = list(start = Inspection_Date - WINDOW, 
+                             end = Inspection_Date)],
+        y = sanitationComplaints[i = TRUE, 
+                                 j = list(Latitude, Longitude),
+                                 keyby = list(start = Creation_Date,  end = Creation_Date)],
+        type = "any")[ , kde(new=c(i.Latitude[1], i.Longitude[1]), 
+                             x = Latitude, 
+                             y = Longitude, 
+                             h = c(.01, .01)),
+                      keyby = Inspection_ID]}))
+
+heat_garbage <- rbindlist(lapply(II, function(ii) {
+    print(paste(sys.call()[2], "out of", length(II)))
+    foverlaps(    
+        x = dat[i = ii, 
+                j = list(Inspection_ID, 
+                         Latitude, 
+                         Longitude), 
+                keyby = list(start = Inspection_Date - WINDOW, 
+                             end = Inspection_Date)],
+        y = garbageCarts[i = TRUE, 
+                         j = list(Latitude, Longitude),
+                         keyby = list(start = Creation_Date,  end = Creation_Date)],
+        type = "any")[ , kde(new=c(i.Latitude[1], i.Longitude[1]), 
+                             x = Latitude, 
+                             y = Longitude, 
+                             h = c(.01, .01)),
+                      keyby = Inspection_ID]}))
+
 
 
 
