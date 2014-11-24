@@ -53,26 +53,6 @@ garbageCarts[ , Latitude := as.numeric(Latitude)]
 ## FOOD INSPECTIONS
 ##==============================================================================
 
-## Add a 19 prefix to any License for "schools"
-## The 19 works as a prefix because the max license is under 100m
-## The 19 is symbolic of "s" for school
-# range(foodInspect$License)
-# range(foodInspect$License+1.9e8)
-# foodInspect[,.N,list(Facility_Type)][order(N),Facility_Type]
-# school_fields <- 
-#     c("School", "COLLEGE", "ALTERNATIVE SCHOOL", "School Cafeteria",
-#       "AFTER SCHOOL PROGRAM", "after school program", "UNIVERSITY CAFETERIA", 
-#       "1023 CHILDERN'S SERVICE S FACILITY", "RESEARCH KITCHEN", 
-#       "A-Not-For-Profit Chef Training Program", "COLLEGE", "SCHOOL", 
-#       "daycare under 2 and daycare above 2", "CULINARY ARTS SCHOOL", 
-#       "1023-CHILDREN'S SERVICES FACILITY", "Private School", 
-#       "CITY OF CHICAGO COLLEGE", "BEFORE AND AFTER SCHOOL PROGRAM", 
-#       "PASTRY school", "PUBLIC SHCOOL", "1023 CHILDERN'S SERVICES FACILITY", 
-#       "DAYCARE", "Children's Services Facility", "Daycare (2 Years)", 
-#       "Daycare (Under 2 Years)", "Daycare Above and Under 2 Years", 
-#       "Daycare Combo 1586", "Daycare (2 - 6 Years)")
-# foodInspect[Facility_Type %in% school_fields, License := License+1.9e8]
-
 ## Tabluate voilation types
 ## 1) Split violoation description by "|"
 ## 2) use regex to extract leading digits of code number
@@ -85,8 +65,8 @@ vio_nums <- lapply(vio,
                                                           text = item)))
 vio_mat <- geneorama::list2matrix(vio_nums, count = T)
 vio_mat <- vio_mat[ , order(as.numeric(colnames(vio_mat)))]
-colnames(vio_mat)
-range(vio_mat)
+# colnames(vio_mat)
+# range(vio_mat)
 
 foodInspect$criticalCount <- apply(vio_mat[ , colnames(vio_mat) %in% 1:14], 1, sum)
 foodInspect$seriousCount <- apply(vio_mat[ , colnames(vio_mat) %in% 15:29], 1, sum)
@@ -103,7 +83,6 @@ foodInspect[ , pastFail := geneorama::shift(fail_flag, -1, 0), by = License]
 foodInspect[ , pastCritical := geneorama::shift(criticalCount, -1, 0), by = License]
 foodInspect[ , pastSerious := geneorama::shift(seriousCount, -1, 0), by = License]
 foodInspect[ , pastMinor := geneorama::shift(minorCount, -1, 0), by = License]
-
 
 ## Calcualte time since last inspection.
 ## If the time is NA, this means it's the first inspection; add an inicator 
@@ -127,11 +106,6 @@ business[ , WP :=paste("w",WARD,"p",PRECINCT,sep="_")]
 business[ , minDate := min(LICENSE_TERM_START_DATE), LICENSE_NUMBER]
 business[ , maxDate := max(LICENSE_TERM_EXPIRATION_DATE), LICENSE_NUMBER]
 
-# fid <- foodInspect[!License %in% business[,unique(LICENSE_NUMBER)], License] 
-# business[fid-1.9e8, geneorama::inin(fid-1.9e8, LICENSE_NUMBER)]
-
-# business[,.N,LICENSE_DESCRIPTION][order(N)][,LICENSE_DESCRIPTION]
-
 ## Merge over time periods
 dat <- foverlaps(foodInspect[i = TRUE,
                              j = .SD,
@@ -145,8 +119,10 @@ dat <- foverlaps(foodInspect[i = TRUE,
                                        LICENSE_TERM_EXPIRATION_DATE)], 
                  mult="first", 
                  type="any", nomatch=NA)
-str(dat)
+
 if(FALSE){
+    str(dat)
+    
     ## Luckily the restaurants with missing business data mostly appear to have
     ## lower counts of critical and serious violations
     geneorama::NAsummary(dat)
@@ -169,14 +145,13 @@ OtherCategories <- GenerateOtherLicenseInfo(dat, business, max_cat = 12)
 setkey(OtherCategories, Inspection_ID)
 setkey(dat, Inspection_ID)
 dat <- merge(dat, OtherCategories, all.x = T)
-dat
+# dat
 
 ## Remove NAs in category columns and set max value to 1
 for (j in match(colnames(OtherCategories)[-1], colnames(dat))) {
     set(x = dat, i = which(is.na(dat[[j]])), j = j, value = 0)
     set(x = dat, j = j, value = pmin(dat[[j]], 1))
 }
-dat
 
 ##==============================================================================
 ## ATTACH WEATHER DATA
@@ -184,13 +159,13 @@ dat
 # load(weather_data_old)
 # weather_new <- as.data.frame(read.csv(weather_data_new, stringsAsFactors = FALSE))
 
-str(weather)
-str(weather_new)
+# str(weather)
+# str(weather_new)
 weather$date <- as.IDate(weather$date)
 weather_new$date <- as.IDate(weather_new$date, format="%m/%d/%y")
 weather <- weather[order(weather$date), ]
 weather[nrow(weather), ]
-weather_new[1, ]
+# weather_new[1, ]
 weather <- rbind(weather, weather_new[-1, ])
 rm(weather_new)
 
@@ -207,16 +182,14 @@ threeDay[ , date := as.IDate(date, format="%m/%d/%y")]
 setnames(threeDay, 'date', "Inspection_Date")
 setkey(threeDay, Inspection_Date)
 
-head(threeDay)
+# head(threeDay)
 
-class(dat$Inspection_Date)
-class(threeDay$Inspection_Date)
+# class(dat$Inspection_Date)
+# class(threeDay$Inspection_Date)
 
 dat <- merge(dat, threeDay, by="Inspection_Date")
 
 rm(threeDay, nr, weather)
-gc()
-
 
 ##==============================================================================
 ## ATTACH CRIME DATA
@@ -292,6 +265,10 @@ setkey(heat_sanitation, Inspection_ID)
 dat <- dat[heat_burglary][heat_garbage][heat_sanitation]
 rm(heat_burglary, heat_garbage, heat_sanitation)
 
+##==============================================================================
+## ATTACH INSPECTOR DATA
+##==============================================================================
+
 
 inspectors_old<- as.data.table(read.csv("./DATA/20130830/InspectionsGarrisonExport20112014.csv", 
                                         stringsAsFactors=FALSE))
@@ -306,8 +283,8 @@ inspectors_old[ , origin := paste0("old_", sprintf("%06.0f", 1:nrow(inspectors_o
 inspectors_new[ , origin := paste0("new_", sprintf("%06.0f", 1:nrow(inspectors_new)))]
 inspectors_old[ , Inspection_Date := as.IDate(Inspection_Date, format="%m/%d/%Y")]
 inspectors_new[ , Inspection_Date := as.IDate(Inspection_Date)]
-inspectors_old[ , range(Inspection_Date)]
-inspectors_new[ , range(Inspection_Date)]
+# inspectors_old[ , range(Inspection_Date)]
+# inspectors_new[ , range(Inspection_Date)]
 inspectors <- rbind(inspectors_new, inspectors_old)
 rm(inspectors_new, inspectors_old)
 
@@ -334,9 +311,9 @@ dat_w_inspector <- merge(
     by = c("License","Inspection_Date"),
     all.x = FALSE,
     all.y = FALSE)
-dim(dat_w_inspector)
+# dim(dat_w_inspector)
 
-dat_w_inspector
+# dat_w_inspector
 saveRDS(dat_w_inspector, file.path(DataDir, "dat_with_inspector.Rds"))
 
 
