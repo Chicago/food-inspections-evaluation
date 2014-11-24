@@ -144,4 +144,24 @@ ggplot(reshape2::melt(as.data.table(confusion_values_test),
 
 
 
+dat[iiTest, range(Inspection_Date)]
+
+dat[iiTest, sum(criticalCount)]
+dat[iiTest, sum(criticalFound)]
+
+
+datTest <- dat[iiTest]
+datTest <- datTest[order(-glm_pred)]
+datTest[1:(nrow(datTest)/2), sum(criticalFound)]
+datTest[(nrow(datTest)/2):nrow(datTest), sum(criticalFound)]
+
+datTest <- datTest[order(Inspection_Date)]
+datTest[1:(nrow(datTest)/2), sum(criticalFound)]
+datTest[(nrow(datTest)/2):nrow(datTest), sum(criticalFound)]
+
+
+
+dat[ , period:=NA_real_]
+dat[iiTest][order(Inspection_Date)][1:(dat[iiTest][order(Inspection_Date)][,.N]/2)][ , period := 1]
+dat[iiTest][is.na(period)]
 
