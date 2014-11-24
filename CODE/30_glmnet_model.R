@@ -31,27 +31,17 @@ dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
 dat[,.N,is.na(heat_burglary)]
 dat <- dat[!is.na(heat_burglary)]
 
+## Add criticalFound variable to dat:
+dat[ , criticalFound := pmin(1, criticalCount)]
+
+## Set the key for dat
+setkey(dat, Inspection_ID)
 
 ##==============================================================================
-## LOAD CACHED RDS FILES
+## CREATE MODEL DATA
 ##==============================================================================
-## glm model formula
-# myFormula <- ~ -1 + criticalFound + Inspector.Assigned +
-#     I(ifelse(pastSerious > 0, 1L, 0L)) + 
-#     #   I(ifelse(ageAtInspection > 4, 1L, 0L)) + 
-#     I(ifelse(pastCritical > 0, 1L, 0L)) + 
-#     consumption_on_premises_incidental_activity + 
-#     tobacco_retail_over_counter +
-#     temperatureMax + 
-#     I(pmin(heat_sanitation, 70)) +
-#     I(pmin(heat_garbage, 50)) + 
-#     I(pmin(heat_burglary, 70)) + 
-#     risk +
-#     facility_type +
-#     timeSinceLast 
-
-sort(colnames(dat))
-xmat <- dat[ , list(criticalFound = pmin(1, criticalCount),
+# sort(colnames(dat))
+xmat <- dat[ , list(criticalFound,
                     Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
                     ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
@@ -78,6 +68,9 @@ mm <- model.matrix(MyFormula, data=xmat[,all.vars(MyFormula),with=F])
 str(xmat)
 str(mm)
 
+##==============================================================================
+## CREATE TEST / TRAIN PARTITIONS
+##==============================================================================
 ## 2014-07-01 is an easy separator
 dat[Inspection_Date < "2014-07-01", range(Inspection_Date)]
 dat[Inspection_Date > "2014-07-01", range(Inspection_Date)]
@@ -91,13 +84,16 @@ nrow(xmat)
 nrow(mm)
 dat[!Inspection_ID %in% mm[, "Inspection_ID"]]
 
+
+##==============================================================================
+## GLMNET MODEL
+##==============================================================================
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
 net <- glmnet(x = mm[iiTrain, -(1:2)],
               y = mm[iiTrain,  2],
               family = "binomial", 
               alpha = 0,
               penalty.factor = ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0))
-
 
 # see what regularization parameter 'lambda' is optimal on tune set
 errors <- sapply(net$lambda, 
@@ -109,8 +105,6 @@ errors <- sapply(net$lambda,
                             y = mm[iiTrain ,2]))
 plot(x=log(net$lambda), y=errors, type="l")
 
-
-
 which.min(errors)
 w.lam <- 100
 lam <- net$lambda[w.lam]
@@ -120,16 +114,17 @@ inspCoef <- inspCoef[order(-inspCoef)]
 head(inspCoef,10); tail(inspCoef,10)
 coef[!grepl("^Inspector.Assigned",names(coef))]
 
-
-# show gini performance of inspector model on tune data set
-dat$glm_pred <- as.numeric(predict(net, newx=mm[, -(1:2)], 
-                                   s=lam, 
-                                   type="response"))
+## ATTACH PREDICTIONS TO XMAT AND DAT
 xmat$glm_pred <- as.numeric(predict(net, newx=mm[, -(1:2)], 
                                     s=lam, 
                                     type="response"))
+dat$glm_pred <- as.numeric(predict(net, newx=mm[, -(1:2)], 
+                                   s=lam, 
+                                   type="response"))
+
+# show gini performance of inspector model on tune data set
 xmat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
-dat[iiTest, gini(glm_pred, criticalCount, plot=TRUE)]
+dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 
 ## Calculate confusion matrix values for evaluation
 calculate_confusion_values(actual = xmat[iiTest, criticalFound],
