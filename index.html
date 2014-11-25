@@ -1,266 +1,138 @@
-<html>
-	<head>
-	<!-- Define open source fonts -->
-	<link href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Rokkitt' rel='stylesheet' type='text/css'>
-	<style>
-	h1 {
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		box-sizing: content-box;
-		width: 50%;
-		position: relative;
-		right: 25%;
-		left: 25%;
-		padding: 1% 0;
-		border: 1px solid rgba(107,206,250,1);
-		border-left-style: none;
-		border-right-style: none;
-		font-family: Futura, Futura-Medium, "Futura Medium", "Century Gothic", CenturyGothic, "Apple Gothic", AppleGothic, "URW Gothic L", "Avant Garde", "Questrial" sans-serif;
-		font-size: 48px;
-		font-weight: 700;
-		color: rgba(0,0,0,1);
-		text-align: center;
-		-o-text-overflow: ellipsis;
-		text-overflow: ellipsis;
-	}
+<!DOCTYPE html>
+<html lang="en">
 
-	h2 {
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		box-sizing: content-box;
-		width: 66%;
-		float: left;
-		margin-left: 2%;
-		padding: 0 0;
-		border: 0 solid rgba(0,150,255,1);
-		border-top: 5px solid black;
-		font-family: Rockwell, "Rokkitt", "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-		font-size: 36px;
-		font-weight: 700;
-		color: black;
-		text-indent: 1%;
-		-o-text-overflow: ellipsis;
-		text-overflow: ellipsis;
-	}
+<head>
 
-	p {
-		text-indent: 2%;
-		margin: 0;
-	}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-	ul
-	{
-    	list-style-type: none;
-    	marin-top: 0;
-	}
+    <title>Forecasting critical violations</title>
 
-	li {
-		border-bottom: 2px solid rgba(107,206,250,1);
-		padding: 1% 2% 1% 2%;
-	}
+    <!-- Bootstrap Core CSS -->
+    <!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/portfolio-item.css" rel="stylesheet">
 
-	.left-box {
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		box-sizing: content-box;
-		float: left;
-		position: relative;
-		margin-left: 2%;
-		width: 45%;
-		border: none;
-		font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-		font-size: 24px;
-		text-align: justify;
-		color: black;
-	}
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
-	#left-list {
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		box-sizing: content-box;
-		float: left;
-		position: static;
-		margin-left: 2%;
-		width: 30%;
-		border: none;
-		font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-		font-size: 24px;
-		text-align: justify;
-		color: black;
-	}
+</head>
 
-	.right-box {
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		box-sizing: content-box;
-		float: right;
-		margin-right: 2%;
-		width: 60%;
-		border: none;
-		font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-		font-size: 24px;
-		text-align: justify;
-		color: black;
-	}
+<body>
 
-	.info-box {
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		box-sizing: content-box;
-		float: right;
-		margin-right: 2%;
-		width: 45%;
-		border: 5px solid rgba(107,206,250,1);
-		border-right: none;
-		border-left: none;
-		font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-		font-size: 62px;
-		font-weight: 400;
-		text-align: left;
-		color: rgba(107,206,250,1);
-		-o-text-overflow: ellipsis;
-		text-overflow: ellipsis;
-	}
-	
-	#big-number{
-		font-size: 120px;
-		font-weight: 900;
-		border: none;
-	}
-	
-	#number-byline{
-		font-size: 24px;
-		font-weight: 900;
-		border: none;
-	}
+<!-- Page Content -->
+<div class="container">
 
-	#number-byline-text{
-		font-size: 24px;
-		font-weight: 400px;
-		border: none;
-	}
+    <!-- Main Title -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 id="title">Forecasting Critical Violations</h1>
+        </div>
+    </div>
+    <!-- /.row -->
 
-	.text-span{
-		-webkit-box-sizing: content-box;
-		-moz-box-sizing: content-box;
-		box-sizing: content-box;
-		float: left;
-		margin-left: 2%;
-		margin-right: 2%;
-		width: auto;
-		border: none;
-		font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-		font-size: 24px;
-		text-align: justify;
-		color: black;
-	}
+    <!-- Intro Row -->
+    <div class="row">
 
-	.caption{
-		font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-		font-size: 18px;
-		font-weight: bold;
-		text-align: center;
-		color: black;
-		margin-top: 5%;
-		margin-bottom: none;
-	}
+        <div class="col-md-7">
+            <p>There are over 15,000 foot establishments across the City of Chicago that are subject to sanitation inspections by the Department of Public Health. Three dozen inspectors responsible for checkin these establishments, so one inspector is responsible for nearly 470 food establishments. Yet, the Department of Public Health has systematically collected the results nearly 100,000 sanitation inspections; meanwhile, other city departments have collected data on 311 campliants, business characteristics, and other information. With this information, the city's advanced analytics team and Department of Public Health teamed-up to forecast restaurants that are most likely to have critical violations so they are inspected first. The result is restaurants with critical violations are more likely to be discovered earlier by the Department of Public Health's inspectors.</p>
+        </div>
 
-	#tech-plan{
-		/*height: 50%;
-		width: 50%;*/
-		float: center;
-		padding-top: 30px;
-		content:url('img/tech-plan-c.png');
-	}
+        <div class="col-md-5">
+            <div class="info-box">
+                <div id="big-number">
+                    103%
+                </div>
+                <div id="number-byline">
+                    Improvements in time to discover restaurant with critical violations.
+                </div>
+                <div id="number-byline-text">
+                    Restaurants with critical violations will be discovered over two-times sooner than current methods.
+                </div>
+            </div>
+        </div>    
+    </div>
+    <!-- /.row -->
 
-/*	#data-portal{
-		content:url('img/data-portal.png');
-		float: right;
-	}*/
+    <!-- Forecasting Critical Violations Heading -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Forecasting Critical Violations</h2>
+        </div>
+    </div>
+    <!-- /.row -->
 
-	#data-portal{
-		width: 50%;
-		content: url('img/data-portal.png');
-		float: right;
-		padding-top: 0%;
-	}
+    <!-- Forecasting Critical Violations Row -->
+    <div class="row">
+        <div class="col-lg-12">
+            <p>A key finding of any food inspection is whether a restaurant commits a critical violation. These violations, which normally pertain to improper temperature control for food, are most susceptible to accomodating the start or spread of food borne illnesses. Just one critical violation will result in a failure and must be remedied by the food establishment to the satisfaction of the Department of Public Health.</p>
+        </div>   
+    </div>
+    <!-- /.row -->
 
-	#eval-diagram{
-		content:url('img/eval-diagram.png');
-		float: right;
-		padding-right: 10%;
-		padding-top: 3%;
-	}
+    <!-- Related Projects Row -->
+    <div class="row">
 
-	#bar-chart{
-		content:url('img/bar-chart.png');
-		float: left;
-		height: 30%;
-	}
+        <div class="col-lg-12">
+            <h3 class="page-header">Related Projects</h3>
+        </div>
 
-	</style>
-	</head>
-	<body>
-		<h1>FOOD INSPECTION <br /> FORECASTING</h1>
-		<div class="left-box">
-			There are over 15,000 foot establishments across the City of Chicago that are subject to sanitation inspections by the Department of Public Health. Three dozen inspectors responsible for checkin these establishments, so one inspector is responsible for nearly 470 food establishments. Yet, the Department of Public Health has systematically collected the results nearly 100,000 sanitation inspections; meanwhile, other city departments have collected data on 311 campliants, business characteristics, and other information. With this information, the city's advanced analytics team and Department of Public Health teamed-up to forecast restaurants that are most likely to have critical violations so they are inspected first. The result is restaurants with critical violations are more likely to be discovered earlier by the Department of Public Health's inspectors.
-		</div>
-		<div class="info-box">
-			<div id="big-number">
-				103%
-			</div>
-			<div id="number-byline">
-				Improvements in time to discover restaurant with critical violations.
-			</div>
-			<div id="number-byline-text">
-				Restaurants with critical violations will be discovered over two-times sooner than current methods.
-			</div>
-		</div>
-		<h2>Forecasting critical violations</h2>
-		<div class="text-span">
-			A key finding of any food inspection is whether a restaurant commits a critical violation. These violations, which normally pertain to improper temperature control for food, are most susceptible to accomodating the start or spread of food borne illnesses. Just one critical violation will result in a failure and must be remedied by the food establishment to the satisfaction of the Department of Public Health.
-		<div>
-<!-- 		<div id="left-list">
-			<div class="caption">
-				Predictors of food inspection outcomes
-			</div>
-			<ul>
-				<li>Restaurants that had previous critical or serious violations</li>
-				<li>Three-day average high temperature</li>
-				<li>Risk level of restaurant as determined by CDPH</li>
-				<li>Location of restaurant</li>
-				<li>Nearby garbage and sanitation complaints</li>
-				<li>The type of facility being inspected</li>
-				<li>Nearby burglaries</li>
-				<li>Whether the establishment has a tobacco or has an indicental alcohol consumption license</li>
-				<li>Length of time since last inspection</li>
-				<li>The length of time the establishment has been operating</li>
-			</ul>
-		</div> -->
-		<div class="right-box">
-			Locating restaurants with critical issues is an important priority for the Department of Public Health. Approximately fifteen percent of inspections result in at least one critical violation. The time and effort to discover critical violations means prolonged exposure to potential disease, illness, and unsanitary conditions.
-			<p>The Department of Public Health and Department of Innovation and Technology have partnered to explore a combination of datasets to prioritize which establishments are more likely to yield a critical violation during an inspection. Staff from Allstate Insurance to assist with the research project.</p>
-			<p>After conducting interviews with the Department of Public Health's food inspection team, several data sources--ranging from 311 data, food inspections, and weather--were explored. A dozen variables had substantial relationships with the likelihood of a restaurant failing a food inspection.</p>
-			<p>Information about the restaurant, such as CDPH-assigned risk level and whether the restaurant had failed previous inspections, served as important predictors. So did information around the community, such as the location and nearby sanitation complaints made through 311, was also related to the most severe violations.</p>
-			<p> When factoring all of these items together, the research team was able to provide a likelihood of critical violations for each restaurant, which can be used to prioritize which restaurants should be inspected first.</p>
-		</div>
-		<h2>Open Data &amp; Analytics</h2>
-		<div class="left-box">
-			Collaboration was a key component of this project between researchers at the Department of Innovation and Technology, Department of Public Health, Allstate Insurance Company, and Civic Consulting Alliance. Each variable used in the model, which the exception of widely available weather data, was available on <a href="http://data.cityofchicago.org">Chicago's open data portal</a>. The portal provides access to hundreds of datasets, which has been used to improve transparency, allow application development, used for commerce by start-ups and large enterprises.
-			<p>The portal was an effective tool to allow for collaborative research for food inspections. This project was able to leverage Chicago's key data assets: the volume of data, the transparency and size of the open data portal, and an ability and willingness to conduct research to improve city services, introduce savings, and increase engagement with Chicago-area businesses.</p>
-		</div>
-		<div id="data-portal"></div>
-		<h2>Evaluating the effectiveness of the model</h2>
-		<div class="left-box">
-			The analytical model was tested using a double-blind retrodiction. The Department of Public Health conducted inspections as normal during September and October 2014. Restaurants were visited in order of normal operational procedure for the two months.
-			<p>During this time, the Department of Public Health visited 1,278 food establishments. Slightly over 15 percent--199 establishments--of the inspections yielded at least one critical violation during the experiment. Over half, 58 percent or 116 establishments, of those violations were found during the first month of the evaluation, but 83 establishments (42 percent) were found with violations during the second half.</p>
-			</p>After all of the inspections were completed, the Department of Innovation and Technology used data to estimate the likelihood of each restaurant having a critical violation. Research applied a probability to each restaurant using historical data and then investigated if these probabilities could be used to make the inspection process more efficient.</p>
-		</div>
-		<div id="eval-diagram"></div>
-		<div class="right-box">
-			The simulation would show if riskier restaurants would be inspected first.
-			<p>Researchers found the food inspectors could be allocated more efficiently using the computer algorithm. During the simulation, 66 percent of inspections--132 establishments--with critical violations were found during the first half of work, compared to 58 percent during normal operations. The first half of operations increased the rate of finding critical violations by 103 percent. That is, an additional 32 establishments would have been cited for violations in the first month, as opposed being discovered later, potentially after patrons have become ill.</p>
-		<div id="tech-plan"></div>
-	</body>
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <a href="#">
+                <img class="img-responsive portfolio-item" src="http://placehold.it/500x300" alt="">
+            </a>
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="row">
+            <div class="col-lg-12">
+                <p>Copyright &copy; Your Website 2014</p>
+            </div>
+        </div>
+        <!-- /.row -->
+    </footer>
+
+</div>
+<!-- /.container -->
+
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+</body>
+
 </html>
