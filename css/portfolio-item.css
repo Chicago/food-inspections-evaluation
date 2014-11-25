@@ -62,3 +62,40 @@ footer {
 		border-left-style: none;
 		border-right-style: none;
 }
+
+p {
+	text-indent: 2%;
+	margin: 0;
+}
+
+.caption{
+	font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	color: black;
+	margin-top: 5%;
+	margin-bottom: none;
+}
+
+#left-list {
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+	width: 90%;
+	border: none;
+	font-family: "Rokkitt", Rockwell, "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
+	font-size: 24px;
+	text-align: justify;
+	color: black;
+}
+
+ul {
+	list-style-type: none;
+	margin-top: 0;
+}
+
+li {
+	border-bottom: 2px solid rgba(107,206,250,1);
+	padding: 1% 2% 1% 2%;
+}
