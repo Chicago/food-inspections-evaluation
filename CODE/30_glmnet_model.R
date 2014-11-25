@@ -144,24 +144,48 @@ ggplot(reshape2::melt(as.data.table(confusion_values_test),
 
 
 
+## TEST PERIOD: Date range
 dat[iiTest, range(Inspection_Date)]
-
+## TEST PERIOD: Total inspections
+dat[iiTest, .N]
+## TEST PERIOD: Critical found
 dat[iiTest, sum(criticalCount)]
+## TEST PERIOD: Inspections with any critical violations
 dat[iiTest, sum(criticalFound)]
 
 
+## Subset test period
 datTest <- dat[iiTest]
-datTest <- datTest[order(-glm_pred)]
-datTest[1:(nrow(datTest)/2), sum(criticalFound)]
-datTest[(nrow(datTest)/2):nrow(datTest), sum(criticalFound)]
+## Identify first period
+datTest[ , period := ifelse(Inspection_Date < median(Inspection_Date),1,2)]
+datTest[, .N, keyby=list(period)]
+datTest[, .N, keyby=list(Inspection_Date, period)]
+## Identify top half of scores (which would have been the first period)
+datTest[ , period_modeled := ifelse(glm_pred > median(glm_pred), 1, 2)]
 
-datTest <- datTest[order(Inspection_Date)]
-datTest[1:(nrow(datTest)/2), sum(criticalFound)]
-datTest[(nrow(datTest)/2):nrow(datTest), sum(criticalFound)]
+datTest[period == 1, sum(criticalFound)]
+datTest[period_modeled == 1, sum(criticalFound)]
 
+datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
+datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 
+110 / (129 + 71)
+129 / (129 + 71)
+0.645 - .5445545
 
-dat[ , period:=NA_real_]
-dat[iiTest][order(Inspection_Date)][1:(dat[iiTest][order(Inspection_Date)][,.N]/2)][ , period := 1]
-dat[iiTest][is.na(period)]
+## Subset test period
+## Exact match of actual inspection counts in first half
+ratio_of_days <- nrow(datTest[period==1]) / nrow(datTest)
+ratio_of_days
+datTest[ , period_modeled_strict := 
+            ifelse(glm_pred > quantile(glm_pred, 1-ratio_of_days), 1, 2)]
+datTest[,.N,period_modeled_strict]
+datTest[,.N,period]
+
+datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
+datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled_strict)]
+
+110 / (129+73)
+127 / (129+73)
+0.6287129 - .5445545
 
