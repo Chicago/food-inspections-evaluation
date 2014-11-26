@@ -20,7 +20,7 @@ $(function () {
         yAxis: {
             min: 0,
             title: {
-                text: 'Percentage of critical violations found in the first month',
+                text: 'Percentage',
                 style: {fontFamily: 'Futura, Futura-Medium, Futura Medium, Century Gothic, CenturyGothic, Apple Gothic, AppleGothic, URW Gothic L, Avant Garde, Questrial, sans-serif'}
             }
         },
