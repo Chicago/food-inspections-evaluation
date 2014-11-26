@@ -20,6 +20,12 @@
     <link href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Rokkitt' rel='stylesheet' type='text/css'>
 
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+    <!-- Highchart --> 
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -160,24 +166,19 @@
         </div>    
     </div>
     <!-- /.row -->
-
 <!-- Evaluating the effectiveness of the model Row (cont'd) -->
     <div class="row">
         <div class="col-md-7">
-            <img class="img-responsive" src="img/bar-chart.png" alt="Optimizing inspections for faster delivery">
+            <div id="chart">
+                <script src="js/chart.js"></script>
+            </div>
         </div>
 
         <div class="col-md-5">
             A key finding of any food inspection is whether a restaurant commits a critical violation. These violations, which normally pertain to improper temperature control for food, are most susceptible to accomodating the start or spread of food borne illnesses. Just one critical violation will result in a failure and must be remedied by the food establishment to the satisfaction of the Department of Public Health.
         </div>    
     </div>
-
-
-
-
-
-
-    <!-- Related Projects Row -->
+    <!-- Tech Plan Row -->
     <div class="row">
         <img src='img/tech-plan-c.png' alt="This project was under Stategy C of the Chicago Tech Plan: Providing an efficient, effective, and open government.">
     </div>
@@ -197,9 +198,6 @@
 
 </div>
 <!-- /.container -->
-
-<!-- jQuery -->
-<script src="js/jquery.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
 <script src="js/bootstrap.min.js"></script>

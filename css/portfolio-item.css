@@ -131,3 +131,9 @@ footer {
 	text-align: justify;
 	color: black;
 }
+
+#chart {
+	min-width: 500px; 
+	height: 400px;
+	margin: 0 auto"
+}
