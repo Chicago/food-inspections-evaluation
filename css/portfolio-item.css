@@ -135,5 +135,12 @@ footer {
 #chart {
 	min-width: 250px; 
 	height: 500px;
-	margin: 0 auto"
+	margin: 0 auto
+}
+
+IMG.stamp {
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 370.5px;
 }
