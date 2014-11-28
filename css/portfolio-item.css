@@ -9,20 +9,24 @@ html {
 }
 
 body {
-    padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
-    font-family:Rockwell, "Rokkitt", "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
-    font-size:24px;
+	padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+	font-family:Rockwell, "Rokkitt", "Courier Bold", Courier, Georgia, Times, "Times New Roman", serif;
+	font-size:24px;
 }
 
 #title {
-		width: 66%;
-		margin: 0 25% 70px 25%;
-		margin-right: 17%;
-		margin-left: 17%;
-		padding: 1% 1%;
+		-webkit-box-sizing: content-box;
+		-moz-box-sizing: content-box;
+		box-sizing: content-box;
 		border: 1px solid rgba(107,206,250,1);
-		border-left-style: none;
-		border-right-style: none;
+		border-left-style:none;
+		border-right-style:none;
+		padding: 1% 1%;
+		display: block;
+/*		margin-left: auto;
+		margin-right: auto;*/
+		text-align: center;
+		margin-bottom: 70px;
 }
 
 .page-header{
@@ -30,18 +34,17 @@ body {
 	margin:40px 0 20px;
 	line-height:1.1;
 	color:inherit;
-	border:5px solid black;
-	border-left-style:none;
-	border-right-style:none;
-	border-bottom-style:none;
 	}
 
 h1,.h1 {
 	font-family: Futura, Futura-Medium, "Futura Medium", "Century Gothic", CenturyGothic, "Apple Gothic", AppleGothic, "URW Gothic L", "Avant Garde", "Questrial" sans-serif;
-	font-size: 62px;
+	font-size: 64px;
 	font-weight: bold;
 	color: black;
-	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	text-transform: uppercase;
+	width: 66%;
 }
 
 h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
@@ -96,8 +99,6 @@ footer {
 	font-weight: 400;
 	text-align: left;*/
 	color: rgba(107,206,250,1);
-	-o-text-overflow: ellipsis;
-	text-overflow: ellipsis;
 }
 
 #big-number{
@@ -140,7 +141,11 @@ footer {
 
 IMG.stamp {
 	display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 370.5px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 370.5px;
 }
+
+@media all and (min-width: 300px) { h1 {font-size: 32px;}}
+@media all and (min-width: 500px) { h1 {font-size: 48px;}}
+@media all and (min-width: 700px) { h1 {font-size: 64px;}}
