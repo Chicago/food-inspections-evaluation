@@ -149,3 +149,63 @@ IMG.stamp {
 @media all and (min-width: 300px) { h1 {font-size: 32px;}}
 @media all and (min-width: 500px) { h1 {font-size: 48px;}}
 @media all and (min-width: 700px) { h1 {font-size: 64px;}}
+
+@media (min-width: 768px) {
+  .navbar-header {
+    float: right;
+  }
+}
+
+
+.header a {
+	display: block;
+	color: #9F9F9F;
+}
+
+.header li {
+	display: inline;
+	float: right;
+	font-family: 'Times New Roman', 'Times', serif;
+	font-size: 14px;
+	font-style: italic;
+	border: none;
+}
+
+.header ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+a.twitter-share-button,
+a.twitter-mention-button,
+a.twitter-hashtag-button {
+  display: inline-block;
+  padding: 1px 3px 0 19px;
+  border: #ccc solid 1px;
+  border-radius: 3px;
+  background: #f8f8f8 url(http://platform.twitter.com/images/bird.png) 2px 3px no-repeat;
+  background: url(http://platform.twitter.com/images/bird.png) 2px 3px no-repeat,
+              -webkit-linear-gradient(#fff, #dedede);
+  background: url(http://platform.twitter.com/images/bird.png) 2px 3px no-repeat,
+              linear-gradient(#fff, #dedede);
+  background-size: 16px 13px, auto auto;
+ 
+  /*Text */
+  font: bold 11px/17px Helvetica, Arial, sans-serif;
+  text-decoration: none;
+  color: #333;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+  white-space: nowrap;
+}
+ 
+/* Color Highlight for keyboard navigation */
+a.twitter-share-button:focus,
+a.twitter-mention-button:focus,
+a.twitter-hashtag-button:focus {
+  outline: none;
+  border-color: #0089cb;
+}
+
+
