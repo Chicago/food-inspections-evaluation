@@ -176,6 +176,7 @@ IMG.stamp {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
+	background: white;
 }
 
 a.twitter-share-button,
