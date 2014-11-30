@@ -1,0 +1,3 @@
+[submodule "github-buttons"]
+	path = github-buttons
+	url = https://github.com/mdo/github-buttons.git
