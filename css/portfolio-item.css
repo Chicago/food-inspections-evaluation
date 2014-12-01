@@ -169,6 +169,8 @@ IMG.stamp {
 	font-size: 14px;
 	font-style: italic;
 	border: none;
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .header ul {
@@ -177,6 +179,10 @@ IMG.stamp {
 	padding: 0;
 	overflow: hidden;
 	background: white;
+}
+
+#twitter-spacer {
+	padding-right: 76px;
 }
 
 a.twitter-share-button,
