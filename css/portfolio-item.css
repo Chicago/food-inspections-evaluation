@@ -219,4 +219,7 @@ a.twitter-hashtag-button:focus {
   border-color: #0089cb;
 }
 
-
+#footnote {
+	font-size: 14px;
+	text-indent: 0;
+}
