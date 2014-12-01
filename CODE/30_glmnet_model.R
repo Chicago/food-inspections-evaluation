@@ -37,6 +37,13 @@ dat[ , criticalFound := pmin(1, criticalCount)]
 ## Set the key for dat
 setkey(dat, Inspection_ID)
 
+## Match time period of original results
+# dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
+dat[, .N, Results]
+
+## Remove records where an inspection didn't happen
+dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
+
 ##==============================================================================
 ## CREATE MODEL DATA
 ##==============================================================================
@@ -169,9 +176,10 @@ datTest[period_modeled == 1, sum(criticalFound)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 
-110 / (129 + 71)
-129 / (129 + 71)
-0.645 - .5445545
+110 / (110 + 90)
+134 / (134 + 66)
+0.67 - .55
+
 
 ## Subset test period
 ## Exact match of actual inspection counts in first half
@@ -185,7 +193,7 @@ datTest[,.N,period]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled_strict)]
 
-110 / (129+73)
-127 / (129+73)
-0.6287129 - .5445545
+110 / (110 + 90)
+130 / (130 + 70)
+0.65 - .55
 
