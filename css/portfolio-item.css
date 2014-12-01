@@ -170,7 +170,7 @@ IMG.stamp {
 	font-style: italic;
 	border: none;
 	padding-left: 0;
-	padding-right: 0;
+	padding-right: 2%;
 }
 
 .header ul {
@@ -181,9 +181,9 @@ IMG.stamp {
 	background: white;
 }
 
-#twitter-spacer {
-	padding-right: 76px;
-}
+/*#twitter-spacer {
+	padding-right: 2%;
+}*/
 
 a.twitter-share-button,
 a.twitter-mention-button,
