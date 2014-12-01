@@ -4,7 +4,9 @@ This page provides a high-level overview of the City of Chicago's [food inspecti
 
 ## License
 
-This repository is licensed under the Apache License v2.0, which is available in LICENSE.md
+The text of the website is available under [Creative Commons Attribution-ShareALike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+
+The website code is licensed under the Apache License v2.0, which is available in LICENSE.md.
 
 This work contains other software that is licensed under compatible open-source licenses. 
 
