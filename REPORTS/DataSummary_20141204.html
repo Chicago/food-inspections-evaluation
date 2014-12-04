@@ -211,11 +211,8 @@ dat[ , .N, facility_type_clean][order(-N)]</code></pre>
 ## 2: Risk 2 (Medium)     2153     1619     2303     2303
 ## 3:    Risk 3 (Low)      603      429      635      635</code></pre>
 </div>
-<div id="this-one-looks-bad" class="section level3">
-<h3>******* THIS ONE LOOKS BAD!</h3>
-</div>
-<div id="summary-of-pastserious" class="section level3">
-<h3>Summary of ‘pastSerious’</h3>
+<div id="summary-of-pastserious-data-doesnt-match" class="section level3">
+<h3>Summary of ‘pastSerious’ (DATA DOESN’T MATCH)</h3>
 <pre><code>##    pastSerious     dat  pct0 datprev1  pct1 datprev2  pct2 datprev3  pct3
 ## 1:           0   10164 0.919     6590 0.789     9551 0.792     9549 0.792
 ## 2:           1     639 0.058     1330 0.159     1906 0.158     1906 0.158
@@ -225,11 +222,8 @@ dat[ , .N, facility_type_clean][order(-N)]</code></pre>
 ## 6:           5      NA    NA        3 0.000        3 0.000        3 0.000
 ## 7:           6      NA    NA       NA    NA        1 0.000        1 0.000</code></pre>
 </div>
-<div id="this-one-looks-bad-1" class="section level3">
-<h3>******* THIS ONE LOOKS BAD!</h3>
-</div>
-<div id="summary-of-pastcritical" class="section level3">
-<h3>Summary of ‘pastCritical’</h3>
+<div id="summary-of-pastcritical-data-doesnt-match" class="section level3">
+<h3>Summary of ‘pastCritical’ (DATA DOESN’T MATCH)</h3>
 <pre><code>##    pastCritical     dat  pct0 datprev1  pct1 datprev2  pct2 datprev3  pct3
 ## 1:            0   10525 0.952     7562 0.906    10928 0.906    10926 0.906
 ## 2:            1     317 0.029      566 0.068      832 0.069      832 0.069
@@ -369,8 +363,8 @@ temp0[temp1[temp2[temp3]]][J(temperatureMax=17:97)]</code></pre>
 ##     temperatureMax    dat datprev1 datprev2 datprev3</code></pre>
 <pre class="r"><code>rm(temp0, temp1, temp2, temp3)</code></pre>
 </div>
-<div id="summary-of-timesincelast" class="section level3">
-<h3>Summary of ‘timeSinceLast’</h3>
+<div id="summary-of-timesincelast-data-doesnt-match" class="section level3">
+<h3>Summary of ‘timeSinceLast’ (DATA DOESN’T MATCH)</h3>
 <pre class="r"><code>temp0 &lt;- dat[,list(`   dat`=.N), keyby=list(timeSinceLast=round(timeSinceLast, 1))]
 temp1 &lt;- dat_prev1[,list(datprev1=.N), keyby=list(timeSinceLast=round(timeSinceLast, 1))]
 temp2 &lt;- dat_prev2[,list(datprev2=.N), keyby=list(timeSinceLast=round(timeSinceLast, 1))]
@@ -555,7 +549,153 @@ datmerge[pastCritical.x==2 &amp; pastCritical.y==0,
 ## 92:                                 de - li - cious cafe 1716759 1
 ##                                 doing_business_as_name.x license N</code></pre>
 <pre class="r"><code>## Example of a difference: GOLDEN APPLE CAFE &amp; BAKERY
-dat[doing_business_as_name=='GOLDEN APPLE CAFE &amp; BAKERY']</code></pre>
+datmerge &lt;- merge(dat[,.SD,list(inspection_id=as.character(inspection_id))], 
+                  dat_prev3, by = &quot;inspection_id&quot;, all=TRUE)
+datmerge[ , diffcrit:=pastCritical.x-pastCritical.y]
+datmerge[,.N,keyby=diffcrit]</code></pre>
+<pre><code>##     diffcrit    N
+##  1:       NA 1317
+##  2:       -5    3
+##  3:       -4    5
+##  4:       -3   18
+##  5:       -2  157
+##  6:       -1  530
+##  7:        0 9896
+##  8:        1  167
+##  9:        2   96
+## 10:        3   26
+## 11:        4    4
+## 12:        5    1
+## 13:        6    1</code></pre>
+<pre class="r"><code>datmerge[,.N,keyby=list(diffcrit, pastCritical.x, pastCritical.y)]</code></pre>
+<pre><code>##     diffcrit pastCritical.x pastCritical.y    N
+##  1:       NA             NA              0  989
+##  2:       NA             NA              1  119
+##  3:       NA             NA              2   41
+##  4:       NA             NA              3   11
+##  5:       NA             NA              4    1
+##  6:       NA              0             NA  145
+##  7:       NA              1             NA    9
+##  8:       NA              2             NA    1
+##  9:       NA              4             NA    1
+## 10:       -5              0              5    3
+## 11:       -4              0              4    5
+## 12:       -3              0              3   18
+## 13:       -2              0              2  157
+## 14:       -1              0              1  530
+## 15:        0              0              0 9668
+## 16:        0              1              1  160
+## 17:        0              2              2   61
+## 18:        0              3              3    7
+## 19:        1              1              0  148
+## 20:        1              2              1   18
+## 21:        1              3              2    1
+## 22:        2              2              0   93
+## 23:        2              3              1    3
+## 24:        3              3              0   24
+## 25:        3              4              1    2
+## 26:        4              4              0    4
+## 27:        5              5              0    1
+## 28:        6              6              0    1
+##     diffcrit pastCritical.x pastCritical.y    N</code></pre>
+<pre class="r"><code>datmerge[pastCritical.x==2 &amp; pastCritical.y==0, 
+         .N, 
+         keyby=list(doing_business_as_name.x, license)]</code></pre>
+<pre><code>##                                 doing_business_as_name.x license N
+##  1:                                    16TH ST FOOD MART 1845450 1
+##  2:                                      7 ELEVEN#33758B 2049457 1
+##  3:                                             7-ELEVEN 1816833 1
+##  4:                                 AL'S BEEF RESTAURANT 1299201 1
+##  5:                                ALINEA RESTAURANT LLC 1544705 1
+##  6:                                        AMERICA'S DOG 2069938 1
+##  7:                                     ANA'S FOOD MART. 1948536 1
+##  8:                                ANDIAMO'S O'HARE, LLC 1381615 1
+##  9:                               ANGELA'S BURRITO STYLE 1299745 1
+## 10:                                       ANGELO'S PIZZA 1198093 1
+## 11:                                              ARAMARK 1974743 1
+## 12:                                    ARGO TEA UCH, LLC 1681884 1
+## 13:                                 ARISTO FOOD &amp; LIQUOR 1197310 1
+## 14:                                  BEOGRAD MEAT MARKET 1595804 1
+## 15:                                 BIG RAYS GRILL, INC. 1592351 1
+## 16:                                               BIN 36   79128 1
+## 17:                                        BUFFET CASTLE 1578830 1
+## 18:                                            CARDONA'S 1273690 1
+## 19:                                       CERMAK PRODUCE 1476657 1
+## 20:                        COQUITO COCINA PUERTORRIQUENA 2093842 1
+## 21:                    COZY CORNER DINER &amp; PANCAKE HOUSE 1380398 1
+## 22:                                      CRIO RESTAURANT   11583 1
+## 23:                                    CUERNAVACA BAKERY 2054096 1
+## 24: DOOSTAN RESTAURANT PERSIAN AND MEDITERRANEAN CUISINE 2022089 1
+## 25:                       DUNKIN DONUTS / BASKIN ROBBINS 1649847 1
+## 26:                         EINSTEIN BROS. BAGELS # 2330 1223719 1
+## 27:                                         EL RODEO INC 1679441 1
+## 28:                                         EL'S KITCHEN 2013097 1
+## 29:                                       EMBASSY SUITES 1743204 1
+## 30:                                  FARMERS FOOD BASKET 1942691 1
+## 31:                                          GALWAY ARMS   49336 1
+## 32:                           GOLDEN APPLE CAFE &amp; BAKERY 2009150 1
+## 33:                                     GOMEZ TACOS REST   17434 1
+## 34:                                 HOUG KONG DELIGHT IV   79650 1
+## 35:                             ISLA PILIPINA RESTAURANT 1445451 1
+## 36:                                  J V ENTERPRISES INC    1447 1
+## 37:                                    JACK'S ON HALSTED   53791 1
+## 38:                                         JASON'S DELI 1909063 1
+## 39:                              JEWEL FOOD STORES #3262    1409 1
+## 40:                                         JOHN'S PLACE 1869112 1
+## 41:                                             JUSTIN'S    3712 1
+## 42:                           LA BAHIA DE ACAPULCO, INC. 2042857 1
+## 43:                                      LA CHILANGUEADA 1446627 1
+## 44:                                            LA CONCHA   86549 1
+## 45:                                        LAO SZE CHUAN 1514893 1
+## 46:                     LEVY RESTAURANTS @ WRIGLEY FIELD 1574001 1
+## 47:                    LEVY RESTAURANTS AT UNITED CENTER 1974745 1
+## 48:                             MANOLOS TAMALES, INC. #2 1873306 1
+## 49:                                         MAYAN PALACE 1300822 1
+## 50:                                 MAYFAIR MARATHON INC   86519 1
+## 51:                               MICHOACANA BAKERY, INC 1572880 1
+## 52:                                         MR ZEES, INC   49683 1
+## 53:                                 NOOKIES ON WELLS INC   26855 1
+## 54:                                         NORI CHICAGO 1981196 1
+## 55:                                               OUTPUT 2074594 1
+## 56:                              PAZZO'S CUCINA ITALIANA 2088105 1
+## 57:                        PHIL STEFANI SIGNATURE EVENTS 1514514 1
+## 58:                                            PHO &amp; CO. 1868847 1
+## 59:                                     PITA KABAB, INC. 1948824 1
+## 60:                                        POAG MAHONE'S 1337364 1
+## 61:                   POSITANOS RESTAURANT &amp; PIZZA, INC. 1959937 1
+## 62:                                              Quiznos   34240 1
+## 63:                              ROSEBUD RESTAURANTS INC   44336 1
+## 64:                                         ROYAL COFFEE 1969808 1
+## 65:                               S &amp; C ELECTRIC COMPANY   26164 1
+## 66:                        SARAH &amp; LEE'S CAFE &amp; CATERING   22641 1
+## 67:                          SHERIDAN PARK FOOD &amp; LIQUOR   19499 1
+## 68:                                         SOUTH BRANCH 2065037 2
+## 69:                                               SUBWAY   15059 1
+## 70:                                               SUBWAY 1447435 1
+## 71:                                               SUBWAY 1739186 1
+## 72:                           SUBWAY SANDWICHES &amp; SALADS 2004462 1
+## 73:                               SUN WAH BAR-B-Q INC CO 1985846 1
+## 74:                            TAQUERIA LOS GALLOS 2 INC   23917 1
+## 75:                      TAQUERIA MI LINDA HACIENDA INC. 2093641 1
+## 76:                                      TAQUERIA UPTOWN   19267 1
+## 77:                          THAT LITTLE MEXICAN CAFE II 1646580 1
+## 78:                                THE BEER BISTRO NORTH 1937764 1
+## 79:                         THE GALLERY CARNELLI 'S DELI   44239 1
+## 80:                     THE GREAT STEAK &amp; POTATO COMPANY 1933456 1
+## 81:                                     THE LITTLE INDIA 1892841 1
+## 82:                   THE ORIGINAL SALLY'S PANCAKE HOUSE 2098288 1
+## 83:                                            THE SPICE 1991580 1
+## 84:                                     TOM'S RESTAURANT 1543792 1
+## 85:                                  TROQUET RIVER NORTH 1954838 1
+## 86:                                         TUSCANY CAFE 1916161 1
+## 87:                                UNIVERSITY OF CHICAGO   33338 1
+## 88:                          WATERHOUSE TAVERN AND GRILL 1272606 1
+## 89:                                       WELLS ON WELLS 1442816 1
+## 90:                                 WICKER BASKET MARKET 2027901 1
+## 91:                                         WINDY'S DELI   14737 1
+## 92:                                 de - li - cious cafe 1716759 1
+##                                 doing_business_as_name.x license N</code></pre>
+<pre class="r"><code>dat[doing_business_as_name=='GOLDEN APPLE CAFE &amp; BAKERY']</code></pre>
 <pre><code>##    inspection_id license facility_type          risk inspection_date
 ## 1:        657328 2009150    Restaurant Risk 1 (High)      2011-11-02
 ## 2:       1296522 2009150    Restaurant Risk 1 (High)      2013-08-19
@@ -710,6 +850,27 @@ gsub(&quot;\n&quot;, &quot;&quot;, vio[which(manualsummary$inspection_id%in% dat
 <pre><code>## [1] &quot;c(\&quot;3. POTENTIALLY HAZARDOUS FOOD MEETS TEMPERATURE REQUIREMENT DURING STORAGE, PREPARATION DISPLAY AND SERVICE - Comments: All cold food shall be stored at a temperature of 40F or less. All hot food shall be stored at a temperature of 140F or higher. \\nFOUND POTENTIALLY HAZARDOUS FOODS ON FRONT COUNTER TOP OFFERED FOR SALE AT IMPROPER TEMPERATURES: 5 READY TO EAT EGG, HAM, AND CHEESE  SANDWICHES AT 75.3F, 6 READY TO EAT VEGETABLE AND PORK DUMPLINGS AT 75.4F, 21 READY TO EAT BARBEQUE PORK FILLED TURNOVERS AT 76.1F. ALSO, FOUND BEEF STEW INSIDE WALK IN COOLER AT 47.1F. NO TIME/TEMPERATURE LOGS PROVIDED. INSTRUCTED TO KEEP COLD FOODS AT 40F AND BELOW AND HOT FOODS AT 140F AND ABOVE AT ALL TIMES. CRITICAL 7-38-005(A) ISSUED. MANAGER VOLUNTARILY DISCARDED SAID FOOD ITEMS, APPROXIMATE VALUE $50.00. \&quot;, \&quot;8. SANITIZING RINSE FOR EQUIPMENT AND UTENSILS:  CLEAN, PROPER TEMPERATURE, CONCENTRATION, EXPOSURE TIME - Comments: OBSERVED EMPLOYEE WASHING METAL PAN INSIDE TWO COMPARTMENT SINK WITHOUT SANITIZING. ALSO, LOW TEMPERATURE DISH MACHINE NOT SANITIZING, RAN SEVERAL CYCLES, MANAGER CHANGED SANITIZER CONTAINER AND STILL UNABLE TO DISPENSE SANITIZER AT THIS TIME. HELD FOR INSPECTION TAG PLACED ON SAID UNIT. FAX LETTER TO 312-746-4240 FOR TAG REMOVAL INSTRUCTED EMPLOYEE AND MANAGER TO USE THREE COMPARTMENT SINK TO PROPERLY WASH, RINSE, AND SANITIZE MULTI USE UTENSILS AND ITEMS. CRITICAL 7-38-030 ISSUED. \&quot;, \&quot;29. PREVIOUS MINOR VIOLATION(S) CORRECTED 7-42-090 - Comments: A separate and distinct offense shall be deemed to have been committed for each Minor violation that is not corrected upon re-inspection by the health authority. \\nPREVIOUS MINOR VIOLATIONS NOT CORRECTED FROM INSPECTION #479216 ON 12/13/10: #30 LABEL PREPARED FOOD ITEMS AND FROZEN FOOD ITEMS INSIDE REFRIGERATION AND FREEZER UNITS, #31 OBSERVED SINGLE USE COFFEE CUP LIDS AT DISH MACHINE AREA. INSTRUCTED TO DISCARD SINGLE USE UTENSILS/CONTAINERS AFTER ONE TIME USE, #32 DEFROST CHEST FREEZERS TO REMOVE ICE BUILDUP, #33 CLEAN INTERIOR OF THREE COMPARTMENT SINK, HAND WASH SINKS, MIXERS, RACKS INSIDE WALK IN COOLER, FAN GRID COVERS INSIDE WALK IN COOLER/REFRIGERATION UNITS, PREP SHELVES/TABLES, BULK FOOD STORAGE AREA, AND INTERIOR OF CHEST FREEZER, #35 SEAL OPENINGS AROUND PIPING AND CONDUITS AT VENTILATION HOOD BY TWO COMPARTMENT SINK, AND BY REAR STORAGE AREA TO PREVENT PEST HARBORAGE, CLEAN STAINED CEILING PANELS IN KITCHEN, #36 CLEAN LIGHT SHIELDS IN PREP AREA AND MENS TOILET ROOM, #38 REPAIR LEAKS AT FAUCET AND HANDLES AT THREE COMPARTMENT SINK, #40 ALL FOOD ESTABLISHMENTS THAT DISPLAY, PREPARE, OR STORE POTENTIALLY HAZARDOUS FOODS SHALL HAVE CALIBRATED METAL STEM THERMOMETERS, PROVIDED AND CONSPICUOUS, FOR REFRIGERATED AND HOT FOOD UNITS. SERIOUS 7-42-090 ISSUED. \&quot;, \&quot;32. FOOD AND NON-FOOD CONTACT SURFACES PROPERLY DESIGNED, CONSTRUCTED AND MAINTAINED - Comments: REPLACE WORN SEATS IN DINING AREA AND REMOVE CARDBOARD LINING FROM SHELVES. REMOVE MILK CRATES FROM KITCHEN. \&quot;, \&quot;38. VENTILATION: ROOMS AND EQUIPMENT VENTED AS REQUIRED: PLUMBING: INSTALLED AND MAINTAINED - Comments: PROVIDE SINK STOPPERS FOR THREE COMPARTMENT SINK, REPAIR LEAKS AT UTILITY SINK.\&quot;)&quot;
 ## [2] &quot;c(\&quot;41. PREMISES MAINTAINED FREE OF LITTER, UNNECESSARY ARTICLES, CLEANING  EQUIPMENT PROPERLY STORED - Comments: FOUND CLUTTER STORED ON SHELVING UNITS.(TOOLS,CLOTHES,ETC.) \&quot;, \&quot;32. FOOD AND NON-FOOD CONTACT SURFACES PROPERLY DESIGNED, CONSTRUCTED AND MAINTAINED - Comments: DISHMACHINE NEEDS TO BE CLEANED.\&quot;)&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 ## [3] &quot;c(\&quot;38. VENTILATION: ROOMS AND EQUIPMENT VENTED AS REQUIRED: PLUMBING: INSTALLED AND MAINTAINED - Comments: NO VISIBLE BACK FLOW PREVENTION DEVICES ON WATER SUPPLIES TO ICE MACHINE AND COFFEE BREWER. MUST INSTALL SAME. \&quot;, \&quot;9. WATER SOURCE: SAFE, HOT &amp; COLD UNDER CITY PRESSURE - Comments: PREMISES OPERATING WITHOUT ANY RUNNING HOT OR COLD WATER ON PREMISES UNDER CITY PRESSURE. WATER SHUT OFF DUE TO CONSTRUCTION WORK OUTSIDE, RESTAURANT WAS INFORMED THAT RUNNING WATER WOULD NOT BE AVAILABLE, HOWEVER WAS OPEN AND SERVING FOOD TO CUSTOMERS. \\nCRITICAL CITATION ISSUED 7-38-030. MUST RESTORE HOT AND COLD RUNNING WATER TO ALL SINKS. \&quot;, \&quot;33. FOOD AND NON-FOOD CONTACT EQUIPMENT UTENSILS CLEAN, FREE OF ABRASIVE DETERGENTS - Comments: MUST CLEAN ALL FOOD EQUIPMENT, UTENSILS AND EQUIPMENT NOT CLEAN: PREP TABLES, EXTERIOR /INTERIOR OF ALL FOOD EQUIPMET, DEEP FRYER, CABINETS, RACKS, DISH MACHINE, STOVES, ICE MACHINE, OVENS ETC. \&quot;, \&quot;13. NO EVIDENCE OF RODENT OR INSECT INFESTATION, NO BIRDS, TURTLES OR OTHER ANIMALS - Comments: EVIDENCE OF IMPROPER PEST CONTROL ON PREMISES. NUMEROUS RODENT/MICE DROPPINGS ON PREMISES. MORE THAN 200 MICE DROPPINGS ON FLOORS BEHIND ICE MACHINE, MORE THAN 100 DROPPINGS IN REAR PORCH STORAGE AREA ON TOP OF DRY STORAGE FOOD CONTAINERS AND UNDER STORAGE RACKS, UNDER HAND SINK AND DOUGH MIXER, FREEZER, ON STORAGE FOOD SHELVES, AND MORE THAN 30-LOWER PREP TABLE SHELVES, UNDER DISH MACHINE, 20 INSIDE DEEP FRYER CABINET. MUST CLEAN/SANITIZE ALL AREAS. INSTALL 16 MESH TO THE INCH SCREEN OVER VENTILATION FAN ABOVE REAR DOOR TO PREVENT INSECT ENTRY. MUST CONTACT PEST CONTROL COMPANY FOR TREATMENT. CRITICAL CITATION ISSUED 7-38-020. \&quot;, \&quot;35. WALLS, CEILINGS, ATTACHED EQUIPMENT CONSTRUCTED PER CODE: GOOD REPAIR, SURFACES CLEAN AND DUST-LESS CLEANING METHODS - Comments: OPENINGS IN CEILING AREAS AROUND PIPES IN PREP AREAS. MUST SEAL OPENINGS. CLEAN FOOD DEBRIS AND SPILLAGE FROM WALLS. CLEAN ACCUMULATED DUST ON VENT COVERS. \&quot;, \&quot;36. LIGHTING: REQUIRED MINIMUM FOOT-CANDLES OF LIGHT PROVIDED, FIXTURES SHIELDED - Comments: NO ADEQUATE LIGHTING IN PREP AREA.MUST PROVIDE. \&quot;, \&quot;41. PREMISES MAINTAINED FREE OF LITTER, UNNECESSARY ARTICLES, CLEANING  EQUIPMENT PROPERLY STORED - Comments: FOUND STORAGE SHELVES IN PREP AREA TOO CLUTTERED WITH ARTICLES,CARD BOARD ETC.MUST REMOVE ALL CLUTTER AND PROPERLY ORGANIZE ALL STORAGE SHELVES IN PREP AREA. \&quot;, \&quot;34. FLOORS: CONSTRUCTED PER CODE, CLEANED, GOOD REPAIR, COVING INSTALLED, DUST-LESS CLEANING METHODS USED - Comments: FLOORS THROUGH-OUT NOT CLEAN. RODENT DROPPINGS, FOOD DEBRIS, GREASE AND LITTER ON FLOORS. MUST CLEAN. SEAL ALL OPENINGS AT FLOOR/WALL JUNCTIONS.\&quot;)&quot;</code></pre>
+<pre class="r"><code>vio[which(manualsummary$inspection_id%in% dat$inspection_id)]</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;3. POTENTIALLY HAZARDOUS FOOD MEETS TEMPERATURE REQUIREMENT DURING STORAGE, PREPARATION DISPLAY AND SERVICE - Comments: All cold food shall be stored at a temperature of 40F or less. All hot food shall be stored at a temperature of 140F or higher. \nFOUND POTENTIALLY HAZARDOUS FOODS ON FRONT COUNTER TOP OFFERED FOR SALE AT IMPROPER TEMPERATURES: 5 READY TO EAT EGG, HAM, AND CHEESE  SANDWICHES AT 75.3F, 6 READY TO EAT VEGETABLE AND PORK DUMPLINGS AT 75.4F, 21 READY TO EAT BARBEQUE PORK FILLED TURNOVERS AT 76.1F. ALSO, FOUND BEEF STEW INSIDE WALK IN COOLER AT 47.1F. NO TIME/TEMPERATURE LOGS PROVIDED. INSTRUCTED TO KEEP COLD FOODS AT 40F AND BELOW AND HOT FOODS AT 140F AND ABOVE AT ALL TIMES. CRITICAL 7-38-005(A) ISSUED. MANAGER VOLUNTARILY DISCARDED SAID FOOD ITEMS, APPROXIMATE VALUE $50.00. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+## [2] &quot;8. SANITIZING RINSE FOR EQUIPMENT AND UTENSILS:  CLEAN, PROPER TEMPERATURE, CONCENTRATION, EXPOSURE TIME - Comments: OBSERVED EMPLOYEE WASHING METAL PAN INSIDE TWO COMPARTMENT SINK WITHOUT SANITIZING. ALSO, LOW TEMPERATURE DISH MACHINE NOT SANITIZING, RAN SEVERAL CYCLES, MANAGER CHANGED SANITIZER CONTAINER AND STILL UNABLE TO DISPENSE SANITIZER AT THIS TIME. HELD FOR INSPECTION TAG PLACED ON SAID UNIT. FAX LETTER TO 312-746-4240 FOR TAG REMOVAL INSTRUCTED EMPLOYEE AND MANAGER TO USE THREE COMPARTMENT SINK TO PROPERLY WASH, RINSE, AND SANITIZE MULTI USE UTENSILS AND ITEMS. CRITICAL 7-38-030 ISSUED. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+## [3] &quot;29. PREVIOUS MINOR VIOLATION(S) CORRECTED 7-42-090 - Comments: A separate and distinct offense shall be deemed to have been committed for each Minor violation that is not corrected upon re-inspection by the health authority. \nPREVIOUS MINOR VIOLATIONS NOT CORRECTED FROM INSPECTION #479216 ON 12/13/10: #30 LABEL PREPARED FOOD ITEMS AND FROZEN FOOD ITEMS INSIDE REFRIGERATION AND FREEZER UNITS, #31 OBSERVED SINGLE USE COFFEE CUP LIDS AT DISH MACHINE AREA. INSTRUCTED TO DISCARD SINGLE USE UTENSILS/CONTAINERS AFTER ONE TIME USE, #32 DEFROST CHEST FREEZERS TO REMOVE ICE BUILDUP, #33 CLEAN INTERIOR OF THREE COMPARTMENT SINK, HAND WASH SINKS, MIXERS, RACKS INSIDE WALK IN COOLER, FAN GRID COVERS INSIDE WALK IN COOLER/REFRIGERATION UNITS, PREP SHELVES/TABLES, BULK FOOD STORAGE AREA, AND INTERIOR OF CHEST FREEZER, #35 SEAL OPENINGS AROUND PIPING AND CONDUITS AT VENTILATION HOOD BY TWO COMPARTMENT SINK, AND BY REAR STORAGE AREA TO PREVENT PEST HARBORAGE, CLEAN STAINED CEILING PANELS IN KITCHEN, #36 CLEAN LIGHT SHIELDS IN PREP AREA AND MENS TOILET ROOM, #38 REPAIR LEAKS AT FAUCET AND HANDLES AT THREE COMPARTMENT SINK, #40 ALL FOOD ESTABLISHMENTS THAT DISPLAY, PREPARE, OR STORE POTENTIALLY HAZARDOUS FOODS SHALL HAVE CALIBRATED METAL STEM THERMOMETERS, PROVIDED AND CONSPICUOUS, FOR REFRIGERATED AND HOT FOOD UNITS. SERIOUS 7-42-090 ISSUED. &quot;
+## [4] &quot;32. FOOD AND NON-FOOD CONTACT SURFACES PROPERLY DESIGNED, CONSTRUCTED AND MAINTAINED - Comments: REPLACE WORN SEATS IN DINING AREA AND REMOVE CARDBOARD LINING FROM SHELVES. REMOVE MILK CRATES FROM KITCHEN. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+## [5] &quot;38. VENTILATION: ROOMS AND EQUIPMENT VENTED AS REQUIRED: PLUMBING: INSTALLED AND MAINTAINED - Comments: PROVIDE SINK STOPPERS FOR THREE COMPARTMENT SINK, REPAIR LEAKS AT UTILITY SINK.&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+## 
+## [[2]]
+## [1] &quot;41. PREMISES MAINTAINED FREE OF LITTER, UNNECESSARY ARTICLES, CLEANING  EQUIPMENT PROPERLY STORED - Comments: FOUND CLUTTER STORED ON SHELVING UNITS.(TOOLS,CLOTHES,ETC.) &quot;
+## [2] &quot;32. FOOD AND NON-FOOD CONTACT SURFACES PROPERLY DESIGNED, CONSTRUCTED AND MAINTAINED - Comments: DISHMACHINE NEEDS TO BE CLEANED.&quot;                                         
+## 
+## [[3]]
+## [1] &quot;38. VENTILATION: ROOMS AND EQUIPMENT VENTED AS REQUIRED: PLUMBING: INSTALLED AND MAINTAINED - Comments: NO VISIBLE BACK FLOW PREVENTION DEVICES ON WATER SUPPLIES TO ICE MACHINE AND COFFEE BREWER. MUST INSTALL SAME. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+## [2] &quot;9. WATER SOURCE: SAFE, HOT &amp; COLD UNDER CITY PRESSURE - Comments: PREMISES OPERATING WITHOUT ANY RUNNING HOT OR COLD WATER ON PREMISES UNDER CITY PRESSURE. WATER SHUT OFF DUE TO CONSTRUCTION WORK OUTSIDE, RESTAURANT WAS INFORMED THAT RUNNING WATER WOULD NOT BE AVAILABLE, HOWEVER WAS OPEN AND SERVING FOOD TO CUSTOMERS. \nCRITICAL CITATION ISSUED 7-38-030. MUST RESTORE HOT AND COLD RUNNING WATER TO ALL SINKS. &quot;                                                                                                                                                                                                                                                                                                                                 
+## [3] &quot;33. FOOD AND NON-FOOD CONTACT EQUIPMENT UTENSILS CLEAN, FREE OF ABRASIVE DETERGENTS - Comments: MUST CLEAN ALL FOOD EQUIPMENT, UTENSILS AND EQUIPMENT NOT CLEAN: PREP TABLES, EXTERIOR /INTERIOR OF ALL FOOD EQUIPMET, DEEP FRYER, CABINETS, RACKS, DISH MACHINE, STOVES, ICE MACHINE, OVENS ETC. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+## [4] &quot;13. NO EVIDENCE OF RODENT OR INSECT INFESTATION, NO BIRDS, TURTLES OR OTHER ANIMALS - Comments: EVIDENCE OF IMPROPER PEST CONTROL ON PREMISES. NUMEROUS RODENT/MICE DROPPINGS ON PREMISES. MORE THAN 200 MICE DROPPINGS ON FLOORS BEHIND ICE MACHINE, MORE THAN 100 DROPPINGS IN REAR PORCH STORAGE AREA ON TOP OF DRY STORAGE FOOD CONTAINERS AND UNDER STORAGE RACKS, UNDER HAND SINK AND DOUGH MIXER, FREEZER, ON STORAGE FOOD SHELVES, AND MORE THAN 30-LOWER PREP TABLE SHELVES, UNDER DISH MACHINE, 20 INSIDE DEEP FRYER CABINET. MUST CLEAN/SANITIZE ALL AREAS. INSTALL 16 MESH TO THE INCH SCREEN OVER VENTILATION FAN ABOVE REAR DOOR TO PREVENT INSECT ENTRY. MUST CONTACT PEST CONTROL COMPANY FOR TREATMENT. CRITICAL CITATION ISSUED 7-38-020. &quot;
+## [5] &quot;35. WALLS, CEILINGS, ATTACHED EQUIPMENT CONSTRUCTED PER CODE: GOOD REPAIR, SURFACES CLEAN AND DUST-LESS CLEANING METHODS - Comments: OPENINGS IN CEILING AREAS AROUND PIPES IN PREP AREAS. MUST SEAL OPENINGS. CLEAN FOOD DEBRIS AND SPILLAGE FROM WALLS. CLEAN ACCUMULATED DUST ON VENT COVERS. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+## [6] &quot;36. LIGHTING: REQUIRED MINIMUM FOOT-CANDLES OF LIGHT PROVIDED, FIXTURES SHIELDED - Comments: NO ADEQUATE LIGHTING IN PREP AREA.MUST PROVIDE. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+## [7] &quot;41. PREMISES MAINTAINED FREE OF LITTER, UNNECESSARY ARTICLES, CLEANING  EQUIPMENT PROPERLY STORED - Comments: FOUND STORAGE SHELVES IN PREP AREA TOO CLUTTERED WITH ARTICLES,CARD BOARD ETC.MUST REMOVE ALL CLUTTER AND PROPERLY ORGANIZE ALL STORAGE SHELVES IN PREP AREA. &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+## [8] &quot;34. FLOORS: CONSTRUCTED PER CODE, CLEANED, GOOD REPAIR, COVING INSTALLED, DUST-LESS CLEANING METHODS USED - Comments: FLOORS THROUGH-OUT NOT CLEAN. RODENT DROPPINGS, FOOD DEBRIS, GREASE AND LITTER ON FLOORS. MUST CLEAN. SEAL ALL OPENINGS AT FLOOR/WALL JUNCTIONS.&quot;</code></pre>
 <pre class="r"><code># geneorama::clipper(temp)
 dat[license==2009150, pastCritical, keyby=list(inspection_date, inspection_id)]</code></pre>
 <pre><code>##    inspection_date inspection_id pastCritical

@@ -232,8 +232,7 @@ dat[ , list(`     dat`=.N), keyby=risk][order(-`     dat`)][
             dat_prev3[ , list(datprev3=.N), keyby=risk][order(-datprev3)]]
 ```
 
-### ******* THIS ONE LOOKS BAD! 
-### Summary of 'pastSerious'
+### Summary of 'pastSerious' (DATA DOESN'T MATCH)
 ```{r, echo=FALSE}
 # dat[ , .N, keyby=pastSerious][,list(pastSerious, N, percent=round(N/sum(N), 3))]
 # dat_prev1[ , .N, keyby=pastSerious][,list(pastSerious, N, percent=round(N/sum(N), 3))]
@@ -253,8 +252,7 @@ temp0[temp1[temp2[temp3]]]
 rm(temp0, temp1, temp2, temp3)
 ```
 
-### ******* THIS ONE LOOKS BAD! 
-### Summary of 'pastCritical'
+### Summary of 'pastCritical' (DATA DOESN'T MATCH)
 ```{r, echo=FALSE}
 # dat[ , .N, keyby=pastCritical][,list(pastCritical, N, percent=round(N/sum(N), 3))]
 # dat_prev1[ , .N, keyby=pastCritical][,list(pastCritical, N, percent=round(N/sum(N), 3))]
@@ -304,7 +302,7 @@ temp0[temp1[temp2[temp3]]][J(temperatureMax=17:97)]
 rm(temp0, temp1, temp2, temp3)
 ```
 
-### Summary of 'timeSinceLast'
+### Summary of 'timeSinceLast' (DATA DOESN'T MATCH)
 ```{r}
 temp0 <- dat[,list(`   dat`=.N), keyby=list(timeSinceLast=round(timeSinceLast, 1))]
 temp1 <- dat_prev1[,list(datprev1=.N), keyby=list(timeSinceLast=round(timeSinceLast, 1))]
@@ -313,8 +311,6 @@ temp3 <- dat_prev3[,list(datprev3=.N), keyby=list(timeSinceLast=round(timeSinceL
 temp0[temp1[temp2[temp3]]]
 rm(temp0, temp1, temp2, temp3)
 ```
-
-
 
 
 
@@ -336,6 +332,14 @@ datmerge[pastCritical.x==2 & pastCritical.y==0,
          keyby=list(doing_business_as_name.x, license)]
 
 ## Example of a difference: GOLDEN APPLE CAFE & BAKERY
+datmerge <- merge(dat[,.SD,list(inspection_id=as.character(inspection_id))], 
+                  dat_prev3, by = "inspection_id", all=TRUE)
+datmerge[ , diffcrit:=pastCritical.x-pastCritical.y]
+datmerge[,.N,keyby=diffcrit]
+datmerge[,.N,keyby=list(diffcrit, pastCritical.x, pastCritical.y)]
+datmerge[pastCritical.x==2 & pastCritical.y==0, 
+         .N, 
+         keyby=list(doing_business_as_name.x, license)]
 dat[doing_business_as_name=='GOLDEN APPLE CAFE & BAKERY']
 dat_prev3[doing_business_as_name=='GOLDEN APPLE CAFE & BAKERY']
 
@@ -352,6 +356,7 @@ vio_nums <- lapply(vio,
 vio_mat <- geneorama::list2matrix(vio_nums, count = T)
 vio_mat <- vio_mat[ , order(as.numeric(colnames(vio_mat)))]
 vio_mat
+
 manualsummary <- data.table(inspection_id = as.character(temp$Inspection_ID),
                             inspection_date = temp$Inspection_Date,
                             crit = apply(vio_mat[ , colnames(vio_mat) %in% 1:14], 1, sum),
@@ -361,6 +366,7 @@ manualsummary
 manualsummary[inspection_id%in% dat$inspection_id]
 # vio[which(manualsummary$inspection_id%in% dat$inspection_id)]
 gsub("\n", "", vio[which(manualsummary$inspection_id%in% dat$inspection_id)])
+vio[which(manualsummary$inspection_id%in% dat$inspection_id)]
 
 # geneorama::clipper(temp)
 dat[license==2009150, pastCritical, keyby=list(inspection_date, inspection_id)]
@@ -368,21 +374,6 @@ dat_prev1[license_=='2009150', pastCritical, keyby=list(inspection_date, inspect
 dat_prev2[license_=='2009150', pastCritical, keyby=list(inspection_date, inspection_id)]
 dat_prev3[license_=='2009150', pastCritical, keyby=list(inspection_date, inspection_id)]
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
