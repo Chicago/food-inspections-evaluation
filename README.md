@@ -20,6 +20,7 @@ We owe a special thanks to our volunteers at Allstate for the model development.
 
 ## Important Files
 + ```./CODE/00_Startup.R``` - Run this within R to download the appropriate packages.
++ ```./CODE/socrata_token.txt``` This is your socrata api key, which is needed to download files from the data portal.  The key must be on the first line of the text file, and can contain white space and trailing comments, e.g. "123456qwerty  # this is my key from last year" would be a perfectly valid way to store your key.  You could also have more comments / keys stored in the file, because _only the first line will be used_.  You find out how to register for a free key here: https://support.socrata.com/hc/en-us/articles/202950038-How-to-obtain-an-App-Token-aka-API-Key-
 + ```./CODE/10_download_data.R``` **OPTIONAL** Download most of the necessary files from data.cityofchicago.org.  _You can also just use the included files_!  You will need to rely on some of the included files for data such as weather, unless you would like to modify the model and import your own variables.
 + ```./CODE/11_Filter_data.R``` **OPTIONAL** Filter the large Rds (serialized data) files for more managable file sizes, and remove some unnecessary / incomplete data.
 + ```./CODE/12_Merge.R``` **OPTIONAL** Use this script to calculate field values / features, and merge them into one object for use in the model.  This script makes heavy use of the functions located in ```./CODE/functions```
