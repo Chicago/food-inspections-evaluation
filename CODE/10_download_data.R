@@ -22,8 +22,15 @@ DataDir <- "DATA/20141110"
 
 ## Application Tokens for Socrata API:
 ## Obtain tokens by registering on socrata.com
-mytoken <- "NCxdKMXKT2fPVvmZQnCdziPel"  ## gmail account
-mytoken <- "YPSdn0B006OmWzSQkhIBpDc0R"  ## city account
+## Note: only the first line is used 
+## Note: whitespace and comments will be stripped
+if(!file.exists("CODE/socrata_token.txt")){
+    stop(paste0("You need to register for an API token on socrata.com, and ",
+                "put it into a file called 'socrata_token.txt' in order to ",
+                "download the files from the data portal"))
+} else{
+    mytoken <- gsub(" |\\#.+", "", readLines("CODE/socrata_token.txt", n=1))
+}
 
 ## Set "multi" to true to use parallel processor to download
 ## Check your platform for compatibility!  (best on Linux based systems)
