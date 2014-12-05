@@ -106,11 +106,11 @@ geneorama::convert_datatable_IntNum(sanitationComplaints)
 crime[ , Arrest := as.logical(Arrest)]
 crime[ , Domestic := as.logical(Domestic)]
 
-str(business)
-str(crime)
-str(foodInspect)
-str(garbageCarts)
-str(sanitationComplaints)
+# str(business)
+# str(crime)
+# str(foodInspect)
+# str(garbageCarts)
+# str(sanitationComplaints)
 
 ## Remove one row where the header is (somewhat) repeated
 sanitationComplaints <- sanitationComplaints[Service_Request_Number!="SERVICE REQUEST NUMBER"]
