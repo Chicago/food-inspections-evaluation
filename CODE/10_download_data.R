@@ -97,22 +97,29 @@ unlink(file.path(DataDir, "sanitation_code"), recursive = T, force=T)
 ## SMALL FIXES
 ##==============================================================================
 
-## read in data
+## read in data that has been downloaded
 business <- readRDS(file.path(DataDir, "bus_license.Rds"))
 crime <-  readRDS(file.path(DataDir, "crime.Rds"))
 foodInspect <- readRDS(file.path(DataDir, "food_inspections.Rds"))
 garbageCarts <- readRDS(file.path(DataDir, "garbage_carts.Rds"))
 sanitationComplaints <- readRDS(file.path(DataDir, "sanitation_code.Rds"))
 
+## Convert any integer columns to numeric
+## Although numeric takes up more space and is slightly slower, keeping these
+## fields as numeric avoids problems with integer overflow and models that
+## can't handle integers.  
 geneorama::convert_datatable_IntNum(business)
 geneorama::convert_datatable_IntNum(crime)
 geneorama::convert_datatable_IntNum(foodInspect)
 geneorama::convert_datatable_IntNum(garbageCarts)
 geneorama::convert_datatable_IntNum(sanitationComplaints)
 
+## Ensure that Arrest and Domestic are Logical values
 crime[ , Arrest := as.logical(Arrest)]
 crime[ , Domestic := as.logical(Domestic)]
 
+## If you are inclined, uncomment and view the structures of your downloaded 
+## data before saving to see if it makes sense.
 # str(business)
 # str(crime)
 # str(foodInspect)
@@ -129,17 +136,3 @@ saveRDS(crime , file.path(DataDir, "crime.Rds"))
 saveRDS(foodInspect , file.path(DataDir, "food_inspections.Rds"))
 saveRDS(garbageCarts , file.path(DataDir, "garbage_carts.Rds"))
 saveRDS(sanitationComplaints , file.path(DataDir, "sanitation_code.Rds"))
-
-
-
-
-
-
-
-
-
-
-
-
-
-

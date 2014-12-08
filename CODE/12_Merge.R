@@ -1,5 +1,5 @@
 
-stop()
+stop()  ## This stop is to prevent *accidental* execution of the entire script
 
 ##==============================================================================
 ## INITIALIZE
@@ -164,8 +164,10 @@ for (j in match(colnames(OtherCategories)[-1], colnames(dat))) {
 weather$date <- as.IDate(weather$date)
 weather_new$date <- as.IDate(weather_new$date, format="%m/%d/%y")
 weather <- weather[order(weather$date), ]
-weather[nrow(weather), ]
-# weather_new[1, ]
+
+## Check that the new and old dates line up, then combine
+# tail(weather, 1)
+# head(weather_new, 1)
 weather <- rbind(weather, weather_new[-1, ])
 rm(weather_new)
 

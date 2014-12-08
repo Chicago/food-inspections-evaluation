@@ -62,18 +62,11 @@ xmat <- dat[ , list(criticalFound,
                     # risk = as.factor(Risk),
                     # facility_type = as.factor(Facility_Type),
                     timeSinceLast),
-            keyby = "Inspection_ID"]
-
-MyFormula <- ~ -1 + Inspection_ID + criticalFound + Inspector_Assigned +
-    pastSerious + ageAtInspection + pastCritical + 
-    consumption_on_premises_incidental_activity + tobacco_retail_over_counter +
-    temperatureMax + heat_burglary + heat_sanitation + heat_garbage + 
-    # risk + facility_type + 
-    timeSinceLast
-
-mm <- model.matrix(MyFormula, data=xmat[,all.vars(MyFormula),with=F])
-str(xmat)
+            keyby = Inspection_ID]
+mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
+mm <- as.data.table(mm)
 str(mm)
+colnames(mm)
 
 ##==============================================================================
 ## CREATE TEST / TRAIN PARTITIONS
@@ -89,68 +82,81 @@ iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
 nrow(dat)
 nrow(xmat)
 nrow(mm)
-dat[!Inspection_ID %in% mm[, "Inspection_ID"]]
-
 
 ##==============================================================================
 ## GLMNET MODEL
 ##==============================================================================
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
-net <- glmnet(x = mm[iiTrain, -(1:2)],
-              y = mm[iiTrain,  2],
-              family = "binomial", 
-              alpha = 0,
-              penalty.factor = ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0))
+model <- glmnet(x = as.matrix(mm[iiTrain]),
+                y = xmat[iiTrain,  criticalFound],
+                family = "binomial", 
+                alpha = 0,
+                penalty.factor = ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0))
 
-# see what regularization parameter 'lambda' is optimal on tune set
-errors <- sapply(net$lambda, 
+
+## See what regularization parameter 'lambda' is optimal on tune set
+## (We are essentially usin the previous hardcoded value)
+errors <- sapply(model$lambda, 
                  function(lam) 
-                     logLik(p = as.numeric(predict(net, 
-                                                   newx = mm[iiTrain,-(1:2)], 
-                                                   s=lam, 
-                                                   type="response")), 
-                            y = mm[iiTrain ,2]))
-plot(x=log(net$lambda), y=errors, type="l")
-
+                     logLik(p = predict(model, 
+                                        newx = as.matrix(mm[iiTrain]), 
+                                        s=lam, 
+                                        type="response")[,1], 
+                            y = xmat[iiTrain, criticalFound]))
+plot(x=log(model$lambda), y=errors, type="l")
 which.min(errors)
+model$lambda[which.min(errors)]
+## manual lambda selection
 w.lam <- 100
-lam <- net$lambda[w.lam]
-coef <- net$beta[,w.lam]
+lam <- model$lambda[w.lam]
+coef <- model$beta[,w.lam]
 inspCoef <- coef[grepl("^Inspector.Assigned",names(coef))]
 inspCoef <- inspCoef[order(-inspCoef)]
-head(inspCoef,10); tail(inspCoef,10)
+## coefficients for the inspectors, and for other variables
+inspCoef
 coef[!grepl("^Inspector.Assigned",names(coef))]
 
-## ATTACH PREDICTIONS TO XMAT AND DAT
-xmat$glm_pred <- as.numeric(predict(net, newx=mm[, -(1:2)], 
-                                    s=lam, 
-                                    type="response"))
-dat$glm_pred <- as.numeric(predict(net, newx=mm[, -(1:2)], 
-                                   s=lam, 
-                                   type="response"))
+
+## By the way, if we had knowledge of the future, we would have chosen a 
+## different lambda
+errorsTest <- sapply(model$lambda, 
+                     function(lam) 
+                         logLik(p = predict(model, 
+                                            newx = as.matrix(mm[iiTest]), 
+                                            s=lam, 
+                                            type="response")[,1], 
+                                y = xmat[iiTest, criticalFound]))
+plot(x=log(model$lambda), y=errorsTest, type="l")
+which.min(errorsTest)
+model$lambda[which.min(errorsTest)]
+
+## ATTACH PREDICTIONS TO DAT
+dat$glm_pred <- predict(model, newx=as.matrix(mm), 
+                        s=lam, 
+                        type="response")[,1]
 
 # show gini performance of inspector model on tune data set
-xmat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 
 ## Calculate confusion matrix values for evaluation
 calculate_confusion_values(actual = xmat[iiTest, criticalFound],
-                           expected = xmat[iiTest, glm_pred], 
+                           expected = dat[iiTest, glm_pred], 
                            r = .25)
 
 ## Calculate matrix of confusion matrix values for evaluation
 confusion_values_test <- t(sapply(seq(0, 1 ,.01), 
                                   calculate_confusion_values,
                                   actual = xmat[iiTest, criticalFound],
-                                  expected = xmat[iiTest, glm_pred]))
+                                  expected = dat[iiTest, glm_pred]))
 confusion_values_test
 ggplot(reshape2::melt(as.data.table(confusion_values_test), 
                       id.vars="r")) + 
     aes(x=r, y=value, colour=variable) + geom_line() + 
     geom_hline(yintercept = c(0,1))
 
-
-
+##==============================================================================
+## CALCULATION OF LIFT
+##==============================================================================
 ## TEST PERIOD: Date range
 dat[iiTest, range(Inspection_Date)]
 ## TEST PERIOD: Total inspections
@@ -159,7 +165,6 @@ dat[iiTest, .N]
 dat[iiTest, sum(criticalCount)]
 ## TEST PERIOD: Inspections with any critical violations
 dat[iiTest, sum(criticalFound)]
-
 
 ## Subset test period
 datTest <- dat[iiTest]

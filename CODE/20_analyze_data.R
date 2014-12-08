@@ -1,3 +1,14 @@
+
+
+## This file is basically a sandbox of examples and has nothing to do with the
+## actual analysis.  
+##
+## A few restaurants / schools / businesses were picked randomly just to test 
+## the matching logic between databases, and a few variables were plotted.
+## However, nothing was saved or used anywhere else.
+## 
+
+
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
@@ -10,28 +21,39 @@ if(!"geneorama" %in% rownames(installed.packages())){
     devtools::install_github('geneorama/geneorama')}
 ## Load libraries
 geneorama::detach_nonstandard_packages()
-# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
 geneorama::loadinstall_libraries(c("data.table"))
-geneorama::sourceDir("functions/")
+geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
+## DEFINE GLOBAL VARIABLES / MANUAL CODE
+##==============================================================================
+DataDir <- "DATA/20141110"
+
+##==============================================================================
+## LOAD DATA
+##==============================================================================
+
 ## LOAD CACHED RDS FILES
-##==============================================================================
-business <- readRDS("DATA/bus_license.Rds")
-crime <-  readRDS("DATA/crime.Rds")
-foodInspect <- readRDS("DATA/food_inspections.Rds")
-garbageCarts <- readRDS("DATA/garbage_carts.Rds")
-sanitationComplaints <- readRDS("DATA/sanitation_code.Rds")
+business <- readRDS(file.path(DataDir, "bus_license.Rds"))
+crime <-  readRDS(file.path(DataDir, "crime.Rds"))
+foodInspect <- readRDS(file.path(DataDir, "food_inspections.Rds"))
+garbageCarts <- readRDS(file.path(DataDir, "garbage_carts.Rds"))
+sanitationComplaints <- readRDS(file.path(DataDir, "sanitation_code.Rds"))
 
+## Filter crime to make more managable
+crime <- crime[Date>as.IDate('2011-07-01')]
+gc()
 
-##==============================================================================
-## LOAD PREVIOUS DATA
-##==============================================================================
+## LOAD DATA FROM PREVIOUS ANALYSIS
 load("DATA/recreated_training_data_20141103v02.Rdata")
 prev <- as.data.table(rbind(train,tune,evaluate))
 rm(train,tune,evaluate)
 prev[ , inspection_id := as.integer(inspection_id)]
+prev[ , license_ := as.integer(license_)]
 prev <- prev[!duplicated(inspection_id)]
+
+## LOAD DATA FOR CURRENT ANALYSIS
+dat <- readRDS("DATA/20141110/dat_with_inspector.Rds")
 
 ##==============================================================================
 ## BUSINESS
@@ -46,22 +68,28 @@ business[ , .N, is.na(LICENSE_TERM_EXPIRATION_DATE)]
 ## CRIME
 ##==============================================================================
 crime[ , .N, Primary_Type][order(-N)]
+
+## Based on previous factor level assignment
 lvls <- crime[ , .N, Primary_Type][order(-N), Primary_Type]
 crime[ , Primary_Type := factor(x = Primary_Type, levels = lvls)]
 rm(lvls)
-
 
 ##==============================================================================
 ## FOOD INSPECTIONS
 ##==============================================================================
 str(foodInspect)
-foodInspect[,.N,Inspection_Type]
+foodInspect[ , .N, Inspection_Type]
 
-hist(foodInspect$timeSinceLast)
+hist(dat$timeSinceLast, main="Histogram of dat$timeSinceLast (current data)")
+hist(prev$timeSinceLast, main="Histogram of dat$timeSinceLast (previous analysis)")
 
+## Some example licenses
 foodInspect[License==40]
 foodInspect[License==62]
 foodInspect[License==104]
+dat[License==40]
+dat[License==62]
+dat[License==104]
 
 
 ##==============================================================================
@@ -78,7 +106,7 @@ prev[grep("CARNICERIA LA GLORIA NO. 2", doing_business_as_name)]
 prev[license_==1514813][order(inspection_date)]
 prev[license_==1514813,
      list(license_, doing_business_as_name,pastFail),
-     keyby=inspection_date]
+     keyby = inspection_date]
 
 ## Checking merge
 setkey(foodInspect, Inspection_ID)
@@ -164,14 +192,14 @@ rm(temp)
 
 business[,.N,LICENSE_NUMBER]
 
-foodInspect[License=="349"]
-business[LICENSE_NUMBER=="349"]
-foodInspect[License=="1593938"]
-business[LICENSE_NUMBER=="1593938"]
-foodInspect[License=="1892716"]
-business[LICENSE_NUMBER=="1892716"]
-foodInspect[License=="18236"]
-business[LICENSE_NUMBER=="18236"]
+foodInspect[License==349]
+business[LICENSE_NUMBER==349]
+foodInspect[License==1593938]
+business[LICENSE_NUMBER==1593938]
+foodInspect[License==1892716]
+business[LICENSE_NUMBER==1892716]
+foodInspect[License==18236]
+business[LICENSE_NUMBER==18236]
 
 
 ## Matching food licenses in business:
@@ -179,8 +207,8 @@ geneorama::inin(foodInspect$License, business$LICENSE_NUMBER)
 table(unique(foodInspect$License) %in% business$LICENSE_NUMBER)
 found <- unique(foodInspect$License)[unique(foodInspect$License) %in% business$LICENSE_NUMBER]
 notfound <- unique(foodInspect$License)[!unique(foodInspect$License) %in% business$LICENSE_NUMBER]
-set.seed(1);clipper(sample(found)[1:10])
-set.seed(1);clipper(sample(notfound)[1:10])
+# set.seed(1);clipper(sample(found)[1:10])
+# set.seed(1);clipper(sample(notfound)[1:10])
 rm(found, notfound)
 
 

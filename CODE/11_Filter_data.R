@@ -69,5 +69,3 @@ sanitationComplaints <- sanitationComplaints[!is.na(Latitude) & !is.na(Longitude
 sanitationComplaints <- sanitationComplaints[Status %in% c("Completed", "Open")]
 # sanitationComplaints$status <- NULL
 saveRDS(sanitationComplaints, file.path(DataDir, "sanitation_code_filtered.Rds"))
-
-
