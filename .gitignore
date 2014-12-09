@@ -1,6 +1,5 @@
-/FoodInspectionEvaluation.zip
 /.project
-*.Rproj.user
-food-inspections-evaluation.Rproj
 .Rproj.user
-.Rhistory
+.Rproj
+CODE/socrata_token.txt
+

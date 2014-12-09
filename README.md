@@ -1,32 +1,34 @@
 # Food inspection forecasting evaluation
 
-This repository contains the necessary data and scripts to evaluate the effectiveness of the City of Chicago's food inspections pilot. This repository contains the training data and evaluation data.
+The City of Chicago has conducted a pilot to test the potential for using predictive analytics to improve the effectiveness of food inspections.  The goal of the predictive model is to identify businesses that are most at risk for having critical violations, which are the types of violations that are most likely to contribute to food borne illness. 
 
-## Important FIles
-+ ```./CODE/recreating_training_data.R``` - Generates training data from September 2011 through January 2014.
-+ ```./CODE/out-of-sample-generation/create_out-of-sample_data.R``` - Generates out-of-sample data to evaluate the effectiveness of the model.
-+ ```./CODE/fit_glmnet.R``` - fits the analytical model, generates coefficients.
-+ ```./OUT/evaluation-summary.html``` - summarizes the findings of the program's evaluation. This was created with knitr and the underlying analytics can be seen in ```./OUT/evaluation-summary.R```.
+This code is (presently) written entirely in R, which is entirely free and open source statistical modeling software.  R can also be used for data management and manipulation, and within R we make use of a package known as `data.table`.  For best results, we also recommend using R Studio, which also has entirely free and open source distributions.
 
-## Running files
+This repository contains the scripts and data to "run the model".  Specifically
 
-### Generating training data
-Execute ```recreating_training_data.R``` to generate training data:
-```shell
-Rscript /path/to/food-inspections-evaluation/CODE/recreating_training_data.R
-```
++ Copies of the data used to test the evaluation of the model,
++ Scripts that _can_ be used to download the data used to train and test the model
++ Scripts to perform transformations on the data to prepare it for the model
++ Scripts to incorporate several sources of data,
++ Scripts to create the model used (based on training data), and finally
++ The necessary scripts to evaluate the effectiveness of the City of Chicago's food inspections pilot. 
 
-### Generating evaluation / out-of-sample data
-Execute ```create_out-of-sample_data.R``` to generate the out-of-sample data used for the evaluation:
-```shell
-Rscript /path/to/food-inspections-evaluation/CODE/out-of-sample-generation/recreating_training_data.R
-```
+The general theme througout the workflow is that various data sources are combined through various "keys", and these come together to paint a statistical picture of a business license, which is the primary modelling unit / unit of observation.  It's useful to remember that different keys are employed to join together different data sources, and these keys include things such as Inspection ID, Business License, and Geography expressed as a Latitude / Longitude combination.
 
-### Generating evaluation / out-of-sample data
-Execute ```fit_glmnet_evaluation.R``` to generate the out-of-sample data used for the evaluation:
-```shell
-Rscript /path/to/food-inspections-evaluation/CODE/fit_glmnet_evaluation.R
-```
+We owe a special thanks to our volunteers at Allstate for the model development.  They put in a tremendous amount of work into creating this model and into the code development. 
+
+
+## Important Files
++ ```./CODE/00_Startup.R``` - Run this within R to download the appropriate packages.
++ ```./CODE/socrata_token.txt``` This is your socrata api key, which is needed to download files from the data portal.  The key must be on the first line of the text file, and can contain white space and trailing comments, e.g. "123456qwerty  # this is my key from last year" would be a perfectly valid way to store your key.  You could also have more comments / keys stored in the file, because _only the first line will be used_.  You find out how to register for a free key here: https://support.socrata.com/hc/en-us/articles/202950038-How-to-obtain-an-App-Token-aka-API-Key-
++ ```./CODE/10_download_data.R``` **OPTIONAL** Download most of the necessary files from data.cityofchicago.org.  _You can also just use the included files_!  You will need to rely on some of the included files for data such as weather, unless you would like to modify the model and import your own variables.
++ ```./CODE/11_Filter_data.R``` **OPTIONAL** Filter the large Rds (serialized data) files for more managable file sizes, and remove some unnecessary / incomplete data.
++ ```./CODE/12_Merge.R``` **OPTIONAL** Use this script to calculate field values / features, and merge them into one object for use in the model.  This script makes heavy use of the functions located in ```./CODE/functions```
++ ```30_glmnet_model.R``` The precalculated output from previous scripts is imported and used in the model.  The main data set is indexed by time, and past data is used to independently create a model that is applied to future data (future from the perspective of the model).  In other words, the evaluation of the model uses no knowledge of current conditions to generate the results.  Several metrics of performance are also shown in this script.
+
+The past data is known as training data, and includes observations from September 2011 through January 2014.
+
+The commands in these files should be run sequentially in order to reproduce results.  You can "step through" the code in R Studio (or the R GUI, or other tools such as Eclipse) to interactively see the results.
 
 ### Compatibility
 These files currently use several packages that are compatible with R >= 3.1. You may experience issues using older versions of R, including 3.0.x and 2.x.
