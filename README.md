@@ -33,6 +33,9 @@ The commands in these files should be run sequentially in order to reproduce res
 ### Compatibility
 These files currently use several packages that are compatible with R >= 3.1. You may experience issues using older versions of R, including 3.0.x and 2.x.
 
+## Acknowledgements
+This research was completed in cooperation between the City of Chicago, Civic Consulting Alliance, and Allstate Insurance. We would especially like to thank the efforts of Stephen Collins, Gavin Smart for their collaboration on developing the model. We also appreciate the coordination provided by Kelsey Burr, Christian Hines, and Kiran Pookote.
+
 ## License
 Copyright, 2014 City of Chicago
 
