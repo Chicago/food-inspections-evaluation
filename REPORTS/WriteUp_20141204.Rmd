@@ -1,0 +1,235 @@
+
+## The whole model is below (hidden!)
+
+```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+##==============================================================================
+## INITIALIZE
+##==============================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+## Check for dependencies
+if(!"geneorama" %in% rownames(installed.packages())){
+    if(!"devtools" %in% rownames(installed.packages())){
+        install.packages('devtools')}
+    devtools::install_github('geneorama/geneorama')}
+## Load libraries
+geneorama::detach_nonstandard_packages()
+geneorama::loadinstall_libraries(c("data.table", "ggplot2", "knitr", "glmnet"))
+geneorama::set_project_dir("food-inspections-evaluation")
+geneorama::sourceDir("CODE/functions/")
+
+## Globally turn off "fixing" indenting for code chunks
+opts_chunk$set(tidy = FALSE)
+
+## Navigate to the top level directory 
+geneorama::set_project_dir("food-inspections-evaluation")
+
+##==============================================================================
+## DEFINE GLOBAL VARIABLES / MANUAL CODE
+##==============================================================================
+## Select data version
+DataDir <- "DATA/20141110"
+
+##==============================================================================
+## LOAD CACHED RDS FILES AND MODIFY DATA FOR MODEL
+##==============================================================================
+dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
+## Remove NA's
+dat[,.N,is.na(heat_burglary)]
+dat <- dat[!is.na(heat_burglary)]
+## Add criticalFound variable to dat:
+dat[ , criticalFound := pmin(1, criticalCount)]
+## Set the key for dat
+setkey(dat, Inspection_ID)
+## Match time period of original results
+# dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
+dat[, .N, Results]
+## Remove records where an inspection didn't happen
+dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
+
+##==============================================================================
+## CREATE MODEL DATA
+##==============================================================================
+xmat <- dat[ , list(criticalFound,
+                    Inspector_Assigned,
+                    pastSerious = pmin(pastSerious, 1),
+                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
+                    pastCritical = pmin(pastCritical, 1),
+                    consumption_on_premises_incidental_activity,
+                    tobacco_retail_over_counter,
+                    temperatureMax,
+                    heat_burglary = pmin(heat_burglary, 70),
+                    heat_sanitation = pmin(heat_sanitation, 70),
+                    heat_garbage = pmin(heat_garbage, 50),
+                    # risk = as.factor(Risk),
+                    # facility_type = as.factor(Facility_Type),
+                    timeSinceLast),
+            keyby = Inspection_ID]
+mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
+mm <- as.data.table(mm)
+
+##==============================================================================
+## CREATE TEST / TRAIN PARTITIONS
+##==============================================================================
+iiTrain <- dat[ , which(Inspection_Date < "2014-07-01")]
+iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
+
+##==============================================================================
+## GLMNET MODEL
+##==============================================================================
+# fit ridge regression, alpha = 0, only inspector coefficients penalized
+pen <- ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0)
+model <- glmnet(x = as.matrix(mm[iiTrain]),
+                y = xmat[iiTrain,  criticalFound],
+                family = "binomial", alpha = 0, penalty.factor = pen)
+w.lam <- 100
+lam <- model$lambda[w.lam]
+coef <- model$beta[,w.lam]
+coefInsp <- coef[grepl("^Inspector.Assigned",names(coef))]
+coefInsp <- coefInsp[order(-coefInsp)]
+coefNonInsp <- coef[!grepl("^Inspector.Assigned",names(coef))]
+
+## ATTACH PREDICTIONS TO DAT
+dat$glm_pred <- predict(model, newx=as.matrix(mm), s=lam, type="response")[,1]
+```
+
+
+## Very basic statistics
+
+```{r}
+## TEST PERIOD: Date range
+dat[iiTest, range(Inspection_Date)]
+
+## TEST PERIOD: Total inspections
+dat[iiTest, .N]
+
+## TEST PERIOD: Critical Found
+dat[iiTest, sum(criticalFound)]
+
+## TEST PERIOD: Critical Count
+dat[iiTest, sum(criticalCount)]
+```
+
+## Basic model performance
+
+```{r}
+## show gini performance of inspector model on test data set
+dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
+```
+
+## Confustion matrix for one cutoff (.25)
+
+```{r}
+## Calculate confusion matrix values for evaluation
+calculate_confusion_values(actual = dat[iiTest, criticalFound],
+                           expected = dat[iiTest, glm_pred], 
+                           r = .25)
+```
+
+
+## Detailed analysis of just the test period
+
+```{r}
+## Subset test period
+datTest <- dat[iiTest]
+
+## Identify the ACTUAL first and second periods
+datTest[ , period := ifelse(Inspection_Date < median(Inspection_Date), 1, 2)]
+datTest[, .N, keyby=list(period)]
+## Identify top half of scores (which *would have* been the first period)
+datTest[ , period_modeled := ifelse(glm_pred > median(glm_pred), 1, 2)]
+datTest[, .N, keyby=list(period_modeled)]
+
+## Total of inspections / critical found for ACTUAL data
+datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
+
+## Total of inspections / critical found for MODELED scenario
+datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
+
+## Another way to say "how many would you have found  in the first period"
+datTest[period == 1, sum(criticalFound)]
+datTest[period_modeled == 1, sum(criticalFound)]
+```
+
+
+## More examples if you're interested or having trouble sleeping.
+
+```{r}
+geneorama::loadinstall_libraries(c("reshape2", "MASS", "splines"))
+##------------------------------------------------------------------------------
+## ANALYZE DATA
+##------------------------------------------------------------------------------
+str(dat)
+
+dat[ , .N, list(Results)]
+dat[ , .N, list(Inspection_Type)]
+
+## Annual summary of passes
+PassYearly <- dat[ , .N, list(Results = Results, 
+                              Year = round(Inspection_Date, "year"))]
+PassYearly
+dcast.data.table(PassYearly, Year ~ Results, value.var="N")
+
+## Monthly summary of passes
+PassMonthly <- dat[i = Inspection_Type == "Canvass" , 
+                   j = list(N = as.numeric(.N)), 
+                   by = list(Results = Results, 
+                             Date = round(Inspection_Date, "month"))]
+PassMonthly
+dcast.data.table(data = PassMonthly, formula = Date ~ Results,
+                 value.var = "N", fill = 0)
+
+##------------------------------------------------------------------------------
+## DAILY SUMMARY
+##------------------------------------------------------------------------------
+canvas_summary <- dat[Inspection_Type == "Canvass" & Results == "Fail",
+                      list(N_fail = .N),
+                      keyby = Inspection_Date][
+                          dat[Inspection_Type == "Canvass",
+                              list(N_total=.N),
+                              keyby = Inspection_Date]]
+setcolorder(canvas_summary, c('Inspection_Date', 'N_total', 'N_fail'))
+canvas_summary[ , Pct_fail := N_fail / N_total]
+geneorama::convert_datatable_IntNum(canvas_summary)
+canvas_summary
+
+
+ggplot(melt(canvas_summary, id.vars = "Inspection_Date"))+
+    aes(Inspection_Date, value, colour=variable) +    
+    geom_line() + facet_wrap(~variable, scales="free") + 
+    stat_smooth(method = rlm, formula= y ~ ns(x,9), colour="black") +
+    stat_smooth(method = lm, formula= y ~ ns(x,9), colour="blue")
+
+##------------------------------------------------------------------------------
+## WEEKLY SUMMARY
+##------------------------------------------------------------------------------
+canvas_summary_w <- dat[i = Inspection_Type == "Canvass" & Results == "Fail",
+                        j = list(N_fail=.N),
+                        keyby = list(week=geneorama::round_weeks(Inspection_Date))][
+                            dat[i = Inspection_Type == "Canvass",
+                                j = list(N_total=.N),
+                                keyby = list(week=geneorama::round_weeks(Inspection_Date))]]
+setcolorder(canvas_summary_w, c('week', 'N_total', 'N_fail'))
+canvas_summary_w[,Pct_fail:=N_fail/N_total]
+geneorama::convert_datatable_IntNum(canvas_summary_w)
+canvas_summary_w
+ggplot(melt(canvas_summary_w, id.vars = "week"))+
+    aes(week, value, colour=variable) +    
+    geom_line() + facet_wrap(~variable, scales="free") + 
+    stat_smooth(method = rlm, formula= y ~ ns(x,9), colour="black") +
+    stat_smooth(method = lm, formula= y ~ ns(x,9), colour="blue")
+canvas_summary_w[,sum(N_total)]
+
+```
+
+
+
+
+
+
+
+
+
+
+
