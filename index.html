@@ -23,6 +23,9 @@
     <link href='http://fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Rokkitt' rel='stylesheet' type='text/css'>
 
+    <!-- Parallax -->
+    <script src="js/parallax.js"></script>
+
     <!-- favicon & share buttons -->
     <link rel='icon' href='img/favicon.ico' type='image/x-icon' />
     <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -54,15 +57,24 @@
 </head>
 
 <body>
+<!-- Head Parallax -->
+<section id="kitchen" data-speed="10" data-type="background">
+  <article>
+    <main>Food Inspection Forecasting</main>
+    <sub>Optimizing Inspections with Analytics</sub>
+  </article>
+</section>
+
 
 <!-- Page Content -->
+<section id="document" data-speed="4" data-type="background">
 <div class="container">
 
     <!-- Navigation -->
-    <nav class="navbar navbar-fixed-top" role="navigation">
-        <div class="container">
+    <div class="container">
+        <nav class="navbar navbar-fixed-top navbar-default" role="navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
-<!--             <div class="navbar-header">
+            <!--  <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
@@ -96,16 +108,19 @@
                     </li>
                 </ul>
             </div>
+        </nav>    
+    </div>
             <!-- /.navbar-collapse -->
-        </div>
+        <!-- </div> -->
         <!-- /.container -->
-    </nav>
+    
 
     <!-- Main Title -->
     <div class="row">
-        <div class="col-lg-12">
+<!--         <div class="col-lg-12">
             <h1 id="title">Food Inspection<br />forecasting</h1>
-        </div>
+        </div> -->
+        <div class="spacer"></div>
     </div>
     <!-- /.row -->
 
@@ -276,7 +291,7 @@
     <footer>
         <div class="row">
             <div class="col-lg-12">
-                <p id="footnote">Copyright &copy; <a href="http://cityofchicago.org">City of Chicago</a> 2014. The material in this documentation is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareALike 4.0 International License</a>. The website code is available under <a rel="license" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License 2.0</a>.</p>
+                <p id="footnote">Copyright &copy; <a href="http://cityofchicago.org">City of Chicago</a> 2014. The introductory image is modified from <em><a href="https://flic.kr/p/edVZ7i">The Hunt</a></em> by <a href="https://www.flickr.com/people/edsel_/">Edsel Little</a>, which is licensed under <a href="https://creativecommons.org/licenses/by-sa/2.0/">Creative Commons Attribution-ShareALike 2.0 Generic</a>. The other material in this documentation is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareALike 4.0 International License</a>. The website code is available under <a rel="license" href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License 2.0</a>.</p>
             </div>
         </div>
         <!-- /.row -->
@@ -298,6 +313,7 @@
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
+</section>
 </body>
 
 </html>

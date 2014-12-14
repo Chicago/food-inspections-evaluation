@@ -223,3 +223,78 @@ a.twitter-hashtag-button:focus {
 	font-size: 14px;
 	text-indent: 0;
 }
+
+/* Parallax Effect*/
+
+#kitchen {
+	background: url(../img/kitchen.jpg)  50% 0 no-repeat fixed;
+/*	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;*/
+	background-size: 100%;
+	height: 700px;
+	margin: 0 auto;
+	width: 100%;
+	margin: 0 auto;
+	max-width: 3281px;
+	position: relative;
+}
+
+#kitchen article{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);	
+    text-align: center;
+}
+
+#kitchen main,sub{
+	font-family: Futura, Futura-Medium, "Futura Medium", "Century Gothic", CenturyGothic, "Apple Gothic", AppleGothic, "URW Gothic L", "Avant Garde", "Questrial" sans-serif;
+	color: white;
+	margin-left: auto;
+	margin-right: auto;
+	text-transform: uppercase;
+	width: 66%;
+}
+
+#kitchen main{
+	font-size: 72px;
+	letter-spacing: 0.1em;
+	font-weight: bold;
+}
+
+#kitchen sub{
+	font-size: 32px;
+	letter-spacing: 0.3em;
+	font-weight: 300;
+}
+
+#document {
+	background-color: white;
+}
+
+/* Navbar */
+.nav, .navbar-fixed-top, .navbar-default {
+	margin-bottom: 0;
+}
+.navbar-default {
+	background-color: #f8f8f8;
+	border-color: #f8f8f8;
+}
+.navbar-nav {
+	background-color: #f8f8f8;
+	border-color: #f8f8f8;
+}
+.navbar-form {
+	background-color: #f8f8f8;
+	border-color: #f8f8f8;
+}
+header {
+	background-color: #f8f8f8;
+	border-color: #f8f8f8;
+}
+.spacer {
+	margin-bottom: 40px;
+}
