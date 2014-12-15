@@ -1,5 +1,5 @@
-/*!
- * Start Bootstrap - Portfolio Item HTML Template (http://startbootstrap.com)
+/*
+ * Supplements 
  * Code licensed under the Apache License v2.0.
  * For details, see http://www.apache.org/licenses/LICENSE-2.0.
  */
@@ -23,8 +23,6 @@ body {
 		border-right-style:none;
 		padding: 1% 1%;
 		display: block;
-/*		margin-left: auto;
-		margin-right: auto;*/
 		text-align: center;
 		margin-bottom: 70px;
 }
@@ -150,15 +148,6 @@ IMG.stamp {
 	width: 370.5px;
 }
 
-@media all and (min-width: 300px) { h1 {font-size: 32px;}}
-@media all and (min-width: 500px) { h1 {font-size: 48px;}}
-@media all and (min-width: 700px) { h1 {font-size: 64px;}}
-
-@media (min-width: 768px) {
-  .navbar-header {
-    float: right;
-  }
-}
 
 
 .header a {
@@ -228,11 +217,7 @@ a.twitter-hashtag-button:focus {
 
 #kitchen {
 	background: url(../img/kitchen.jpg)  50% 0 no-repeat fixed;
-/*	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;*/
-	background-size: 100%;
+	/*background-size: 100% 100%;*/
 	height: 700px;
 	margin: 0 auto;
 	width: 100%;
@@ -275,26 +260,17 @@ a.twitter-hashtag-button:focus {
 	background-color: white;
 }
 
-/* Navbar */
-.nav, .navbar-fixed-top, .navbar-default {
-	margin-bottom: 0;
-}
-.navbar-default {
-	background-color: #f8f8f8;
-	border-color: #f8f8f8;
-}
-.navbar-nav {
-	background-color: #f8f8f8;
-	border-color: #f8f8f8;
-}
-.navbar-form {
-	background-color: #f8f8f8;
-	border-color: #f8f8f8;
-}
-header {
-	background-color: #f8f8f8;
-	border-color: #f8f8f8;
-}
+/* Vertical spacing between parallax image and body */
 .spacer {
 	margin-bottom: 40px;
+}
+
+/* Adjustments for browser size */
+@media all and (max-width: 750px) { #kitchen main {font-size: 64px;} #kitchen sub {font-size: 26px;}} 
+@media all and (max-width: 650px) { #kitchen main {font-size: 46px;} #kitchen sub {font-size: 22px;}} 
+@media all and (max-width: 500px) { #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
+@media (min-width: 768px) {
+  .navbar-header {
+    float: right;
+  }
 }
