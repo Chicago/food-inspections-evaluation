@@ -216,8 +216,12 @@ a.twitter-hashtag-button:focus {
 /* Parallax Effect*/
 
 #kitchen {
-	background: url(../img/kitchen.jpg)  50% 0 no-repeat fixed;
+	background: url(../img/kitchen.jpg); /* 50% 0; no-repeat fixed;*/
 	/*background-size: 100% 100%;*/
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	background-attachment: fixed;
 	height: 700px;
 	margin: 0 auto;
 	width: 100%;
