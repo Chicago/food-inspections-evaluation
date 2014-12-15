@@ -260,6 +260,10 @@ a.twitter-hashtag-button:focus {
 	background-color: white;
 }
 
+#document article {
+	background-color: white;
+}
+
 /* Vertical spacing between parallax image and body */
 .spacer {
 	margin-bottom: 40px;
