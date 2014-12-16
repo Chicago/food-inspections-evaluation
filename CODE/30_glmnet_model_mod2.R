@@ -31,26 +31,22 @@ dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
 dat[,.N,is.na(heat_burglary)]
 dat <- dat[!is.na(heat_burglary)]
 
+## Add criticalFound variable to dat:
+dat[ , criticalFound := pmin(1, criticalCount)]
+
+## Set the key for dat
+setkey(dat, Inspection_ID)
+
+## Match time period of original results
+# dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
+dat[, .N, Results]
+
+## Remove records where an inspection didn't happen
+dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
 
 ##==============================================================================
-## LOAD CACHED RDS FILES
+## CREATE MODEL DATA
 ##==============================================================================
-## glm model formula
-# myFormula <- ~ -1 + criticalFound + Inspector.Assigned +
-#     I(ifelse(pastSerious > 0, 1L, 0L)) + 
-#     #   I(ifelse(ageAtInspection > 4, 1L, 0L)) + 
-#     I(ifelse(pastCritical > 0, 1L, 0L)) + 
-#     consumption_on_premises_incidental_activity + 
-#     tobacco_retail_over_counter +
-#     temperatureMax + 
-#     I(pmin(heat_sanitation, 70)) +
-#     I(pmin(heat_garbage, 50)) + 
-#     I(pmin(heat_burglary, 70)) + 
-#     risk +
-#     facility_type +
-#     timeSinceLast 
-
-sort(colnames(dat))
 xmat <- dat[ , list(criticalFound = pmin(1, criticalCount),
                     Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),

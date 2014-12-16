@@ -31,11 +31,22 @@ dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
 dat[,.N,is.na(heat_burglary)]
 dat <- dat[!is.na(heat_burglary)]
 
+## Add criticalFound variable to dat:
+dat[ , criticalFound := pmin(1, criticalCount)]
+
+## Set the key for dat
+setkey(dat, Inspection_ID)
+
+## Match time period of original results
+# dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
+dat[, .N, Results]
+
+## Remove records where an inspection didn't happen
+dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
 
 ##==============================================================================
-## LOAD CACHED RDS FILES
+## CREATE MODEL DATA
 ##==============================================================================
-
 wpsum <- dat[,.N, WP][order(-N)]
 dat[,WP_Group:=NA_character_]
 dat[WP %in% wpsum[1:10, WP], WP_Group:=WP]
@@ -44,6 +55,7 @@ dat[is.na(WP_Group), WP_Group:="SmallWP"]
 dat[,.N,WP_Group]
 
 ftsum <- dat[,.N,Facility_Type][order(-N)]
+plot(ftsum$N[-1:-5])
 ftsum
 ftsum[1:15]
 dat[,Facility_Type_Group:=NA_character_]
@@ -53,10 +65,8 @@ dat[Facility_Type_Group=="", Facility_Type_Group:="blank"]
 dat[,.N,Facility_Type_Group]
 
 
-sort(colnames(dat))
-xmat <- dat[ , list(criticalFound = pmin(1, criticalCount),
+xmat <- dat[ , list(criticalFound,
                     Inspector_Assigned,
-                    Facility_Type_Group,## REMOVE
                     pastSerious = pmin(pastSerious, 1),
                     ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     pastCritical = pmin(pastCritical, 1),
@@ -69,7 +79,12 @@ xmat <- dat[ , list(criticalFound = pmin(1, criticalCount),
                     # risk = as.factor(Risk),
                     # facility_type = as.factor(Facility_Type),
                     timeSinceLast),
-            keyby = "Inspection_ID"]
+            keyby = Inspection_ID]
+mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
+mm <- as.data.table(mm)
+str(mm)
+colnames(mm)
+
 xmat[,Inspector_Assigned := as.factor(Inspector_Assigned)]
 xmat[,Facility_Type_Group := as.factor(Facility_Type_Group)]
 
