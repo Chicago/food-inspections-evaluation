@@ -371,6 +371,49 @@ boxplot(m3$pred[iiEval]~c("no violation", "critical violation")[yyEval+1])
 ```
 
 ```{r}
+lambdaPredMatrix <- lambdaPredMatrix_m0
+
+iEval <- trunc(seq(1, length(yyEval), length.out=100))
+iTest <- trunc(seq(1, length(yyTest), length.out=100))
+iTrain <- trunc(seq(1, length(yyTrain), length.out=100))
+
+lambdaRowMeans <- apply(lambdaPredMatrix, 1, mean)
+# iiLambda <- order(-lambdaRowMeans)
+iiLambda <- order(-lambdaPredMatrix[,100])
+iiLambdaTrain <- order(-lambdaPredMatrix[iiTrain, 100])
+iiLambdaTest  <- order(-lambdaPredMatrix[iiTest,  100])
+iiLambdaEval  <- order(-lambdaPredMatrix[iiEval,  100])
+
+ii <- iEval
+plot(x = (1:length(ii))/length(ii),
+     y = (cumsum(yyEval[iiLambdaEval]) / sum(yyEval[iiLambdaEval]))[ii] )
+ii <- iTest
+lines(x = (1:length(ii))/length(ii),
+     y = (cumsum(yyEval[iiLambdaEval]) / sum(yyEval[iiLambdaEval]))[ii], col="red")
+ii <- iTrain
+lines(x = (1:length(ii))/length(ii),
+     y = (cumsum(yyEval[iiLambdaEval]) / sum(yyEval[iiLambdaEval]))[ii], col="blue")
+
+plot(diff(cumsum(yyEval[iiLambdaEval])[iEval]), type="o")
+plot(diff(cumsum(yyTest[iiLambdaTest])[iTest]), type="o")
+plot(diff(cumsum(yyTrain[iiLambdaTrain])[iTrain]), type="o")
+
+m0$pred <- predict(m0, newx=as.matrix(mm), s=rev(m0$lambda)[1], type="response")[,1]
+m1$pred <- predict(m1, newx=as.matrix(mm), s=rev(m1$lambda)[1], type="response")[,1]
+m2$pred <- predict(m2, newx=as.matrix(mm), s=rev(m2$lambda)[1], type="response")[,1]
+m3$pred <- predict(m3, newx=as.matrix(mm), s=rev(m3$lambda)[1], type="response")[,1]
+#     m0$predTest <- m0$pred[iiTest]
+#     m0$predTest <- m0$pred[iiTest]
+
+boxplot(m0$pred[iiEval]~c("no violation", "critical violation")[yyEval+1])
+boxplot(m1$pred[iiEval]~c("no violation", "critical violation")[yyEval+1])
+boxplot(m2$pred[iiEval]~c("no violation", "critical violation")[yyEval+1])
+boxplot(m3$pred[iiEval]~c("no violation", "critical violation")[yyEval+1])
+
+```
+
+
+```{r}
 # ## manual lambda selection
 # w.lam <- 100
 # lam <- m0$lambda[w.lam]
