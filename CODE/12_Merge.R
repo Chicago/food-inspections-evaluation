@@ -18,26 +18,20 @@ geneorama::loadinstall_libraries(c("data.table", "MASS"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES / MANUAL CODE
-##==============================================================================
-DataDir <- "DATA/20141110"
-
-weather_data_old <- "DATA/20130830/weather.Rdata"
-weather_data_new <- "DATA/20141031_weather/weather-update.csv"
-
-
-
-##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-business <- readRDS(file.path(DataDir, "bus_license_filtered.Rds"))
-crime <-  readRDS(file.path(DataDir, "crime_filtered.Rds"))
-foodInspect <- readRDS(file.path(DataDir, "food_inspections_filtered.Rds"))
-garbageCarts <- readRDS(file.path(DataDir, "garbage_carts_filtered.Rds"))
-sanitationComplaints <- readRDS(file.path(DataDir, "sanitation_code_filtered.Rds"))
+business <- readRDS("DATA/bus_license_filtered.Rds")
+crime <-  readRDS("DATA/crime_filtered.Rds")
+foodInspect <- readRDS("DATA/food_inspections_filtered.Rds")
+garbageCarts <- readRDS("DATA/garbage_carts_filtered.Rds")
+sanitationComplaints <- readRDS("DATA/sanitation_code_filtered.Rds")
 
-load(weather_data_old)
-weather_new <- as.data.frame(read.csv(weather_data_new, stringsAsFactors = FALSE))
+inspectors <- readRDS(inspectors, "DATA/inspectors.Rds")
+
+weather <- readRDS("DATA/weather_20110401_20141031.Rds")
+weather_3day <- weather_3day_calc(weather)
+rm(weather)
+
 
 ## FIX FOOD INSPECTIONS LATITUDE
 ## (THIS SHOULD HAPPEN IN THE 10 IMPORT STEP)
@@ -153,45 +147,6 @@ for (j in match(colnames(OtherCategories)[-1], colnames(dat))) {
     set(x = dat, j = j, value = pmin(dat[[j]], 1))
 }
 
-##==============================================================================
-## ATTACH WEATHER DATA
-##==============================================================================
-# load(weather_data_old)
-# weather_new <- as.data.frame(read.csv(weather_data_new, stringsAsFactors = FALSE))
-
-# str(weather)
-# str(weather_new)
-weather$date <- as.IDate(weather$date)
-weather_new$date <- as.IDate(weather_new$date, format="%m/%d/%y")
-weather <- weather[order(weather$date), ]
-
-## Check that the new and old dates line up, then combine
-# tail(weather, 1)
-# head(weather_new, 1)
-weather <- rbind(weather, weather_new[-1, ])
-rm(weather_new)
-
-nr <- nrow(weather)
-weather <- weather[nr:1,]
-threeDay <- weather[2:(nr-2), colnames(weather) != "date"] + 
-    weather[3:(nr - 1), colnames(weather) != "date"] +
-    weather[4:(nr - 0), colnames(weather) != "date"] 
-threeDay <- threeDay / 3
-threeDay$date <- weather$date[1:(nr-3)]
-
-threeDay <- as.data.table(threeDay)
-threeDay[ , date := as.IDate(date, format="%m/%d/%y")]
-setnames(threeDay, 'date', "Inspection_Date")
-setkey(threeDay, Inspection_Date)
-
-# head(threeDay)
-
-# class(dat$Inspection_Date)
-# class(threeDay$Inspection_Date)
-
-dat <- merge(dat, threeDay, by="Inspection_Date")
-
-rm(threeDay, nr, weather)
 
 ##==============================================================================
 ## ATTACH CRIME DATA
@@ -270,26 +225,6 @@ rm(heat_burglary, heat_garbage, heat_sanitation)
 ##==============================================================================
 ## ATTACH INSPECTOR DATA
 ##==============================================================================
-
-
-inspectors_old<- as.data.table(read.csv("./DATA/20130830/InspectionsGarrisonExport20112014.csv", 
-                                        stringsAsFactors=FALSE))
-inspectors_new <- as.data.table(read.csv("DATA/20141105_GarrisonUpdate/InspectionsGarrisonExport20141105.csv",
-                                stringsAsFactors=FALSE))
-inspectors_new$RowLabels <- NULL
-setnames(inspectors_old, c("DBA", "Address", "License", "License_Type",
-                           "Inspector_Assigned", "Inspection_Date", "Inspection_Purpose"))
-setnames(inspectors_new, c("DBA", "Address", "License", "License_Type",
-                           "Inspector_Assigned", "Inspection_Date", "Inspection_Purpose"))
-inspectors_old[ , origin := paste0("old_", sprintf("%06.0f", 1:nrow(inspectors_old)))]
-inspectors_new[ , origin := paste0("new_", sprintf("%06.0f", 1:nrow(inspectors_new)))]
-inspectors_old[ , Inspection_Date := as.IDate(Inspection_Date, format="%m/%d/%Y")]
-inspectors_new[ , Inspection_Date := as.IDate(Inspection_Date)]
-# inspectors_old[ , range(Inspection_Date)]
-# inspectors_new[ , range(Inspection_Date)]
-inspectors <- rbind(inspectors_new, inspectors_old)
-rm(inspectors_new, inspectors_old)
-
 ## Removing letters out front, and numbers trailing hyphen are not needed 
 ## (e.g. -1006 I believe is the code for retail food license)
 inspectors[ , License := gsub('[A-z]+|-.+$', "", License)]
@@ -315,6 +250,14 @@ dat_w_inspector <- merge(
     all.y = FALSE)
 # dim(dat_w_inspector)
 
+##==============================================================================
+## MERGE IN WEATHER
+##==============================================================================
+dat <- merge(dat, weather_3day, by="Inspection_Date")
+
+##==============================================================================
+## SAVE RDS
+##==============================================================================
 # dat_w_inspector
 saveRDS(dat_w_inspector, file.path(DataDir, "dat_with_inspector.Rds"))
 
