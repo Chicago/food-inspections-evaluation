@@ -1,0 +1,73 @@
+
+
+```{r, results='hide', echo=FALSE, message=FALSE}
+##==============================================================
+## INITIALIZE
+##==============================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+## Check for dependencies
+if(!"geneorama" %in% rownames(installed.packages())){
+    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
+    devtools::install_github('geneorama/geneorama')
+}
+## Load libraries
+geneorama::detach_nonstandard_packages()
+geneorama::loadinstall_libraries(c("httr", "RJSONIO"))
+```
+
+# CSV EXAMPLE:
+
+```{r}
+## GET THE DATA
+csv_url <- "http://data.cityofchicago.org/resource/4ijn-s7e5.csv?$limit=10"
+csv_res <- GET(csv_url)
+
+## EXTRACT THE CONTENT
+csv_content <- content(csv_res)
+
+## EXAMINE THE CSV CONTENT
+dim(csv_content)
+str(csv_content)
+
+## Print the content (without the huge violation description column)
+csv_content[, -which(colnames(csv_content) == "Violations")]
+
+## Header info:
+colnames(csv_content)
+fromJSON(csv_res$headers$`x-soda2-fields`)
+fromJSON(csv_res$headers$`x-soda2-types`)
+```
+
+# JSON EXAMPLE:
+
+```{r}
+## GET THE DATA
+json_url <- "http://data.cityofchicago.org/resource/4ijn-s7e5.json?$limit=10"
+json_res <- GET(json_url)
+
+## EXTRACT THE CONTENT
+json_content <- content(json_res)
+
+## EXAMINE THE CSV CONTENT
+dim(json_content)
+str(json_content, 1) ## Truncate results because otherwise it's huge
+
+## Header info:
+fromJSON(json_res$headers$`x-soda2-fields`)
+fromJSON(json_res$headers$`x-soda2-types`)
+
+## Combine results
+json_headers <- fromJSON(json_res$headers$`x-soda2-fields`)
+json_content_matrix <- matrix(NA_character_, 
+                              nrow = length(json_content),
+                              ncol = length(json_headers))
+for(i in 1:length(json_content)){
+    json_content_matrix[i, ] <- unname(unlist(json_content[[i]])[json_headers])
+}
+colnames(json_content_matrix) <- json_headers
+json_content_matrix[, -which(colnames(json_content_matrix) == "violations")]
+```
+
+
