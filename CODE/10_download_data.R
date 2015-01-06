@@ -72,7 +72,8 @@ chi_dp_downloader(db="me59-5fac",
 
 
 ##==============================================================================
-## CONVERT FILES FROM CSV TO RDS FILES (ALSO CHECK FOR DATES AND CONVERT THOSE)
+## CONSOLODATE MULTIPLE CSV FILES IN FOLDERS INTO ONE RDS FILE PER FOLDER
+## (ALSO CHECK FOR DATES AND CONVERT THOSE)
 ##==============================================================================
 chi_dp_csv2rds(indir = "DATA/bus_license")
 chi_dp_csv2rds(indir = "DATA/crime")
@@ -93,7 +94,7 @@ unlink("DATA/sanitation_code/*")
 unlink("DATA/sanitation_code", recursive = T, force=T)
 
 #==============================================================================
-## SMALL FIXES
+## SMALL FIXES TO RDS FILES
 ##==============================================================================
 
 ## read in data that has been downloaded
