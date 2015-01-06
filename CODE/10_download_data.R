@@ -75,10 +75,10 @@ chi_dp_downloader(db="me59-5fac",
 ## CONVERT FILES FROM CSV TO RDS FILES (ALSO CHECK FOR DATES AND CONVERT THOSE)
 ##==============================================================================
 chi_dp_csv2rds(indir = "DATA/bus_license")
-chi_dp_csv2rds(indir = "DATA/crime"))
-chi_dp_csv2rds(indir = "DATA/food_inspections"))
-chi_dp_csv2rds(indir = "DATA/garbage_carts"))
-chi_dp_csv2rds(indir = "DATA/sanitation_code"))
+chi_dp_csv2rds(indir = "DATA/crime")
+chi_dp_csv2rds(indir = "DATA/food_inspections")
+chi_dp_csv2rds(indir = "DATA/garbage_carts")
+chi_dp_csv2rds(indir = "DATA/sanitation_code")
 
 ## Delete the files and the directories that held the temporary downloaded parts
 unlink("DATA/bus_license/*")
@@ -127,8 +127,6 @@ crime[ , Domestic := as.logical(Domestic)]
 
 ## Remove one row where the header is (somewhat) repeated
 sanitationComplaints <- sanitationComplaints[Service_Request_Number!="SERVICE REQUEST NUMBER"]
-## Fix non-numeric latitude in sanitation complaints
-sanitationComplaints[ , Latitude := as.numeric(Latitude)]
 
 saveRDS(business, "DATA/bus_license.Rds")
 saveRDS(crime , "DATA/crime.Rds")
