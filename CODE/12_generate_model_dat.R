@@ -20,106 +20,92 @@ geneorama::sourceDir("CODE/functions/")
 ##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-business <- readRDS("DATA/bus_license_filtered.Rds")
-crime <-  readRDS("DATA/crime_filtered.Rds")
-foodInspect <- readRDS("DATA/food_inspections_filtered.Rds")
-garbageCarts <- readRDS("DATA/garbage_carts_filtered.Rds")
-sanitationComplaints <- readRDS("DATA/sanitation_code_filtered.Rds")
+business <- readRDS("DATA/bus_license.Rds")
+crime <-  readRDS("DATA/crime.Rds")
+foodInspect <- readRDS("DATA/food_inspections.Rds")
+garbageCarts <- readRDS("DATA/garbage_carts.Rds")
+sanitationComplaints <- readRDS("DATA/sanitation_code.Rds")
 
-inspectors <- readRDS(inspectors, "DATA/inspectors.Rds")
+inspectors <- readRDS("DATA/inspectors.Rds")
 
 weather <- readRDS("DATA/weather_20110401_20141031.Rds")
 weather_3day <- weather_3day_calc(weather)
 rm(weather)
 
+business <- filter_business(business)
+crime <- filter_crime(crime)
+foodInspect <- filter_foodInspect(foodInspect)
+garbageCarts <- filter_garbageCarts(garbageCarts)
+sanitationComplaints <- filter_sanitationComplaints(sanitationComplaints)
 
-## FIX FOOD INSPECTIONS LATITUDE
-## (THIS SHOULD HAPPEN IN THE 10 IMPORT STEP)
-foodInspect[ , Latitude := as.numeric(Latitude)]
-## FIX SANITATION LATITUDE
-## (THIS SHOULD HAPPEN IN THE 10 IMPORT STEP)
-sanitationComplaints[ , Latitude := as.numeric(Latitude)]
-## FIX GARBAGE CART LATITUDE
-## (THIS SHOULD HAPPEN IN THE 10 IMPORT STEP)
-garbageCarts[ , Latitude := as.numeric(Latitude)]
 
 ##==============================================================================
-## FOOD INSPECTIONS
+## Create basis for model to be used in model
+##==============================================================================
+dat_model <- foodInspect[i = TRUE , 
+                         j = list(Inspection_Date, 
+                                  License), 
+                         keyby = Inspection_ID]
+
+##==============================================================================
+## CALCULATE FEATURES BASED ON FOOD INSPECTION DATA
 ##==============================================================================
 
-## Tabluate voilation types
-## 1) Split violoation description by "|"
-## 2) use regex to extract leading digits of code number
-## 3) create indicator matrix of code violations
-## 4) use apply to total up each group of code violations
-vio <- strsplit(foodInspect$Violations,"| ",fixed=T)
-vio_nums <- lapply(vio, 
-                   function(item) regmatches(x = item, 
-                                             m = gregexpr(pattern = "^[0-9]+", 
-                                                          text = item)))
-vio_mat <- geneorama::list2matrix(vio_nums, count = T)
-vio_mat <- vio_mat[ , order(as.numeric(colnames(vio_mat)))]
-# colnames(vio_mat)
-# range(vio_mat)
+## Calculate violation matrix and put into data.table with inspection id as key
+## calculate_violation_types calculates violations by categories:
+##       Critical, serious, and minor violations
+violation_dat <- data.table(Inspection_ID = foodInspect$Inspection_ID, 
+                            calculate_violation_types(foodInspect$Violations), 
+                            key = "Inspection_ID")
+dat_model <- dat_model[violation_dat]
 
-foodInspect$criticalCount <- apply(vio_mat[ , colnames(vio_mat) %in% 1:14], 1, sum)
-foodInspect$seriousCount <- apply(vio_mat[ , colnames(vio_mat) %in% 15:29], 1, sum)
-foodInspect$minorCount <- apply(vio_mat[ , colnames(vio_mat) %in% 30:44], 1, sum)
-
+## For clarity, remove violations from food inspection
 foodInspect$Violations <- NULL
-rm(vio, vio_nums, vio_mat)
 
+
+## Merge in "results" for pass / fail flag
+dat_model <- merge(dat_model[ , .SD, keyby=Inspection_ID],
+                   foodInspect[ , Results, keyby=Inspection_ID])
 ## Set key to ensure that records are treated CHRONOLOGICALLY
-setkey(foodInspect, License, Inspection_Date)
-foodInspect[ , pass_flag := ifelse(Results=="Pass",1, 0)]
-foodInspect[ , fail_flag := ifelse(Results=="Fail",1, 0)]
-foodInspect[ , pastFail := geneorama::shift(fail_flag, -1, 0), by = License]
-foodInspect[ , pastCritical := geneorama::shift(criticalCount, -1, 0), by = License]
-foodInspect[ , pastSerious := geneorama::shift(seriousCount, -1, 0), by = License]
-foodInspect[ , pastMinor := geneorama::shift(minorCount, -1, 0), by = License]
+setkey(dat_model, License, Inspection_Date)
+dat_model[ , pass_flag := ifelse(Results=="Pass",1, 0)]
+dat_model[ , fail_flag := ifelse(Results=="Fail",1, 0)]
+dat_model[ , pastFail := geneorama::shift(fail_flag, -1, 0), by = License]
+dat_model[ , pastCritical := geneorama::shift(criticalCount, -1, 0), by = License]
+dat_model[ , pastSerious := geneorama::shift(seriousCount, -1, 0), by = License]
+dat_model[ , pastMinor := geneorama::shift(minorCount, -1, 0), by = License]
+## Remove "result" column now that we're done with it
+dat_model[ , Results := NULL]
 
 ## Calcualte time since last inspection.
 ## If the time is NA, this means it's the first inspection; add an inicator 
 ## variable to indicate that it's the first inspection.
-foodInspect[i = TRUE , 
-            j = timeSinceLast := as.numeric(
-                Inspection_Date - geneorama::shift(Inspection_Date, -1, NA)) / 365, 
-            by = License]
-foodInspect[ , firstRecord := 0]
-foodInspect[is.na(timeSinceLast), firstRecord := 1]
-foodInspect[is.na(timeSinceLast), timeSinceLast := 2]
-foodInspect[, timeSinceLast := pmin(timeSinceLast, 2)]
+dat_model[i = TRUE , 
+          j = timeSinceLast := as.numeric(
+              Inspection_Date - geneorama::shift(Inspection_Date, -1, NA)) / 365, 
+          by = License]
+dat_model[ , firstRecord := 0]
+dat_model[is.na(timeSinceLast), firstRecord := 1]
+dat_model[is.na(timeSinceLast), timeSinceLast := 2]
+dat_model[ , timeSinceLast := pmin(timeSinceLast, 2)]
 
 ##==============================================================================
-## ATTACH BUSINESS LICENSE DATA
+## CALCULATE FEATURES BASED ON BUSINESS LICENSE DATA
 ##==============================================================================
 
-business[ , WP :=paste("w",WARD,"p",PRECINCT,sep="_")]
+## Create a table of matches between the food inspection and business license
+## data, based on the where the Inspection_Date falls within the business
+## license renewal
+id_table_food2business <- find_bus_id_matches(business, foodInspect)
 
 
-business[ , minDate := min(LICENSE_TERM_START_DATE), LICENSE_NUMBER]
-business[ , maxDate := max(LICENSE_TERM_EXPIRATION_DATE), LICENSE_NUMBER]
-
-## Merge over time periods
-dat <- foverlaps(foodInspect[i = TRUE,
-                             j = .SD,
-                             keyby = list(License, 
-                                          Inspection_Date = Inspection_Date, 
-                                          Inspection_Date_end = Inspection_Date)], 
-                 business[i = LICENSE_TERM_START_DATE < LICENSE_TERM_EXPIRATION_DATE, 
-                          j = .SD,
-                          keyby = list(LICENSE_NUMBER, 
-                                       LICENSE_TERM_START_DATE, 
-                                       LICENSE_TERM_EXPIRATION_DATE)], 
-                 mult="first", 
-                 type="any", nomatch=NA)
 
 if(FALSE){
     str(dat)
     
     ## Luckily the restaurants with missing business data mostly appear to have
     ## lower counts of critical and serious violations
-    geneorama::NAsummary(dat)
+    geneorama::NAsummary(dat_minmaxdates)
     dat[,table(is.na(ID))]
     dat[i = TRUE,
         j = list(mean_critical = mean(criticalCount), sd_critical = sd(criticalCount),
