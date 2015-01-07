@@ -21,5 +21,5 @@ find_bus_id_matches <- function(business, foodInspect) {
                      mult = "first", 
                      type = "any", 
                      nomatch = NA)
-    return(dat[ ,License, keyby=list(Inspection_ID, Business_ID)])
+    return(dat[ , list(Inspection_ID, Business_ID)])
 }

@@ -18,18 +18,15 @@ geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES / MANUAL CODE
-##==============================================================================
-DataDir <- "DATA/20141110"
-
-##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
+dat <- readRDS("DATA/dat_model.Rds")
 
-## Remove NA's
-dat[,.N,is.na(heat_burglary)]
-dat <- dat[!is.na(heat_burglary)]
+## Only keep "Retail Food Establishment"
+dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+## Remove License Description
+dat[ , LICENSE_DESCRIPTION := NULL]
+dat <- na.omit(dat)
 
 ## Add criticalFound variable to dat:
 dat[ , criticalFound := pmin(1, criticalCount)]
@@ -39,10 +36,6 @@ setkey(dat, Inspection_ID)
 
 ## Match time period of original results
 # dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
-dat[, .N, Results]
-
-## Remove records where an inspection didn't happen
-dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
 
 ##==============================================================================
 ## CREATE MODEL DATA
