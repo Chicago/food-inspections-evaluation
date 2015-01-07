@@ -54,14 +54,12 @@ dat_model <- foodInspect[i = TRUE ,
 ## Calculate violation matrix and put into data.table with inspection id as key
 ## calculate_violation_types calculates violations by categories:
 ##       Critical, serious, and minor violations
-violation_dat <- data.table(Inspection_ID = foodInspect$Inspection_ID, 
-                            calculate_violation_types(foodInspect$Violations), 
-                            key = "Inspection_ID")
+violation_dat <- calculate_violation_types(foodInspect$Violations,
+                                           Inspection_ID = foodInspect$Inspection_ID)
 dat_model <- dat_model[violation_dat]
 
 ## For clarity, remove violations from food inspection
 foodInspect$Violations <- NULL
-
 
 ## Merge in "results" for pass / fail flag
 dat_model <- merge(dat_model[ , .SD, keyby=Inspection_ID],
@@ -98,30 +96,35 @@ dat_model[ , timeSinceLast := pmin(timeSinceLast, 2)]
 ## license renewal
 id_table_food2business <- find_bus_id_matches(business, foodInspect)
 
+## Join business ID to dat_model
+dat_model <- merge(x = dat_model, 
+                   y = id_table_food2business[,list(Inspection_ID,Business_ID)], 
+                   by = "Inspection_ID")
+
+## Calculate min date (by license)
+business[ , minDate := min(LICENSE_TERM_START_DATE), LICENSE_NUMBER]
+business[ , maxDate := max(LICENSE_TERM_EXPIRATION_DATE), LICENSE_NUMBER]
+
+setkey(dat_model, Business_ID)
+setkey(business, ID)
+## Calculate age at inspection:
+## Temporarily add minDate to dat_model
+dat_model <- business[,minDate,keyby=ID][dat_model]
+## Use minDate to calculate age
+dat_model[ , ageAtInspection := as.numeric(Inspection_Date - minDate) / 365]
+## Remove minDate
+dat_model[ , minDate := NULL]
 
 
-if(FALSE){
-    str(dat)
-    
-    ## Luckily the restaurants with missing business data mostly appear to have
-    ## lower counts of critical and serious violations
-    geneorama::NAsummary(dat_minmaxdates)
-    dat[,table(is.na(ID))]
-    dat[i = TRUE,
-        j = list(mean_critical = mean(criticalCount), sd_critical = sd(criticalCount),
-                 mean_serious = mean(seriousCount), sd_serious = sd(seriousCount),
-                 mean_minor = mean(minorCount), sd_minor = sd(minorCount)), 
-        is.na(ID)]
-}
-dat <- dat[!is.na(ID)]
-dat[ , Inspection_Date_end := NULL]
-dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
 
-## Calculate age at inspection
-dat[,ageAtInspection := as.numeric(Inspection_Date - minDate) / 365]
+# dat <- dat[!is.na(ID)]
+# dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+
 
 ## CALCULATE AND MERGE IN OTHER CATEGORIES
-OtherCategories <- GenerateOtherLicenseInfo(dat, business, max_cat = 12)
+OtherCategories <- GenerateOtherLicenseInfo(dat_model, 
+                                            business, 
+                                            max_cat = 12)
 setkey(OtherCategories, Inspection_ID)
 setkey(dat, Inspection_ID)
 dat <- merge(dat, OtherCategories, all.x = T)

@@ -6,9 +6,6 @@
 ##
 
 find_bus_id_matches <- function(business, foodInspect) {
-    business <- copy(business)
-    business[ , minDate := min(LICENSE_TERM_START_DATE), LICENSE_NUMBER]
-    business[ , maxDate := max(LICENSE_TERM_EXPIRATION_DATE), LICENSE_NUMBER]
     
     ## Merge over time periods
     dat <- foverlaps(foodInspect[i = TRUE,

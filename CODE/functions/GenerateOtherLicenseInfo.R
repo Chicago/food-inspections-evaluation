@@ -1,6 +1,7 @@
 
 GenerateOtherLicenseInfo <- function(inspection_data, 
-                                     business_data, max_cat = 99){
+                                     business_data, 
+                                     max_cat = 99){
     
     ## For debugging:
     # inspection_data <- copy(foodInspect)
@@ -25,11 +26,10 @@ GenerateOtherLicenseInfo <- function(inspection_data,
                                                j = list(license_insp = license, id),
                                                keyby = list(dba, addr, d_insp)]
     
-    ## SUBSET BUSINESSES TO INCLUDE BUSINESSES THAT ARE 
-    ## NOT LICENSED WITHIN THE FOOD DATABASE
-    biz_nomatch <- biz[!license %in% food_licenses_names$license_insp]
+    ## SUBSET OF BUSINESSES THAT ARE NOT LICENSED WITHIN THE FOOD DATABASE
+    biz_nomatch <- biz[!(license %in% food_licenses_names$license_insp)]
     
-    ## JOIN FOOD AND BUSINESS_NOMATCH
+    ## SET KEY FOR biz_nomatch TO ENABLE MATCHING IN food_licenses_names
     setkey(biz_nomatch, dba, addr, d_end)
     
     ## MAKE A COPY OF THE INSPECTION DATE, WHICH GETS OVERWRITTEN BY THE END DATE IN THE ROLLING JOIN
@@ -45,8 +45,8 @@ GenerateOtherLicenseInfo <- function(inspection_data,
                             fill = 0L)
     
     ## SUMMARIZE TOTALS FOR EACH CATEGORY
-    category_totals <-as.data.table(sapply(tab[,4:ncol(tab), with=F], sum), 
-                                    keep.rownames = TRUE)[order(-V2)]
+    category_totals <- as.data.table(sapply(tab[,4:ncol(tab), with=F], sum), 
+                                     keep.rownames = TRUE)[order(-V2)]
     setnames(category_totals, c("cat", "N"))
     ## LIMIT CATEGORY COLUMNS
     categories_keep <- category_totals[1:min(max_cat, nrow(category_totals)-3), 
@@ -57,14 +57,14 @@ GenerateOtherLicenseInfo <- function(inspection_data,
     tab_final[food_licenses_names]
     
     ## MERGE RESULTS BACK AND ONLY KEEP INSPECTION ID AS KEY
-    ans <- food_licenses_names[tab_final][,c("id", categories_keep), with=F]
-    setnames(ans, "id", "Inspection_ID")
-    setnames(ans, colnames(ans)[-1], tolower(colnames(ans)[-1]))
-    setnames(ans, colnames(ans)[-1], gsub("[[:punct:]]+", "", colnames(ans)[-1]))
-    setnames(ans, colnames(ans)[-1], gsub("[ ]+", "_", colnames(ans)[-1]))
+    ret <- food_licenses_names[tab_final][,c("id", categories_keep), with=F]
+    setnames(ret, "id", "Inspection_ID")
+    setnames(ret, colnames(ret)[-1], tolower(colnames(ret)[-1]))
+    setnames(ret, colnames(ret)[-1], gsub("[[:punct:]]+", "", colnames(ret)[-1]))
+    setnames(ret, colnames(ret)[-1], gsub("[ ]+", "_", colnames(ret)[-1]))
     
-    setkey(ans, Inspection_ID)
-    return(ans)
+    setkey(ret, Inspection_ID)
+    return(ret)
 }
 
 
