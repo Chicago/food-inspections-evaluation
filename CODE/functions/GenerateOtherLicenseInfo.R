@@ -8,16 +8,16 @@ GenerateOtherLicenseInfo <- function(inspection_data,
     
     ## MAKE DATA COPIES AND SET KEY
     food_licenses <- inspection_data[i = TRUE,
-                         j = list(d_insp = Inspection_Date,
-                                  id = Inspection_ID), 
-                         keyby = list(license_food = License)]
+                                     j = list(d_insp = Inspection_Date,
+                                              id = Inspection_ID), 
+                                     keyby = list(license_food = License)]
     biz <- business_data[i = TRUE, 
-                    j = list(dba = DOING_BUSINESS_AS_NAME,
-                             addr = ADDRESS, 
-                             d_start = LICENSE_TERM_START_DATE, 
-                             d_end = LICENSE_TERM_EXPIRATION_DATE,
-                             desc = LICENSE_DESCRIPTION),
-                    keyby = list(license = LICENSE_NUMBER)]
+                              j = list(dba = DOING_BUSINESS_AS_NAME,
+                                       addr = ADDRESS, 
+                                       d_start = LICENSE_TERM_START_DATE, 
+                                       d_end = LICENSE_TERM_EXPIRATION_DATE,
+                                       desc = LICENSE_DESCRIPTION),
+                              keyby = list(license = LICENSE_NUMBER)]
     
     ## JOIN BUSINESS NAMES TO FOOD DATA
     food_licenses_names <- biz[food_licenses, mult="first"]
