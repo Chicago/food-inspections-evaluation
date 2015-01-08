@@ -54,6 +54,12 @@ sanitation_heat <- readRDS("DATA/sanitationComplaints_heat.Rds")
 foodInspect <- filter_foodInspect(foodInspect)
 business <- filter_business(business)
 
+foodInspect[ , Facility_Type_Clean := 
+                categorize(x = Facility_Type,
+                           primary = list(Restaurant = "restaurant",
+                                          Grocery_Store = "grocery"),
+                           ignore.case = TRUE)]
+
 ##==============================================================================
 ## Create basis for model to be used in model
 ##==============================================================================
@@ -67,8 +73,16 @@ dat_model <- foodInspect[i = TRUE ,
 ##==============================================================================
 
 ## Join in the violation matrix
-violation_dat <- readRDS("DATA/violation_dat.Rds")
-dat_model <- merge(x = dat_model, y = violation_dat)
+dat_model <- merge(x = dat_model, 
+                   y = violation_dat, 
+                   by = "Inspection_ID")
+
+## Join in the clean facility type
+dat_model <- merge(
+    x = dat_model, 
+    y = foodInspect[ , list(Inspection_ID, 
+                            Facility_Type = Facility_Type_Clean)],
+    by = "Inspection_ID")
 
 ## Merge in "results" for pass / fail flag
 dat_model <- merge(dat_model[ , .SD, keyby=Inspection_ID],

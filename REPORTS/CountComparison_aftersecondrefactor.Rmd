@@ -1,0 +1,156 @@
+---
+title: "Count comparison"
+output: html_document
+---
+
+Comparing the 
+
+```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+##==============================================================================
+## INITIALIZE
+##==============================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+## Check for dependencies
+if(!"geneorama" %in% rownames(installed.packages())){
+    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
+    devtools::install_github('geneorama/geneorama')}
+## Load libraries
+geneorama::detach_nonstandard_packages()
+# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
+geneorama::loadinstall_libraries(c("data.table", "MASS"))
+geneorama::sourceDir("CODE/functions/")
+
+##==============================================================================
+## LOAD CACHED RDS FILES
+##==============================================================================
+## Import the key data sets used for prediction
+foodInspect <- readRDS("DATA/food_inspections.Rds")
+foodInspect$Violations <- NULL
+violation_dat <- readRDS("DATA/violation_dat.Rds")
+dat_model <- readRDS("DATA/dat_model.Rds")
+
+##==============================================================================
+## ADD FIELDS AND APPLY FILTER TO foodInspect
+##==============================================================================
+## Remove duplicate IDs first
+foodInspect <- foodInspect[!duplicated(Inspection_ID)]
+
+## Limit dates
+foodInspect <- foodInspect[Inspection_Date > as.IDate("2011-09-01")]
+
+## Join in the violation matrix
+foodInspect <- merge(x = foodInspect, 
+                     y = violation_dat, 
+                     by = "Inspection_ID", 
+                     all.x = TRUE)
+
+foodInspect[ , criticalFound := pmin(1, criticalCount)]
+
+foodInspect[i = TRUE, 
+            j = Facility_Type_Clean := 
+                categorize(x = Facility_Type,
+                           primary = list(Restaurant = "restaurant",
+                                          Grocery_Store = "grocery"),
+                           ignore.case = TRUE)]
+foodInspect_filtered <- filter_foodInspect(foodInspect)
+
+##==============================================================================
+## ADD FIELDS AND APPLY FILTER TO dat_model
+##==============================================================================
+dat_model[ , criticalFound := pmin(1, criticalCount)]
+## Only keep "Retail Food Establishment"
+dat_model <- dat_model[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+## Remove License Description
+dat_model[ , LICENSE_DESCRIPTION := NULL]
+dat_model <- na.omit(dat_model)
+
+```
+
+Tables of counts, and critical violations found 
+
+```{r}
+tab_food <- foodInspect[
+    i = TRUE, 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+
+tab_food_open_canvass <- foodInspect[
+    i = Inspection_Type == "Canvass" &
+        !Results %in% c('Out of Business',
+                        'Business Not Located',
+                        'No Entry'), 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+
+tab_food_filtered <- foodInspect_filtered[
+    i = TRUE, 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+
+tab_modeldat <- dat_model[
+    i = TRUE, 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+```
+
+
+
+```{r}
+tab_food
+tab_food_open_canvass
+tab_food_filtered
+tab_modeldat
+
+```
+
+
+
+```{r}
+tab_all <- merge(tab_food, 
+                 merge(tab_food_open_canvass, 
+                       merge(tab_food_filtered,
+                             tab_modeldat, 
+                             all = TRUE,
+                             suffixes = c(".Filtered", ".Model")), 
+                       all=TRUE),
+                 all=TRUE,
+                 suffixes = c(".ALL", ".Open"))
+tab_all
+```
+
+
+
+
+```{r}
+
+## Read in the original dat model before any filtering is applied
+dat_model_orig <- readRDS("DATA/dat_model.Rds")
+
+## Luckily the restaurants with missing business data mostly appear to have
+## lower counts of critical and serious violations
+geneorama::NAsummary(dat_model_orig)
+dat_model_orig[ , table(is.na(Business_ID))]
+dat_model_orig[
+    i = TRUE,
+    j = list(mean_critical = mean(criticalCount), sd_critical = sd(criticalCount),
+             mean_serious = mean(seriousCount), sd_serious = sd(seriousCount),
+             mean_minor = mean(minorCount), sd_minor = sd(minorCount)), 
+    is.na(Business_ID)]
+```
+
+
+
+
+
+
+
+
+
+
+
