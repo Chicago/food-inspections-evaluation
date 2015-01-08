@@ -1,0 +1,110 @@
+---
+title: "Count comparison"
+output: html_document
+---
+
+Comparing the 
+
+```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+##==============================================================================
+## INITIALIZE
+##==============================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+## Check for dependencies
+if(!"geneorama" %in% rownames(installed.packages())){
+    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
+    devtools::install_github('geneorama/geneorama')}
+## Load libraries
+geneorama::detach_nonstandard_packages()
+# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
+geneorama::loadinstall_libraries(c("data.table", "MASS"))
+geneorama::sourceDir("CODE/functions/")
+
+##==============================================================================
+## LOAD CACHED RDS FILES
+##==============================================================================
+## Import the key data sets used for prediction
+foodInspect <- readRDS("DATA/20141110/food_inspections.Rds")
+foodInspect$Violations <- NULL
+dat_model <- readRDS("DATA/20141110/dat_with_inspector.Rds")
+
+##==============================================================================
+## ADD FIELDS AND APPLY FILTER TO foodInspect
+##==============================================================================
+## Remove duplicate IDs first
+foodInspect <- foodInspect[!duplicated(Inspection_ID)]
+
+## Limit dates
+foodInspect <- foodInspect[Inspection_Date > as.IDate("2011-09-01")]
+
+##==============================================================================
+## ADD FIELDS AND APPLY FILTER TO dat_model
+##==============================================================================
+dat_model[ , criticalFound := pmin(1, criticalCount)]
+## Only keep "Retail Food Establishment"
+dat_model <- dat_model[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+## Remove License Description
+dat_model[ , LICENSE_DESCRIPTION := NULL]
+## Remove NA's
+dat_model <- dat_model[!is.na(heat_burglary)]
+dat_model <- dat_model[!Results %in% c('Out of Business','Business Not Located','No Entry')]
+
+```
+
+Tables of counts, and critical violations found 
+
+```{r}
+tab_food <- foodInspect[
+    i = TRUE, 
+    j = list(N = .N), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+tab_food_open_canvass <- foodInspect[
+    i = Inspection_Type == "Canvass" &
+        !Results %in% c('Out of Business',
+                        'Business Not Located',
+                        'No Entry'), 
+    j = list(N = .N), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+tab_modeldat <- dat_model[
+    i = TRUE, 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+```
+
+
+
+```{r}
+tab_food
+tab_food_open_canvass
+tab_modeldat
+```
+
+```{r}
+tab_all <- merge(tab_food, 
+                 merge(tab_food_open_canvass, 
+                       tab_modeldat, 
+                       all=TRUE),
+                 all=TRUE)
+setnames(tab_all, "N", "Food Insp (ALL)")
+setnames(tab_all, "N.x", "Food Insp (Open / Canvass)")
+setnames(tab_all, "N.y", "Model Data (No NA values)")
+setnames(tab_all, "critFound", "Model Data (Count of Critical Found)")
+tab_all
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
