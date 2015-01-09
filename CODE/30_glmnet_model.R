@@ -21,6 +21,8 @@ geneorama::sourceDir("CODE/functions/")
 ## LOAD CACHED RDS FILES
 ##==============================================================================
 dat <- readRDS("DATA/dat_model.Rds")
+# insp_table <- readRDS("DATA/insp_table.Rds")
+# dat$Inspector_Grade <- insp_table$insp_grade[match(dat$Inspector_Assigned, insp_table$insp)]
 
 ## Only keep "Retail Food Establishment"
 dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
@@ -42,7 +44,8 @@ setkey(dat, Inspection_ID)
 ##==============================================================================
 # sort(colnames(dat))
 xmat <- dat[ , list(criticalFound,
-                    Inspector_Assigned,
+                    # Inspector = Inspector_Grade, 
+                    Inspector = Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
                     ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     pastCritical = pmin(pastCritical, 1),
@@ -80,11 +83,12 @@ nrow(mm)
 ## GLMNET MODEL
 ##==============================================================================
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
+pen <- ifelse(grepl("^Inspector", colnames(mm)), 1, 0)
 model <- glmnet(x = as.matrix(mm[iiTrain]),
                 y = xmat[iiTrain,  criticalFound],
                 family = "binomial", 
                 alpha = 0,
-                penalty.factor = ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0))
+                penalty.factor = pen)
 
 
 ## See what regularization parameter 'lambda' is optimal on tune set
@@ -103,11 +107,11 @@ model$lambda[which.min(errors)]
 w.lam <- 100
 lam <- model$lambda[w.lam]
 coef <- model$beta[,w.lam]
-inspCoef <- coef[grepl("^Inspector.Assigned",names(coef))]
+inspCoef <- coef[grepl("^Inspector",names(coef))]
 inspCoef <- inspCoef[order(-inspCoef)]
 ## coefficients for the inspectors, and for other variables
 inspCoef
-coef[!grepl("^Inspector.Assigned",names(coef))]
+coef[!grepl("^Inspector",names(coef))]
 
 
 ## By the way, if we had knowledge of the future, we would have chosen a 
@@ -174,9 +178,9 @@ datTest[period_modeled == 1, sum(criticalFound)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 
-110 / (110 + 90)
-134 / (134 + 66)
-0.67 - .55
+141 / (141 + 117)
+175 / (175 + 83)
+0.6782946 - .5465116
 
 
 ## Subset test period
@@ -190,8 +194,4 @@ datTest[,.N,period]
 
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled_strict)]
-
-110 / (110 + 90)
-130 / (130 + 70)
-0.65 - .55
 
