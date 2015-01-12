@@ -1,6 +1,4 @@
 
-stop()
-
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
@@ -21,8 +19,6 @@ geneorama::sourceDir("CODE/functions/")
 ## LOAD CACHED RDS FILES
 ##==============================================================================
 dat <- readRDS("DATA/dat_model.Rds")
-# insp_table <- readRDS("DATA/insp_table.Rds")
-# dat$Inspector_Grade <- insp_table$insp_grade[match(dat$Inspector_Assigned, insp_table$insp)]
 
 ## Only keep "Retail Food Establishment"
 dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
@@ -89,7 +85,6 @@ model <- glmnet(x = as.matrix(mm[iiTrain]),
                 family = "binomial", 
                 alpha = 0,
                 penalty.factor = pen)
-
 
 ## See what regularization parameter 'lambda' is optimal on tune set
 ## (We are essentially usin the previous hardcoded value)
@@ -179,19 +174,7 @@ datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 
 141 / (141 + 117)
-175 / (175 + 83)
-0.6782946 - .5465116
+178 / (178 + 80)
+0.6899225 - .5465116
 
-
-## Subset test period
-## Exact match of actual inspection counts in first half
-ratio_of_days <- nrow(datTest[period==1]) / nrow(datTest)
-ratio_of_days
-datTest[ , period_modeled_strict := 
-            ifelse(glm_pred > quantile(glm_pred, 1-ratio_of_days), 1, 2)]
-datTest[,.N,period_modeled_strict]
-datTest[,.N,period]
-
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled_strict)]
 

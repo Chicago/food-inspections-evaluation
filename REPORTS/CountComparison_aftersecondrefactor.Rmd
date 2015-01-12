@@ -1,11 +1,21 @@
 ---
-title: "Count comparison"
+title: "Data Integrity Check"
 output: html_document
 ---
 
-Comparing the 
+### Purpose
+
+This document compares monthly counts at various stages of the model process.  We show how many food inspection records (and critical violations) there were
+
+1. In the original download, 
+2. After filtering, and
+2. After taking out any NA's (which indicates that a data sources wasn't able to merged into the food inspection data).
 
 ```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+
+## Initialize and load data... (hidden in report output)
+
+geneorama::set_project_dir("food-inspections-evaluation")
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
@@ -68,7 +78,7 @@ dat_model <- na.omit(dat_model)
 
 ```
 
-Tables of counts, and critical violations found 
+### Construct tables of counts, and critical violations found 
 
 ```{r}
 tab_food <- foodInspect[
@@ -99,7 +109,7 @@ tab_modeldat <- dat_model[
     keyby = list(month = round(Inspection_Date, "month"))]
 ```
 
-
+### Monthly counts at each step in "filtering"
 
 ```{r}
 tab_food
@@ -109,7 +119,7 @@ tab_modeldat
 
 ```
 
-
+### Monthly counts at each stage in "filtering", merged into a single table
 
 ```{r}
 tab_all <- merge(tab_food, 
@@ -125,9 +135,12 @@ tab_all
 ```
 
 
+### Violations, tabluated by "is.na"
 
+Generally, it looks like data that was incomplete was lower in violation counts.
 
 ```{r}
+geneorama::set_project_dir("food-inspections-evaluation")
 
 ## Read in the original dat model before any filtering is applied
 dat_model_orig <- readRDS("DATA/dat_model.Rds")
