@@ -1,8 +1,14 @@
 
-chi_dp_downloader <- function(db, apptoken="NCxdKMXKT2fPVvmZQnCdziPel",
-                              rowlimit=50000, useaskey="id", outdir,
-                              includesys=TRUE,
-                              multicore = FALSE, cores=NULL){
+chi_dp_downloader <- function(db, 
+                              outdir,
+                              apptoken,
+                              where_query = NULL,
+                              rowlimit = 50000, 
+                              useaskey = "id", 
+                              base_url = "http://data.cityofchicago.org/resource/",
+                              includesys = TRUE,
+                              multicore = FALSE, 
+                              cores=NULL){
     # browser()}
     
     ## TODO: Implement query filter with WHERE clause (how to do dates?)
@@ -12,14 +18,17 @@ chi_dp_downloader <- function(db, apptoken="NCxdKMXKT2fPVvmZQnCdziPel",
     ##--------------------------------------------------------------------------
     ## CREATE OUTPUT DIRECTORY 
     ##--------------------------------------------------------------------------
-    dir.create(outdir)
+    if(!file.exists(outdir)){
+        cat("Creating ", outdir, "\n")
+        dir.create(outdir)
+    }
     
     ##--------------------------------------------------------------------------
     ## DEFINE QUERY URLS
     ##--------------------------------------------------------------------------
-    url_base <- paste0("http://data.cityofchicago.org/resource/", db, ".csv?")
+    url_base <- paste0(base_url, db, ".csv?")
     ## Get size and count of queries
-    q_count <- paste0(url_base, "$SELECT=COUNT(*)")
+    q_count <- paste(url_base, where_query, "$SELECT=COUNT(*)", sep="&")
     total_rows <- read.table(q_count, header=T)[ , 'count']
     total_requests <- trunc(total_rows / rowlimit) + 1
     ## Construct query
@@ -27,12 +36,15 @@ chi_dp_downloader <- function(db, apptoken="NCxdKMXKT2fPVvmZQnCdziPel",
     q_limit <- paste0("$limit=", rowlimit)
     q_offset <- paste0("$offset=", seq(0, by=rowlimit-1, length.out=total_requests))
     q_order <- paste0("$order=", useaskey)
+    ## Combine query components
+    q_all_parts <- paste(q_apptoken, q_limit, q_offset, q_order, sep = "&")
     ## Optionally add in "include system variables"
     if(includesys){
-        q_all_parts <- paste(q_apptoken, q_limit, q_offset, q_order, 
-                             "$$exclude_system_fields=false", sep = "&")
-    } else {
-        q_all_parts <- paste(q_apptoken, q_limit, q_offset, q_order, sep = "&")
+        q_all_parts <- paste0(q_all_parts, "&$$exclude_system_fields=false")
+    }
+    ## Optionally add in "where_query"
+    if(!is.null(where_query)){
+        q_all_parts <- paste0(q_all_parts, "&$where=", where_query)
     }
     ## Take out offset of zero
     q_all_parts <- gsub("&$offset=0", "", q_all_parts)
@@ -90,3 +102,28 @@ chi_dp_downloader <- function(db, apptoken="NCxdKMXKT2fPVvmZQnCdziPel",
     
 
 }
+
+
+## Initialization code for walking through function
+if(FALSE){
+    rm(list=ls())
+    geneorama::detach_nonstandard_packages()
+    library(data.table)
+    
+    multicore = F
+    apptoken = "NCxdKMXKT2fPVvmZQnCdziPel"
+    useaskey = "inspection_id"
+    rowlimit = 25000
+    includesys = TRUE
+    base_url = "http://data.cityofchicago.org/resource/"
+    where_query = NULL
+    where_query = 'primary_type="BURGLARY"'
+    
+    db = "r5kz-chrr"; outdir = "test-bus_license" ; useaskey = "id"
+    db = "ijzp-q8t2"; outdir = "test-crime" ; useaskey = "id"
+    db = "4ijn-s7e5"; outdir = "test-food_inspections" ; useaskey = "inspection_id"
+    db = "9ksk-na4q"; outdir = "test-garbage_carts"; useaskey = "service_request_number"
+    db = "me59-5fac"; outdir = "test-sanitation_code"; useaskey = "service_request_number"
+    
+}
+

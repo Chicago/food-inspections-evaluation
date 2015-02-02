@@ -1,6 +1,4 @@
 
-stop()
-
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
@@ -18,18 +16,15 @@ geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES / MANUAL CODE
-##==============================================================================
-DataDir <- "DATA/20141110"
-
-##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
+dat <- readRDS("DATA/dat_model.Rds")
 
-## Remove NA's
-dat[,.N,is.na(heat_burglary)]
-dat <- dat[!is.na(heat_burglary)]
+## Only keep "Retail Food Establishment"
+dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+## Remove License Description
+dat[ , LICENSE_DESCRIPTION := NULL]
+dat <- na.omit(dat)
 
 ## Add criticalFound variable to dat:
 dat[ , criticalFound := pmin(1, criticalCount)]
@@ -39,17 +34,14 @@ setkey(dat, Inspection_ID)
 
 ## Match time period of original results
 # dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
-dat[, .N, Results]
-
-## Remove records where an inspection didn't happen
-dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
 
 ##==============================================================================
 ## CREATE MODEL DATA
 ##==============================================================================
 # sort(colnames(dat))
 xmat <- dat[ , list(criticalFound,
-                    Inspector_Assigned,
+                    # Inspector = Inspector_Grade, 
+                    Inspector = Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
                     ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     pastCritical = pmin(pastCritical, 1),
@@ -87,12 +79,12 @@ nrow(mm)
 ## GLMNET MODEL
 ##==============================================================================
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
+pen <- ifelse(grepl("^Inspector", colnames(mm)), 1, 0)
 model <- glmnet(x = as.matrix(mm[iiTrain]),
                 y = xmat[iiTrain,  criticalFound],
                 family = "binomial", 
                 alpha = 0,
-                penalty.factor = ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0))
-
+                penalty.factor = pen)
 
 ## See what regularization parameter 'lambda' is optimal on tune set
 ## (We are essentially usin the previous hardcoded value)
@@ -110,11 +102,11 @@ model$lambda[which.min(errors)]
 w.lam <- 100
 lam <- model$lambda[w.lam]
 coef <- model$beta[,w.lam]
-inspCoef <- coef[grepl("^Inspector.Assigned",names(coef))]
+inspCoef <- coef[grepl("^Inspector",names(coef))]
 inspCoef <- inspCoef[order(-inspCoef)]
 ## coefficients for the inspectors, and for other variables
 inspCoef
-coef[!grepl("^Inspector.Assigned",names(coef))]
+coef[!grepl("^Inspector",names(coef))]
 
 
 ## By the way, if we had knowledge of the future, we would have chosen a 
@@ -181,24 +173,8 @@ datTest[period_modeled == 1, sum(criticalFound)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 
-110 / (110 + 90)
-134 / (134 + 66)
-0.67 - .55
+141 / (141 + 117)
+178 / (178 + 80)
+0.6899225 - .5465116
 
-
-## Subset test period
-## Exact match of actual inspection counts in first half
-ratio_of_days <- nrow(datTest[period==1]) / nrow(datTest)
-ratio_of_days
-datTest[ , period_modeled_strict := 
-            ifelse(glm_pred > quantile(glm_pred, 1-ratio_of_days), 1, 2)]
-datTest[,.N,period_modeled_strict]
-datTest[,.N,period]
-
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled_strict)]
-
-110 / (110 + 90)
-130 / (130 + 70)
-0.65 - .55
 
