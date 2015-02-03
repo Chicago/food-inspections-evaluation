@@ -52,26 +52,25 @@ DataDir <- "DATA/20141110"
 ##==============================================================================
 ## LOAD CACHED RDS FILES AND MODIFY DATA FOR MODEL
 ##==============================================================================
-dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
-## Remove NA's
-dat[,.N,is.na(heat_burglary)]
-dat <- dat[!is.na(heat_burglary)]
+dat <- readRDS("DATA/dat_model.Rds")
+## Only keep "Retail Food Establishment"
+dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+## Remove License Description
+dat[ , LICENSE_DESCRIPTION := NULL]
+dat <- na.omit(dat)
 ## Add criticalFound variable to dat:
 dat[ , criticalFound := pmin(1, criticalCount)]
 ## Set the key for dat
 setkey(dat, Inspection_ID)
 ## Match time period of original results
 # dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
-dat[, .N, Results]
-## Remove records where an inspection didn't happen
-dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
 ```
 ```{r create_model_data, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
 ##==============================================================================
 ## CREATE MODEL DATA
 ##==============================================================================
 xmat <- dat[ , list(criticalFound,
-                    Inspector_Assigned,
+                    Inspector = Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
                     ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     pastCritical = pmin(pastCritical, 1),
@@ -100,16 +99,16 @@ iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
 ## GLMNET MODEL
 ##==============================================================================
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
-pen <- ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0)
+pen <- ifelse(grepl("^Inspector", colnames(mm)), 1, 0)
 model <- glmnet(x = as.matrix(mm[iiTrain]),
                 y = xmat[iiTrain,  criticalFound],
                 family = "binomial", alpha = 0, penalty.factor = pen)
 w.lam <- 100
 lam <- model$lambda[w.lam]
 coef <- model$beta[,w.lam]
-coefInsp <- coef[grepl("^Inspector.Assigned",names(coef))]
+coefInsp <- coef[grepl("^Inspector",names(coef))]
 coefInsp <- coefInsp[order(-coefInsp)]
-coefNonInsp <- coef[!grepl("^Inspector.Assigned",names(coef))]
+coefNonInsp <- coef[!grepl("^Inspector",names(coef))]
 
 ## ATTACH PREDICTIONS TO DAT
 dat$glm_pred <- predict(model, newx=as.matrix(mm), s=lam, type="response")[,1]
@@ -141,13 +140,23 @@ datTest[period_modeled == 1, sum(criticalFound)]
 ##==============================================================================
 
 ## Total of inspections / critical found for ACTUAL data
-baseline <- datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
+baseline <- datTest[i = TRUE, 
+                    j = list(.N, 
+                             Violations = sum(criticalFound)), 
+                    keyby = list(period)]
 
 ## Total of inspections / critical found for MODELED scenario
-data_driven <- datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
+data_driven <- datTest[i = TRUE,
+                       j = list(.N,
+                                Violations = sum(criticalFound)),
+                       keyby = list(period_modeled)]
 
-summary_of_eval_results_table <- data.frame(baseline$period, baseline$N, baseline$Violations, data_driven$Violations)
-names(summary_of_eval_results_table) <- c("Period", "Number of Inspections", "Baseline Violations", "Data-driven Violations")
+summary_of_eval_results_table <- data.frame(Period = baseline$period, 
+                                            `Number of Inspections` = baseline$N, 
+                                            `Baseline Violations` = baseline$Violations, 
+                                            `Data-driven Violations` = data_driven$Violations,
+                                            check.names = FALSE)
+summary_of_eval_results_table
 ```
 
 > The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper develops a predictive model design to identify the likelihood any restaurant that contains critical violations. Since CDPH is obligated to inspect every food establishment, the goal of the model is to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. In testing, the predictive model was able to identify 23 percent more violations than current operations.
