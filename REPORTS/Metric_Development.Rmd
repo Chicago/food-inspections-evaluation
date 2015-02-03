@@ -126,17 +126,26 @@ ggplot <- function(...) {
 }
 ```
 
+```{r}
+# cbPalette <- c("#000000", "#E69F00", "#56B4E9", 
+#                "#009E73", "#F0E442", "#0072B2", 
+#                "#D55E00", "#CC79A7")
+# pie(rep(1,length(cbPalette)), col = cbPalette)
+```
 
-## Count comparisons
+
+## Aggregate count comparisons
 
 
 ```{r}
-comp <- datTest[
-    i = TRUE, 
-    list(Inspection_Date_BAU   = Inspection_Date[order(Inspection_Date)],
-         criticalFound_BAU     = criticalFound[order(Inspection_Date)],
-         Inspection_Date_Model = Inspection_Date[order(-glm_pred)], 
-         criticalFound_Model   = criticalFound[order(-glm_pred)])]
+comp <- cbind(
+    datTest[i = order(Inspection_Date), 
+            j = list(Inspection_ID_BAU   = Inspection_ID,
+                     Inspection_Date   = Inspection_Date,
+                     criticalFound_BAU     = criticalFound)],
+    datTest[i = order(-glm_pred), 
+            j = list(Inspection_ID_Model   = Inspection_ID,
+                     criticalFound_Model   = criticalFound)])
 comp
 
 comp_summary <- comp[
@@ -144,8 +153,34 @@ comp_summary <- comp[
     j = list(Total_Inspections = .N,
              Crit_Violations_BAU = sum(criticalFound_BAU),
              Crit_Violations_Model = sum(criticalFound_Model)), 
-    keyby = list(Inspection_Date = Inspection_Date_BAU)]
+    keyby = list(Inspection_Date = Inspection_Date)]
 comp_summary
+```
+
+## Calculation of average time saved with model
+
+```{r}
+date_comp <- merge(
+    x = comp[i = TRUE,
+             j = list (criticalFound_BAU,
+                       date_bau = Inspection_Date),
+             keyby = list(id = Inspection_ID_BAU)],
+    y = comp[i = TRUE,
+             j = list (criticalFound_Model,
+                       date_model = Inspection_Date),
+             keyby = list(id = Inspection_ID_Model)],
+    by = "id")
+
+date_comp[criticalFound_Model==1,
+          mean(date_model - date_bau)]
+
+hist(as.numeric(date_comp[criticalFound_Model==1,
+          -(date_model - date_bau)]),
+     main = paste0("Days sooner that a critical \n",
+                   " violation would have been discovered"),
+     breaks = 30, 
+     xlab = "days sooner",
+     col = c(rep("#CC79A7", 10), rep("#009E73", 20)))
 ```
 
 
@@ -220,21 +255,6 @@ ggplot(comp_summary_cumsum[
 ```
 
 
-```{r}
-# comp
-# comp_summary
-# comp_summary_cumsum
-# 
-# 
-# total_violations <- comp_summary[ , sum(Crit_Violations_BAU)]
-# 
-# comp_summary[ , Best_Possible := Total_Inspections]
-# 
-# 
-# cumsum_inspections <- comp_summary[ , cumsum(Total_Inspections)]
-# cumsum_inspections[ which(
-
-```
 
 
 ```{r}
