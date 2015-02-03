@@ -126,16 +126,16 @@ ggplot <- function(...) {
 }
 ```
 
-```{r}
-# cbPalette <- c("#000000", "#E69F00", "#56B4E9", 
-#                "#009E73", "#F0E442", "#0072B2", 
-#                "#D55E00", "#CC79A7")
-# pie(rep(1,length(cbPalette)), col = cbPalette)
+```{r, echo=FALSE, eval=FALSE}
+## Testing palette
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", 
+               "#009E73", "#F0E442", "#0072B2", 
+               "#D55E00", "#CC79A7")
+pie(rep(1,length(cbPalette)), col = cbPalette)
 ```
 
 
 ## Aggregate count comparisons
-
 
 ```{r}
 comp <- cbind(
@@ -146,15 +146,21 @@ comp <- cbind(
     datTest[i = order(-glm_pred), 
             j = list(Inspection_ID_Model   = Inspection_ID,
                      criticalFound_Model   = criticalFound)])
+comp[ , Best_Possible := criticalFound_Model[order(-criticalFound_Model)]]
+comp[ , Worst_Possible := criticalFound_Model[order(criticalFound_Model)]]
 comp
 
 comp_summary <- comp[
     i = TRUE, 
     j = list(Total_Inspections = .N,
              Crit_Violations_BAU = sum(criticalFound_BAU),
-             Crit_Violations_Model = sum(criticalFound_Model)), 
+             Crit_Violations_Model = sum(criticalFound_Model),
+             Best_Possible = sum(Best_Possible),
+             Worst_Possible = sum(Worst_Possible)), 
     keyby = list(Inspection_Date = Inspection_Date)]
-comp_summary
+
+
+
 ```
 
 ## Calculation of average time saved with model
@@ -163,17 +169,25 @@ comp_summary
 date_comp <- merge(
     x = comp[i = TRUE,
              j = list (criticalFound_BAU,
-                       date_bau = Inspection_Date),
-             keyby = list(id = Inspection_ID_BAU)],
+                       date_bau = Inspection_Date,
+                       id = Inspection_ID_BAU)],
     y = comp[i = TRUE,
              j = list (criticalFound_Model,
-                       date_model = Inspection_Date),
-             keyby = list(id = Inspection_ID_Model)],
+                       date_model = Inspection_Date,
+                       id = Inspection_ID_Model)],
     by = "id")
+```
 
-date_comp[criticalFound_Model==1,
-          mean(date_model - date_bau)]
+### Average improvement based on date comparison
 
+```{r}
+date_comp[i = criticalFound_Model==1,
+          j = mean(date_model - date_bau)]
+```
+
+### Distribution of "how many days sooner" for all critical violations
+
+```{r}
 hist(as.numeric(date_comp[criticalFound_Model==1,
           -(date_model - date_bau)]),
      main = paste0("Days sooner that a critical \n",
@@ -181,6 +195,16 @@ hist(as.numeric(date_comp[criticalFound_Model==1,
      breaks = 30, 
      xlab = "days sooner",
      col = c(rep("#CC79A7", 10), rep("#009E73", 20)))
+```
+
+```{r}
+hist(as.numeric(date_comp[criticalFound_Model==1,
+          -(date_model - date_bau)]),
+     main = paste0("Days sooner that a critical \n",
+                   " violation would have been discovered"),
+     breaks = 5, 
+     xlab = "days sooner",
+     col = c(rep("#CC79A7", 3), rep("#009E73", 10)))
 ```
 
 
@@ -205,13 +229,15 @@ ggplot(
 ```
 
 ```{r}
-ggplot(
-    melt(data = comp_summary[
+summary_percent_melted <- melt(
+    data = comp_summary[
         i = -1,
         j = list(Pct_Crit_Violations_Found_BAU = Crit_Violations_BAU / Total_Inspections,
                  Pct_Crit_Violations_Found_Model = Crit_Violations_Model / Total_Inspections),
         keyby = Inspection_Date], 
-            id.vars = "Inspection_Date")) +
+    id.vars = "Inspection_Date")
+
+ggplot(summary_percent_melted) +
     aes(x=Inspection_Date, y=value, colour=variable, fill=variable) + 
     labs(title=paste0('Critical violations found on a daily basis\n',
                       'as a percent of total inspections performed\n',
@@ -231,21 +257,28 @@ comp_summary_cumsum <- comp_summary[
     i = TRUE,
     j = list(Inspection_Date = Inspection_Date,
              BAU = cumsum(Crit_Violations_BAU),
-             Model = cumsum(Crit_Violations_Model))]
+             Model = cumsum(Crit_Violations_Model),
+             Best_Possible = cumsum(Best_Possible),
+             Worst_Possible = cumsum(Worst_Possible))]
 
-ggplot(melt(data = comp_summary_cumsum, 
-            id.vars = "Inspection_Date")) +
+comp_summary_cumsum_melted <- melt(
+    data = comp_summary_cumsum, 
+    id.vars = "Inspection_Date")
+
+ggplot(comp_summary_cumsum_melted) +
     aes(x=Inspection_Date, y=value, colour=variable) + 
     labs(title=paste0("Cumulative Critical Violations Found\n",
                       "BAU Versus Model\n")) +
-    geom_line()
+    geom_line(lwd=1.5)
 ```
 
 ```{r}
-ggplot(comp_summary_cumsum[
+comp_summary_cumsum_diff <- comp_summary_cumsum[
     i = TRUE,
     j = list(Inspection_Date, 
-             diff = Model - BAU)]) +
+             diff = Model - BAU)]
+
+ggplot(comp_summary_cumsum_diff) +
     aes(x=Inspection_Date, y=diff) + 
     labs(title=paste0("Difference Between BAU and Modeled\n",
                       "Cumulative Critical Violations Found\n")) +
