@@ -6,15 +6,12 @@ if(interactive()){
     ## Remove all objects; perform garbage collection
     rm(list=ls())
     gc(reset=TRUE)
-    ## Check for dependencies
-    if(!"geneorama" %in% rownames(installed.packages())){
-        if(!"devtools" %in% rownames(installed.packages())){
-            install.packages('devtools')}
-        devtools::install_github('geneorama/geneorama')}
-    ## Load libraries
+    ## Detach libraries that are not used
     geneorama::detach_nonstandard_packages()
 }
+## Load libraries that are used
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2"))
+## Load custom functions
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================

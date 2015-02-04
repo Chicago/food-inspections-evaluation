@@ -20,15 +20,10 @@ if(interactive()){
     ## Remove all objects; perform garbage collection
     rm(list=ls())
     gc(reset=TRUE)
-    ## Check for dependencies
-    if(!"geneorama" %in% rownames(installed.packages())){
-        if(!"devtools" %in% rownames(installed.packages())){
-            install.packages('devtools')}
-        devtools::install_github('geneorama/geneorama')}
-    ## Load libraries
     geneorama::detach_nonstandard_packages()
 }
-geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", "splines"))
+geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", 
+                                   "splines", "reportr"))
 
 ## Define melt to be the data.table melt
 melt <- data.table:::melt.data.table
