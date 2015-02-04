@@ -351,33 +351,3 @@ text(x = 2.5, y = 1:nrow(samp_model), labels = samp_model$dba_name,
 
 
 
-```{r}
-# bau <- datTest[
-#     i = TRUE, 
-#     j = list(criticalFound, Inspection_ID),
-#     keyby =list(Inspection_Date)]
-# print(mod, 100)
-# mod <- datTest[
-#         i = order(-glm_pred) , 
-#         list(Inspection_Date_Model = Inspection_Date, 
-#              criticalFound_Model = criticalFound,
-#              Inspection_ID)]
-# comp
-# 
-# summary_agg_dates <- comp[
-#     i = TRUE, 
-#     j = list(total_crit_found_bau = sum(criticalFound),
-#              total_crit_found_mod = sum(criticalFound_Model)), 
-#     keyby = Inspection_Date]
-# 
-# summary_agg_dates
-# 
-# comp[criticalFound == 1 , 
-#      Inspection_Date_Model - Inspection_Date]
-# 
-# geneorama::wtf(datTest)
-# dat
-```
-
-
-
