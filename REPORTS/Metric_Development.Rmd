@@ -1,121 +1,65 @@
-
-```{r, echo=FALSE, results='hide'}
+```{r, echo=FALSE, results='hide', message=FALSE}
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-## Remove all objects; perform garbage collection
-rm(list=ls())
-gc(reset=TRUE)
-## Check for dependencies
-if(!"geneorama" %in% rownames(installed.packages())){
-    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
-    devtools::install_github('geneorama/geneorama')}
-if(!"printr" %in% rownames(installed.packages())){
-    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
-    devtools::install_github('yihui/printr')}
-## Load libraries
-geneorama::detach_nonstandard_packages()
-# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
-geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", 
-                                   "splines", "knitr", "printr"))
-geneorama::set_project_dir("food-inspections-evaluation")
-geneorama::sourceDir("CODE/functions/")
+if(interactive()){
+    ## Remove all objects; perform garbage collection
+    rm(list=ls())
+    gc(reset=TRUE)
+    ## Check for dependencies
+    if(!"geneorama" %in% rownames(installed.packages())){
+        if(!"devtools" %in% rownames(installed.packages())){
+            install.packages('devtools')}
+        devtools::install_github('geneorama/geneorama')}
+    ## Load libraries
+    geneorama::detach_nonstandard_packages()
+}
+geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", "splines",
+                                   "knitr", "printr"))
 
 ## Define melt to be the data.table melt
 melt <- data.table:::melt.data.table
-
-##==============================================================================
-## LOAD CACHED RDS FILES
-##==============================================================================
-dat <- readRDS("DATA/dat_model.Rds")
-
-## Only keep "Retail Food Establishment"
-dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
-## Remove License Description
-dat[ , LICENSE_DESCRIPTION := NULL]
-dat <- na.omit(dat)
-
-## Add criticalFound variable to dat:
-dat[ , criticalFound := pmin(1, criticalCount)]
-
-## Set the key for dat
-setkey(dat, Inspection_ID)
-
-## Match time period of original results
-# dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
-
-##==============================================================================
-## CREATE MODEL DATA
-##==============================================================================
-# sort(colnames(dat))
-xmat <- dat[ , list(criticalFound,
-                    # Inspector = Inspector_Grade, 
-                    Inspector = Inspector_Assigned,
-                    pastSerious = pmin(pastSerious, 1),
-                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
-                    pastCritical = pmin(pastCritical, 1),
-                    consumption_on_premises_incidental_activity,
-                    tobacco_retail_over_counter,
-                    temperatureMax,
-                    heat_burglary = pmin(heat_burglary, 70),
-                    heat_sanitation = pmin(heat_sanitation, 70),
-                    heat_garbage = pmin(heat_garbage, 50),
-                    # risk = as.factor(Risk),
-                    # facility_type = as.factor(Facility_Type),
-                    timeSinceLast),
-            keyby = Inspection_ID]
-mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
-mm <- as.data.table(mm)
-str(mm)
-colnames(mm)
-
-##==============================================================================
-## CREATE TEST / TRAIN PARTITIONS
-##==============================================================================
-## 2014-07-01 is an easy separator
-dat[Inspection_Date < "2014-07-01", range(Inspection_Date)]
-dat[Inspection_Date > "2014-07-01", range(Inspection_Date)]
-
-iiTrain <- dat[ , which(Inspection_Date < "2014-07-01")]
-iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
-
-## Check to see if any rows didn't make it through the model.matrix formula
-nrow(dat)
-nrow(xmat)
-nrow(mm)
-
-##==============================================================================
-## GLMNET MODEL
-##==============================================================================
-# fit ridge regression, alpha = 0, only inspector coefficients penalized
-pen <- ifelse(grepl("^Inspector", colnames(mm)), 1, 0)
-model <- glmnet(x = as.matrix(mm[iiTrain]),
-                y = xmat[iiTrain,  criticalFound],
-                family = "binomial", 
-                alpha = 0,
-                penalty.factor = pen)
-## manual lambda selection
-w.lam <- 100
-lam <- model$lambda[w.lam]
-
-
-## ATTACH PREDICTIONS TO DAT
-dat$glm_pred <- predict(model, 
-                        newx = as.matrix(mm), 
-                        s = lam,
-                        type = "response")[,1]
-## Subset test period
-datTest <- dat[iiTest]
-geneorama::lll()
-rm(pen, model, w.lam, mm, dat, iiTest, iiTrain, xmat, lam)
 ```
+
+```{r, echo=FALSE, results='hide', fig.show='hide', message=FALSE}
+##==============================================================================
+## RUN GLMNET MODEL
+##==============================================================================
+
+## NOTE: THE DIRECTORY NAME BELOW MUST MATCH YOUR PROECT DIRECTORY NAME
+## If you clone the project directly from github.com the project name will
+## automatically be food-inspection-evaluation, but if you change the name 
+## you will need to update the name of the project below in the set_project_dir
+## function below.
+geneorama::set_project_dir("food-inspections-evaluation")
+geneorama::sourceDir("CODE/functions/")
+
+## Overwrite the base "interactive" function to prevent complete initialization
+interactive <- function(){FALSE}
+## Source the file that runs the glmnet model:
+source("CODE/30_glmnet_model.R", echo = FALSE)
+## Remove the temporary local "interactive" function
+rm(interactive)
+## Remove excess variables generated by "CODE/30_glmnet_model.R"
+rm(confusion_values_test, dat, errors, errorsTest, iiTest, iiTrain, 
+   lam, mm, pen, w.lam, xmat)
+
+## These should be the only remaining objects (besides functions) imported:
+# coef
+# inspCoef
+# datTest
+# model
+
+## List objects (besides functions) to check with comments above:
+geneorama::lll()
+```
+
 
 
 ```{r}
 opts_chunk$set(tidy = FALSE)
 opts_chunk$set(fig.width = 10)
 # opts_chunk$set(fig.height = 10)
-
 ```
 
 
@@ -159,8 +103,8 @@ comp <- cbind(
     datTest[i = order(-glm_pred), 
             j = list(Inspection_ID_Model   = Inspection_ID,
                      criticalFound_Model   = criticalFound)])
-comp[ , Best_Possible := criticalFound_Model[order(-criticalFound_Model)]]
-comp[ , Worst_Possible := criticalFound_Model[order(criticalFound_Model)]]
+comp <- comp[ , Best_Possible := criticalFound_Model[order(-criticalFound_Model)]]
+comp <- comp[ , Worst_Possible := criticalFound_Model[order(criticalFound_Model)]]
 # comp
 
 comp_summary <- comp[
@@ -315,18 +259,18 @@ ggplot(melt(comp_summary_cumsum_diff_multi,
 ```{r}
 geneorama::set_project_dir("food-inspections-evaluation")
 foodInspect <- readRDS("DATA/food_inspections.Rds")
-foodInspect[ , Violations := NULL]
+foodInspect <- foodInspect[ , Violations := NULL]
 
 setkey(foodInspect, Inspection_ID)
 setkey(date_comp, id)
 
 date_comp_w_name <- foodInspect[,DBA_Name,keyby=Inspection_ID][date_comp]
-date_comp_w_name[ , criticalFound_Model:=NULL]
+date_comp_w_name <- date_comp_w_name[ , criticalFound_Model:=NULL]
 setnames(date_comp_w_name, "Inspection_ID", "id")
 setnames(date_comp_w_name, "DBA_Name", "dba_name")
 setnames(date_comp_w_name, "criticalFound_BAU", "crit")
 
-date_comp_w_name
+# date_comp_w_name
 
 set.seed(27)
 ii <- c(sample(date_comp_w_name[crit==1,id], 5),
@@ -347,7 +291,6 @@ text(x = 2.5, y = 1:nrow(samp_model), labels = samp_model$dba_name,
      col = ifelse(samp_model$crit==1,"red", "black") )
 
 ```
-
 
 
 
