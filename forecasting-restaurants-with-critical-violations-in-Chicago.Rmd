@@ -3,16 +3,16 @@ title: "Forecasting restaurants with critical violations in Chicago"
 author: "City of Chicago"
 date: "December 24, 2014"
 output:
-  pdf_document:
-    number_sections: yes
   html_document:
     css: assets/journal-chicago/css/journal-chicago.css
+    number_sections: yes
+  pdf_document:
     number_sections: yes
   word_document: default
 ---
 
 
-```{r initialize, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+```{r, echo=FALSE, results='hide'}
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
@@ -21,55 +21,44 @@ rm(list=ls())
 gc(reset=TRUE)
 ## Check for dependencies
 if(!"geneorama" %in% rownames(installed.packages())){
-    if(!"devtools" %in% rownames(installed.packages())){
-        install.packages('devtools')}
+    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
     devtools::install_github('geneorama/geneorama')}
 ## Load libraries
 geneorama::detach_nonstandard_packages()
-geneorama::loadinstall_libraries(c("data.table", "ggplot2", "knitr", "glmnet"))
+# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
+geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", "splines"))
 geneorama::set_project_dir("food-inspections-evaluation")
 geneorama::sourceDir("CODE/functions/")
-library(RSocrata)
-library(scales)
 
-## Globally turn off "fixing" indenting for code chunks
-opts_chunk$set(tidy = FALSE)
+## Define melt to be the data.table melt
+melt <- data.table:::melt.data.table
 
-## Set figure output
-opts_knit$set(fig.path = "assets/figure")
-
-## Navigate to the top level directory 
-geneorama::set_project_dir("food-inspections-evaluation")
-```
-```{r define_global_variables, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES / MANUAL CODE
-##==============================================================================
-## Select data version
-DataDir <- "DATA/20141110"
-```
-```{r prepare_for_model, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
-##==============================================================================
-## LOAD CACHED RDS FILES AND MODIFY DATA FOR MODEL
+## LOAD CACHED RDS FILES
 ##==============================================================================
 dat <- readRDS("DATA/dat_model.Rds")
+
 ## Only keep "Retail Food Establishment"
 dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
 ## Remove License Description
 dat[ , LICENSE_DESCRIPTION := NULL]
 dat <- na.omit(dat)
+
 ## Add criticalFound variable to dat:
 dat[ , criticalFound := pmin(1, criticalCount)]
+
 ## Set the key for dat
 setkey(dat, Inspection_ID)
+
 ## Match time period of original results
 # dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
-```
-```{r create_model_data, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+
 ##==============================================================================
 ## CREATE MODEL DATA
 ##==============================================================================
+# sort(colnames(dat))
 xmat <- dat[ , list(criticalFound,
+                    # Inspector = Inspector_Grade, 
                     Inspector = Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
                     ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
@@ -86,15 +75,24 @@ xmat <- dat[ , list(criticalFound,
             keyby = Inspection_ID]
 mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
 mm <- as.data.table(mm)
-```
-```{r create_test-train_partitions, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+str(mm)
+colnames(mm)
+
 ##==============================================================================
 ## CREATE TEST / TRAIN PARTITIONS
 ##==============================================================================
+## 2014-07-01 is an easy separator
+dat[Inspection_Date < "2014-07-01", range(Inspection_Date)]
+dat[Inspection_Date > "2014-07-01", range(Inspection_Date)]
+
 iiTrain <- dat[ , which(Inspection_Date < "2014-07-01")]
 iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
-```
-```{r glmnet_model, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+
+## Check to see if any rows didn't make it through the model.matrix formula
+nrow(dat)
+nrow(xmat)
+nrow(mm)
+
 ##==============================================================================
 ## GLMNET MODEL
 ##==============================================================================
@@ -102,61 +100,121 @@ iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
 pen <- ifelse(grepl("^Inspector", colnames(mm)), 1, 0)
 model <- glmnet(x = as.matrix(mm[iiTrain]),
                 y = xmat[iiTrain,  criticalFound],
-                family = "binomial", alpha = 0, penalty.factor = pen)
+                family = "binomial", 
+                alpha = 0,
+                penalty.factor = pen)
+## manual lambda selection
 w.lam <- 100
 lam <- model$lambda[w.lam]
-coef <- model$beta[,w.lam]
-coefInsp <- coef[grepl("^Inspector",names(coef))]
-coefInsp <- coefInsp[order(-coefInsp)]
-coefNonInsp <- coef[!grepl("^Inspector",names(coef))]
+
 
 ## ATTACH PREDICTIONS TO DAT
-dat$glm_pred <- predict(model, newx=as.matrix(mm), s=lam, type="response")[,1]
-```
-```{r prepare_data_for_evaluation_summary, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
-# ## Subset test period
+dat$glm_pred <- predict(model, 
+                        newx = as.matrix(mm), 
+                        s = lam,
+                        type = "response")[,1]
+## Subset test period
 datTest <- dat[iiTest]
-
-## Identify the ACTUAL first and second periods
-datTest[ , period := ifelse(Inspection_Date < median(Inspection_Date), 1, 2)]
-datTest[, .N, keyby=list(period)]
-## Identify top half of scores (which *would have* been the first period)
-datTest[ , period_modeled := ifelse(glm_pred > median(glm_pred), 1, 2)]
-datTest[, .N, keyby=list(period_modeled)]
-
-## Total of inspections / critical found for ACTUAL data
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-
-## Total of inspections / critical found for MODELED scenario
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
-
-## Another way to say "how many would you have found  in the first period"
-datTest[period == 1, sum(criticalFound)]
-datTest[period_modeled == 1, sum(criticalFound)]
+geneorama::lll()
+rm(pen, model, w.lam, mm, dat, iiTest, iiTrain, xmat, lam)
 ```
-```{r prepare_summary_of_results, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+
+```{r, echo=FALSE, results='hide'}
 ##==============================================================================
-## CALCULATE DATA FOR summary_of_results_table
+## DEFINE CUSTOM GGPLOT FUNCTION
 ##==============================================================================
 
-## Total of inspections / critical found for ACTUAL data
-baseline <- datTest[i = TRUE, 
-                    j = list(.N, 
-                             Violations = sum(criticalFound)), 
-                    keyby = list(period)]
+# cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", 
+#                "#0072B2", "#D55E00", "#CC79A7")
 
-## Total of inspections / critical found for MODELED scenario
-data_driven <- datTest[i = TRUE,
-                       j = list(.N,
-                                Violations = sum(criticalFound)),
-                       keyby = list(period_modeled)]
+ggplot <- function(...) {
+    cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", 
+               "#0072B2", "#D55E00", "#CC79A7")
+    ggplot2::ggplot(...) +
+        theme_grey()+
+        scale_fill_manual(values=cbPalette) +
+        scale_colour_manual(values=cbPalette) +
+        theme(plot.title = element_text(size = 20))
+    
+}
+```
 
-summary_of_eval_results_table <- data.frame(Period = baseline$period, 
-                                            `Number of Inspections` = baseline$N, 
-                                            `Baseline Violations` = baseline$Violations, 
-                                            `Data-driven Violations` = data_driven$Violations,
-                                            check.names = FALSE)
-summary_of_eval_results_table
+```{r}
+# cbPalette <- c("#000000", "#E69F00", "#56B4E9", 
+#                "#009E73", "#F0E442", "#0072B2", 
+#                "#D55E00", "#CC79A7")
+# pie(rep(1,length(cbPalette)), col = cbPalette)
+```
+
+
+## Aggregate count comparisons
+
+
+```{r}
+comp <- cbind(
+    datTest[i = order(Inspection_Date), 
+            j = list(Inspection_ID_BAU   = Inspection_ID,
+                     Inspection_Date   = Inspection_Date,
+                     criticalFound_BAU     = criticalFound)],
+    datTest[i = order(-glm_pred), 
+            j = list(Inspection_ID_Model   = Inspection_ID,
+                     criticalFound_Model   = criticalFound)])
+comp
+
+comp_summary <- comp[
+    i = TRUE, 
+    j = list(Total_Inspections = .N,
+             Crit_Violations_BAU = sum(criticalFound_BAU),
+             Crit_Violations_Model = sum(criticalFound_Model)), 
+    keyby = list(Inspection_Date = Inspection_Date)]
+comp_summary
+```
+
+## Calculation of average time saved with model
+
+```{r}
+date_comp <- merge(
+    x = comp[i = TRUE,
+             j = list (criticalFound_BAU,
+                       date_bau = Inspection_Date),
+             keyby = list(id = Inspection_ID_BAU)],
+    y = comp[i = TRUE,
+             j = list (criticalFound_Model,
+                       date_model = Inspection_Date),
+             keyby = list(id = Inspection_ID_Model)],
+    by = "id")
+
+date_comp[criticalFound_Model==1,
+          mean(date_model - date_bau)]
+
+hist(as.numeric(date_comp[criticalFound_Model==1,
+          -(date_model - date_bau)]),
+     main = paste0("Days sooner that a critical \n",
+                   " violation would have been discovered"),
+     breaks = 30, 
+     xlab = "days sooner",
+     col = c(rep("#CC79A7", 10), rep("#009E73", 20)))
+```
+
+
+
+```{r, eval=FALSE, echo=FALSE, results='hide'}
+## Unadjusted plot
+ggplot(
+    melt(data = comp_summary[
+        i = -1,
+        j = list(Crit_Violations_BAU / Total_Inspections,
+                 Crit_Violations_Model / Total_Inspections),
+        keyby = Inspection_Date], 
+        id.vars = "Inspection_Date")) +
+    aes(x=Inspection_Date, y=value, colour=variable) + 
+    labs(title=paste0("Percent of inspections resulting in a Critical Violation\n",
+                      "(Daily intervals shown)\n"))+
+    geom_line()
+         
+    
+
+# geneorama::clipper(comp_summary)
 ```
 
 > The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper develops a predictive model design to identify the likelihood any restaurant that contains critical violations. Since CDPH is obligated to inspect every food establishment, the goal of the model is to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. In testing, the predictive model was able to identify 23 percent more violations than current operations.
@@ -241,18 +299,15 @@ Characteristics besides the restaurant itself were also indicators of future per
 
 Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include:
 
-
-
-
 ```{r table_of_coefficients, echo=FALSE}
 knitr::kable(model$beta[,w.lam], digits=2, caption="Table of Coefficients")
 ```
 
 # Evaluation
 
-After formulating the analytical model, the the principal question for researchers turned to whether this analytical model provides more efficiency for the food inspection team. CDPH operational procedures requires the department to inspect every risk 1 and risk 2 restaurant. Therefore, the operational goal is to allow inspectors to discover critical violations earlier than their current operations.
+After formulating the analytical model, the the principal question for researchers turned to whether this analytical model provides more efficiency for the food inspection team. CDPH operational procedures requires the department to inspect every risk 1 and risk 2 restaurant. Therefore, the operational goal is to allow inspectors to discover critical violations earlier than their current operations (business-as-usual).
 
-The researchers applied a protocol to discover whether the analytical model could accelerate the rate of finding critical violations. This objective was slightly different than what the researchers initially sought to find: trying to find an increase in restaurants found with critical violations.
+One approach for an evaluation may have also sought to determine if the predictive model could discover more restaurants with critical violations. Since CDPH is required to inspect every risk 1 and risk 2 restaurant, discovering more restaurants is not a pertinent goal. Instead, it serves a greater public interest to discover violations sooner, thereby, reducing the potential exposure of conditions that breed foodborne illnesses to the public.
 
 ## Evaluation Design
 
@@ -294,122 +349,83 @@ datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 datTest[period == 1, sum(criticalFound)]
 datTest[period_modeled == 1, sum(criticalFound)]
 ```
-The research was split in two periods: period 1 representing the first half of inspections and period 2 representing the latter half. The team could not simply divide violations in half to determine the two periods. The midway point, the 599th inspection, took place sometime during the day. The research team would not be able to determine which precise inspection was the 599th, only that is took place during the course of the day along with other inspections. The first period of inspections consisted of ```r summary_of_eval_results_table$"Number of Inspections"[1]``` inspections, ```r 100 * (summary_of_eval_results_table$"Number of Inspections"[1]/(summary_of_eval_results_table$"Number of Inspections"[1] + summary_of_eval_results_table$"Number of Inspections"[2]))``` percent of all inspections, were considered for the first period while ```r summary_of_eval_results_table$"Number of Inspections"[2]``` inspections were included in the second.
 
-Thus, we focus on comparing the percentage of violations found in the first period to the second period.
 
-```{r summary_of_eval_results, echo=FALSE, warning=FALSE}
-kable(summary_of_eval_results_table, digits=0, caption="Summary of Findings")
+[Insert bar graph comparing BAU and model in first half]
+
+
+```{r prepare_calc_for_difference}
+date_comp <- merge(
+    x = comp[i = TRUE,
+             j = list (criticalFound_BAU,
+                       date_bau = Inspection_Date),
+             keyby = list(id = Inspection_ID_BAU)],
+    y = comp[i = TRUE,
+             j = list (criticalFound_Model,
+                       date_model = Inspection_Date),
+             keyby = list(id = Inspection_ID_Model)],
+    by = "id")
+
+# Store this data as a variable to be used in text
+time_diff <- date_comp[criticalFound_Model==1, -(date_model - date_bau)]
 ```
+On average, food establishments were identified ```r date_comp[criticalFound_Model==1, mean(date_model - date_bau)]``` days earlier under a data-driven model. Generally, critical violations would have been found sooner under the data-driven regime. The rate of finding critical violations in the first half of the would have increased by 25 percent under the data-driven model. [Fifty-five percent] of critical food violations were found in the first half; meanwhile, under the data-driven model, [sixty-nine percent] of all of the critical violations. 
 
-Below shows the Gini curve for the modelled inspection period.
+While the average gain was 7 days, there was a significant range in the change. Some restaurants were identified ```r max(time_diff)``` days earlier than business-as-usual. Half of the crticial violations were identified over ```r quantile(time_diff)[3]``` earlier while quarter of all violations were prioritized over ```r quantile(time_diff)[4]``` sooner. Yet, some restaurants would be prioritized lower, ```r sum(time_diff] < 0)``` restaurants were incorrectly prioritized lower and were found to have critical violations later--```r sum(time_diff < 0) / length(time_diff)``` of the observed critical violations.
+
+```{r graph_of_time_diff}
+hist(as.numeric(time_diff),
+     main = paste0("Distribution of the difference \n",
+                   "in time to discover a critical violation"),
+     breaks = 30, 
+     xlab = "days sooner",
+     col = c(rep("#CC79A7", 10), rep("#009E73", 20)))
+```
+```{r time_diff_t-test, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+time_diff_t_test <- t.test(time_diff, mu=0)
+```
+We conducted a t-test to measure whether the reduction in time to find a critical violation was greater than zero. Namely, the null hypothesis is the average time each food inspection was accelerated is equal to zero. The test ($$\sigma =$$ ```r sd(time_diff)```, df = ```r time_diff_t_test$parameter```) resulted in a p-value of ```r time_diff_t_test$statistic```, which indicates 
+
+Below, Gini curves show the relative difference in the inspection regimes throughout the pilot. Since the first day, the data-driven model revealed more critical violations. Specifically, 111 more violations were found in the first week between September 2 and September 5 (141 under data-driven compared to 30 for business-as-usual). The cumulative number of violations found were always higher for the data-driven approach until the final day of the pilot.
 ```{r}
-## show gini performance of inspector model on test data set
-dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
+comp_summary_cumsum <- comp_summary[
+    i = TRUE,
+    j = list(Inspection_Date = Inspection_Date,
+             BAU = cumsum(Crit_Violations_BAU),
+             Model = cumsum(Crit_Violations_Model))]
+
+ggplot(melt(data = comp_summary_cumsum, 
+            id.vars = "Inspection_Date")) +
+    aes(x=Inspection_Date, y=value, colour=variable) + 
+    labs(title="Comparing cumulative violations") +
+    geom_line()
 ```
 
-
-
-
-## Basic model performance
-
-```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
-## show gini performance of inspector model on test data set
-dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
+By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately 0.2 per day and stays above 0.1 violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
+```{r}
+ggplot(
+    melt(data = comp_summary[
+        i = -1,
+        j = list(Pct_Crit_Violations_Found_BAU = Crit_Violations_BAU / Total_Inspections,
+                 Pct_Crit_Violations_Found_Model = Crit_Violations_Model / Total_Inspections),
+        keyby = Inspection_Date], 
+            id.vars = "Inspection_Date")) +
+    aes(x=Inspection_Date, y=value, colour=variable, fill=variable) + 
+    labs(title=paste0('Critical violations found on a daily basis\n',
+                      'as a percent of total inspections performed\n',
+                      "(smoothed results)\n") ) +
+    stat_smooth(method = "gam", 
+                formula = y ~ s(x, k=10, sp=2, bs="ps"), 
+                alpha=.3,
+                level = .65)
 ```
+
+The retrospective analysis allows us to surmise and compare to a "best case scenario", the most efficient order of restaurants to inspect based on their risk. In this case, we surmise the best case scenario is where every critical violation is found Below, a graph shows the difference between the most efficient path
+
 
 # Summary
+This model was able to reduce the timeframe to discover critical violations at Chicago's food establishments. Within a two-month window, the average time to find a critical violation was reduced by ```r mean(time_diff)``` days, a statistically significant finding.
 
+At times, we've explicitly assumed that finding violations is time invariant throughout the pilot phase. That is, a food establishment found with a critical violation on day 40 would have also been found to have a violation even if it was inspected earlier. Unfortunately, we do not have a method to test this assumption. However, the relatively short time window of the study helped ensure external factors, such as severe weather, had limited impact on temporal violations.
 
-
-
-
-
-## Confustion matrix for one cutoff (.25)
-
-```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
-## Calculate confusion matrix values for evaluation
-calculate_confusion_values(actual = dat[iiTest, criticalFound],
-                           expected = dat[iiTest, glm_pred], 
-                           r = .25)
-```
-
-
-
-```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
-geneorama::loadinstall_libraries(c("reshape2", "MASS", "splines"))
-##------------------------------------------------------------------------------
-## ANALYZE DATA
-##------------------------------------------------------------------------------
-str(dat)
-
-dat[ , .N, list(Results)]
-dat[ , .N, list(Inspection_Type)]
-
-## Annual summary of passes
-PassYearly <- dat[ , .N, list(Results = Results, 
-                              Year = round(Inspection_Date, "year"))]
-PassYearly
-dcast.data.table(PassYearly, Year ~ Results, value.var="N")
-
-## Monthly summary of passes
-PassMonthly <- dat[i = Inspection_Type == "Canvass" , 
-                   j = list(N = as.numeric(.N)), 
-                   by = list(Results = Results, 
-                             Date = round(Inspection_Date, "month"))]
-PassMonthly
-dcast.data.table(data = PassMonthly, formula = Date ~ Results,
-                 value.var = "N", fill = 0)
-
-##------------------------------------------------------------------------------
-## DAILY SUMMARY
-##------------------------------------------------------------------------------
-canvas_summary <- dat[Inspection_Type == "Canvass" & Results == "Fail",
-                      list(N_fail = .N),
-                      keyby = Inspection_Date][
-                          dat[Inspection_Type == "Canvass",
-                              list(N_total=.N),
-                              keyby = Inspection_Date]]
-setcolorder(canvas_summary, c('Inspection_Date', 'N_total', 'N_fail'))
-canvas_summary[ , Pct_fail := N_fail / N_total]
-geneorama::convert_datatable_IntNum(canvas_summary)
-canvas_summary
-
-
-ggplot(melt(canvas_summary, id.vars = "Inspection_Date"))+
-    aes(Inspection_Date, value, colour=variable) +    
-    geom_line() + facet_wrap(~variable, scales="free") + 
-    stat_smooth(method = rlm, formula= y ~ ns(x,9), colour="black") +
-    stat_smooth(method = lm, formula= y ~ ns(x,9), colour="blue")
-
-##------------------------------------------------------------------------------
-## WEEKLY SUMMARY
-##------------------------------------------------------------------------------
-canvas_summary_w <- dat[i = Inspection_Type == "Canvass" & Results == "Fail",
-                        j = list(N_fail=.N),
-                        keyby = list(week=geneorama::round_weeks(Inspection_Date))][
-                            dat[i = Inspection_Type == "Canvass",
-                                j = list(N_total=.N),
-                                keyby = list(week=geneorama::round_weeks(Inspection_Date))]]
-setcolorder(canvas_summary_w, c('week', 'N_total', 'N_fail'))
-canvas_summary_w[,Pct_fail:=N_fail/N_total]
-geneorama::convert_datatable_IntNum(canvas_summary_w)
-canvas_summary_w
-ggplot(melt(canvas_summary_w, id.vars = "week"))+
-    aes(week, value, colour=variable) +    
-    geom_line() + facet_wrap(~variable, scales="free") + 
-    stat_smooth(method = rlm, formula= y ~ ns(x,9), colour="black") +
-    stat_smooth(method = lm, formula= y ~ ns(x,9), colour="blue")
-canvas_summary_w[,sum(N_total)]
-
-```
-
-
-
-
-
-
-
-
-
-
+Additional data can also be used to supplement this model. Restaurant review data, such as the Google Places API or Yelp, could help supplement data on the conditions of a food establishment.
