@@ -10,10 +10,14 @@ gc(reset=TRUE)
 if(!"geneorama" %in% rownames(installed.packages())){
     if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
     devtools::install_github('geneorama/geneorama')}
+if(!"printr" %in% rownames(installed.packages())){
+    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
+    devtools::install_github('yihui/printr')}
 ## Load libraries
 geneorama::detach_nonstandard_packages()
 # geneorama::loadinstall_libraries(c("geneorama", "data.table"))
-geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", "splines"))
+geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", 
+                                   "splines", "knitr", "printr"))
 geneorama::set_project_dir("food-inspections-evaluation")
 geneorama::sourceDir("CODE/functions/")
 
@@ -106,6 +110,15 @@ geneorama::lll()
 rm(pen, model, w.lam, mm, dat, iiTest, iiTrain, xmat, lam)
 ```
 
+
+```{r}
+opts_chunk$set(tidy = FALSE)
+opts_chunk$set(fig.width = 10)
+# opts_chunk$set(fig.height = 10)
+
+```
+
+
 ```{r, echo=FALSE, results='hide'}
 ##==============================================================================
 ## DEFINE CUSTOM GGPLOT FUNCTION
@@ -121,12 +134,13 @@ ggplot <- function(...) {
         theme_grey()+
         scale_fill_manual(values=cbPalette) +
         scale_colour_manual(values=cbPalette) +
-        theme(plot.title = element_text(size = 20))
+        theme(plot.title = element_text(size = 15))
     
 }
 ```
 
-```{r}
+```{r, echo=FALSE, eval=FALSE}
+## Testing palette
 # cbPalette <- c("#000000", "#E69F00", "#56B4E9", 
 #                "#009E73", "#F0E442", "#0072B2", 
 #                "#D55E00", "#CC79A7")
@@ -135,7 +149,6 @@ ggplot <- function(...) {
 
 
 ## Aggregate count comparisons
-
 
 ```{r}
 comp <- cbind(
@@ -146,13 +159,17 @@ comp <- cbind(
     datTest[i = order(-glm_pred), 
             j = list(Inspection_ID_Model   = Inspection_ID,
                      criticalFound_Model   = criticalFound)])
-comp
+comp[ , Best_Possible := criticalFound_Model[order(-criticalFound_Model)]]
+comp[ , Worst_Possible := criticalFound_Model[order(criticalFound_Model)]]
+# comp
 
 comp_summary <- comp[
     i = TRUE, 
     j = list(Total_Inspections = .N,
              Crit_Violations_BAU = sum(criticalFound_BAU),
-             Crit_Violations_Model = sum(criticalFound_Model)), 
+             Crit_Violations_Model = sum(criticalFound_Model),
+             Best_Possible = sum(Best_Possible),
+             Worst_Possible = sum(Worst_Possible)), 
     keyby = list(Inspection_Date = Inspection_Date)]
 comp_summary
 ```
@@ -163,55 +180,69 @@ comp_summary
 date_comp <- merge(
     x = comp[i = TRUE,
              j = list (criticalFound_BAU,
-                       date_bau = Inspection_Date),
-             keyby = list(id = Inspection_ID_BAU)],
+                       date_bau = Inspection_Date,
+                       id = Inspection_ID_BAU)],
     y = comp[i = TRUE,
              j = list (criticalFound_Model,
-                       date_model = Inspection_Date),
-             keyby = list(id = Inspection_ID_Model)],
+                       date_model = Inspection_Date,
+                       id = Inspection_ID_Model)],
     by = "id")
+```
 
-date_comp[criticalFound_Model==1,
-          mean(date_model - date_bau)]
+### Average improvement based on date comparison
 
+```{r}
+date_comp[i = criticalFound_Model==1,
+          j = mean(date_model - date_bau)]
+```
+
+### Distribution of "how many days sooner" for all critical violations
+
+```{r}
 hist(as.numeric(date_comp[criticalFound_Model==1,
           -(date_model - date_bau)]),
      main = paste0("Days sooner that a critical \n",
                    " violation would have been discovered"),
      breaks = 30, 
+     xlim = c(-60, 60),
      xlab = "days sooner",
      col = c(rep("#CC79A7", 10), rep("#009E73", 20)))
 ```
 
+```{r}
+hist(as.numeric(date_comp[criticalFound_Model==1,
+          -(date_model - date_bau)]),
+     main = paste0("Days sooner that a critical \n",
+                   " violation would have been discovered"),
+     breaks = 5, 
+     xlab = "days sooner",
+     col = c(rep("#CC79A7", 3), rep("#009E73", 10)))
+```
 
 
-```{r, eval=FALSE, echo=FALSE, results='hide'}
-## Unadjusted plot
-ggplot(
-    melt(data = comp_summary[
-        i = -1,
-        j = list(Crit_Violations_BAU / Total_Inspections,
-                 Crit_Violations_Model / Total_Inspections),
-        keyby = Inspection_Date], 
-        id.vars = "Inspection_Date")) +
+
+```{r}
+comp_summary_percent <- comp_summary[
+        i = TRUE,
+        j = list(Pct_Crit_Violations_Found_BAU = Crit_Violations_BAU / Total_Inspections,
+                 Pct_Crit_Violations_Found_Model = Crit_Violations_Model / Total_Inspections),
+        keyby = Inspection_Date]
+```
+
+### Unadjusted plot
+
+```{r}
+ggplot(melt(data = comp_summary_percent, id.vars = "Inspection_Date")) +
     aes(x=Inspection_Date, y=value, colour=variable) + 
     labs(title=paste0("Percent of inspections resulting in a Critical Violation\n",
                       "(Daily intervals shown)\n"))+
     geom_line()
-         
-    
-
-# geneorama::clipper(comp_summary)
 ```
 
+### Plot smoothed by gam to show overall trend
+
 ```{r}
-ggplot(
-    melt(data = comp_summary[
-        i = -1,
-        j = list(Pct_Crit_Violations_Found_BAU = Crit_Violations_BAU / Total_Inspections,
-                 Pct_Crit_Violations_Found_Model = Crit_Violations_Model / Total_Inspections),
-        keyby = Inspection_Date], 
-            id.vars = "Inspection_Date")) +
+ggplot(melt(data = comp_summary_percent, id.vars = "Inspection_Date")) +
     aes(x=Inspection_Date, y=value, colour=variable, fill=variable) + 
     labs(title=paste0('Critical violations found on a daily basis\n',
                       'as a percent of total inspections performed\n',
@@ -231,27 +262,90 @@ comp_summary_cumsum <- comp_summary[
     i = TRUE,
     j = list(Inspection_Date = Inspection_Date,
              BAU = cumsum(Crit_Violations_BAU),
-             Model = cumsum(Crit_Violations_Model))]
+             Model = cumsum(Crit_Violations_Model),
+             Best_Possible = cumsum(Best_Possible),
+             Worst_Possible = cumsum(Worst_Possible))]
 
-ggplot(melt(data = comp_summary_cumsum, 
-            id.vars = "Inspection_Date")) +
+comp_summary_cumsum_melted <- melt(
+    data = comp_summary_cumsum, 
+    id.vars = "Inspection_Date")
+
+ggplot(comp_summary_cumsum_melted) +
     aes(x=Inspection_Date, y=value, colour=variable) + 
     labs(title=paste0("Cumulative Critical Violations Found\n",
                       "BAU Versus Model\n")) +
-    geom_line()
+    geom_line(lwd=1.5)
 ```
 
 ```{r}
-ggplot(comp_summary_cumsum[
+comp_summary_cumsum_diff <- comp_summary_cumsum[
     i = TRUE,
     j = list(Inspection_Date, 
-             diff = Model - BAU)]) +
+             diff = Model - BAU)]
+
+ggplot(comp_summary_cumsum_diff) +
     aes(x=Inspection_Date, y=diff) + 
     labs(title=paste0("Difference Between BAU and Modeled\n",
                       "Cumulative Critical Violations Found\n")) +
     ylab("Cumulative Difference of Critical Violations Found") +
     geom_line()
 # geneorama::clipper(comp_summary)
+```
+
+
+
+```{r}
+comp_summary_cumsum_diff_multi <- comp_summary_cumsum[
+    i = TRUE,
+    j = list(Inspection_Date, 
+             bau_diff = Best_Possible - BAU,
+             model_diff = Best_Possible - Model)]
+
+ggplot(melt(comp_summary_cumsum_diff_multi, 
+            id.vars = "Inspection_Date")) +
+    aes(x=Inspection_Date, y=value, colour=variable) + 
+    labs(title=paste0("Difference Between BAU and Modeled\n",
+                      "Cumulative Critical Violations Found\n")) +
+    ylab("Cumulative Difference of Critical Violations Found") +
+    geom_line()
+# geneorama::clipper(comp_summary)
+```
+
+
+```{r}
+geneorama::set_project_dir("food-inspections-evaluation")
+foodInspect <- readRDS("DATA/food_inspections.Rds")
+foodInspect[ , Violations := NULL]
+
+setkey(foodInspect, Inspection_ID)
+setkey(date_comp, id)
+
+date_comp_w_name <- foodInspect[,DBA_Name,keyby=Inspection_ID][date_comp]
+date_comp_w_name[ , criticalFound_Model:=NULL]
+setnames(date_comp_w_name, "Inspection_ID", "id")
+setnames(date_comp_w_name, "DBA_Name", "dba_name")
+setnames(date_comp_w_name, "criticalFound_BAU", "crit")
+
+date_comp_w_name
+
+set.seed(27)
+ii <- c(sample(date_comp_w_name[crit==1,id], 5),
+        sample(date_comp_w_name[crit==0,id], 20))
+
+samp <- date_comp_w_name[id %in% ii]
+samp
+
+plot(data.frame(x = c(1, 1, 3, 3),
+                y = c(1, nrow(samp), 1, nrow(samp))),
+     type = "n", axes=F, xlab="", ylab="")
+samp_dba <- samp[order(samp$date_bau), ]
+samp_model <- samp[order(samp$date_model), ]
+
+text(x = 1.5, y = 1:nrow(samp_dba), labels = samp_dba$dba_name, 
+     col = ifelse(samp_dba$crit==1,"red", "black") )
+text(x = 2.5, y = 1:nrow(samp_model), labels = samp_model$dba_name, 
+     col = ifelse(samp_model$crit==1,"red", "black") )
+
 ```
 
 
