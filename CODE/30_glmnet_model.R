@@ -2,16 +2,18 @@
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-## Remove all objects; perform garbage collection
-rm(list=ls())
-gc(reset=TRUE)
-## Check for dependencies
-if(!"geneorama" %in% rownames(installed.packages())){
-    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
-    devtools::install_github('geneorama/geneorama')}
-## Load libraries
-geneorama::detach_nonstandard_packages()
-# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
+if(interactive()){
+    ## Remove all objects; perform garbage collection
+    rm(list=ls())
+    gc(reset=TRUE)
+    ## Check for dependencies
+    if(!"geneorama" %in% rownames(installed.packages())){
+        if(!"devtools" %in% rownames(installed.packages())){
+            install.packages('devtools')}
+        devtools::install_github('geneorama/geneorama')}
+    ## Load libraries
+    geneorama::detach_nonstandard_packages()
+}
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2"))
 geneorama::sourceDir("CODE/functions/")
 
@@ -95,22 +97,22 @@ errors <- sapply(model$lambda,
                                         s=lam, 
                                         type="response")[,1], 
                             y = xmat[iiTrain, criticalFound]))
+## Plot of the errors by lambda
 plot(x=log(model$lambda), y=errors, type="l")
 which.min(errors)
 model$lambda[which.min(errors)]
-## manual lambda selection
+## Manual selection of lambda
 w.lam <- 100
 lam <- model$lambda[w.lam]
 coef <- model$beta[,w.lam]
 inspCoef <- coef[grepl("^Inspector",names(coef))]
 inspCoef <- inspCoef[order(-inspCoef)]
-## coefficients for the inspectors, and for other variables
+
+## Print coefficients for the Inspectors (and for other variables)
 inspCoef
 coef[!grepl("^Inspector",names(coef))]
 
-
-## By the way, if we had knowledge of the future, we would have chosen a 
-## different lambda
+## Plot of the errors by Lambda for the out of sample Test data
 errorsTest <- sapply(model$lambda, 
                      function(lam) 
                          logLik(p = predict(model, 
@@ -127,7 +129,7 @@ dat$glm_pred <- predict(model, newx=as.matrix(mm),
                         s=lam, 
                         type="response")[,1]
 
-# show gini performance of inspector model on tune data set
+# Show gini performance of inspector model on tune data set
 dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 
 ## Calculate confusion matrix values for evaluation
