@@ -4,7 +4,7 @@ Food Inspections Evaluation
 Introduction
 ------------
 
-The [City of Chicago](https://github.com/Chicago) conducts routine food inspections at various food establishments around the city. These food establishments include businesses from your favorite diner to the agency that serves food at a public school nearby your home. While the city public health department does a great job in keep Chicagoans healthy, we wondered if preditive analytics could be help. To test the potential of predictive analytics to improve the effectiveness of these food inspections, The City of Chicago recently conducted a pilot using data available on sanitary inspections performed at food establishments in Chicago between September 2011 and November 2014. We built a predictive model to identify food establishments that are most at risk for having ‘critical violations’-, The types of violations that are most likely to spread food borne illnesses. This GitHub repository hosts the code and data used to test and train the predictive model we built. Feel free to clone, fork, send pull requests and file bugs.
+The [City of Chicago](https://github.com/Chicago) conducts routine food inspections at various food establishments around the city. These food establishments include businesses from your favorite diner to the agency that serves food at a public school nearby your home. While the city public health department does a great job in keep Chicagoans safe from foodborne illnesses, we wondered if preditive analytics could be help. To test the potential of predictive analytics to improve the effectiveness of these food inspections, The City of Chicago recently conducted a pilot using data available on sanitary inspections performed at food establishments in Chicago between September 2011 and November 2014. We built a predictive model to identify food establishments that are most at risk for having ‘critical violations’-, The types of violations that are most likely to spread food borne illnesses. This GitHub repository hosts the code and data used to test and train the predictive model we built. Feel free to clone, fork, send pull requests and file bugs.
 
 DATA
 ------
@@ -36,7 +36,8 @@ CODE
 -------------------
 
  
-To get started, first grab the code using the following steps. The [submodule](http://github.com/http://git-scm.com/docs/git-submodule) will be required when you will generate [knitr](http://cran.r-project.org/web/packages/knitr/index.html) reports.
+To get started, first grab the code using the following steps. The [submodule](http://git-scm.com/docs/git-submodule) will be required when you will generate [knitr](http://cran.r-project.org/web/packages/knitr/index.html) reports.
+
 
 
 <a name="CODE"></a>
