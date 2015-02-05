@@ -9,7 +9,7 @@ The [City of Chicago](https://github.com/Chicago) conducts routine food inspecti
 DATA
 ------
 
-Most of the data used to build and train the predictive model was sourced from the [Chicago’s Open Data Portal](http://data.cityofchicago.org). The following datasets were used in the building the analysis-ready dataset. 
+Data used for exploration and building, training and testing the predictive model is provided in the ``./DATA`` directory. Most of this data was sourced from the [Chicago’s Open Data Portal](http://data.cityofchicago.org). The following datasets were used in the building the analysis-ready dataset. 
 
 ```
 Crime (Burglaries only)
@@ -29,13 +29,14 @@ Inspectors Information (Not available at Chicago's Open Data Portal)
 
 The various data sources are joined to create a dataset ready for analysis which paints a statistical picture of a ‘business license’- The primary modelling unit / unit of observation in this project.
 
-The data sources are joined(in SQLesque manner) on appropriate composite keys. These keys include Inspection ID, Business License, and Geography expressed as a Latitude / Longitude combination among others. For a more detailed explanation of this process, read the [technical document](http://)
+The data sources are joined(in SQLesque manner) on appropriate composite keys. These keys include Inspection ID, Business License, and Geography expressed as a Latitude / Longitude combination among others. For a more detailed explanation of this process, read the [technical document](http://).
+
 
 CODE
 ------
 
  
-To get started, first grab the code using the following steps
+To get started, first grab the code using the following steps. The [submodule](http://github.com/http://git-scm.com/docs/git-submodule) will be required when you will generate [knitr](http://cran.r-project.org/web/packages/knitr/index.html) reports.
 
 ```
 git clone https://github.com/Chicago/food-inspections-evaluation.git
@@ -83,12 +84,12 @@ After you have updated the R version, run the following scripts in the order spe
 REPORTS
 -------
 
-The reports may be reproduced compiling the knitr documents present in ``./REPORTS``. 
+The reports may be reproduced compiling the knitr documents present in ``./REPORTS``. If you get errors here, it is likely that you forgot to initiate and update the submodule
 
 
 Acknowledgements
 ----------------
-This research was conducted by the City of Chicago with support from the Civic Consulting Alliance, and Allstate Insurance. The City would especially like to thank Stephen Collins, Gavin Smart for their efforts in developing the predictive model. We also appreciate the help of Kelsey Burr, Christian Hines, and Kiran Pookote in coordinating this research project. We owe a special thanks to our volunteers at Allstate for the developing the predictive model who put in a tremendous amount of work in building the model and writing the various scripts .
+This research was conducted by the [City of Chicago](http://www.cityofchicago.org/city/en/depts/doit.html) with support from the [Civic Consulting Alliance](http://www.ccachicago.org/), and [Allstate Insurance](https://www.allstate.com/). The City would especially like to thank Stephen Collins, Gavin Smart for their efforts in developing the predictive model. We also appreciate the help of Kelsey Burr, Christian Hines, and Kiran Pookote in coordinating this research project. We owe a special thanks to our volunteers from Allstate for the developing the predictive model who put in a tremendous amount of work in building the model and writing the various scripts .
 
 License
 -------
