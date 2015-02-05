@@ -334,15 +334,17 @@ By extension, the rate of finding critical violations is higher for the initial 
 ggplot(
     melt(data = comp_summary[
         i = -1,
-        j = list(`Daily Crit Violations Found Per Insp (BAU)` = Crit_Violations_BAU / Total_Inspections,
-                 `Daily Crit Violations Found Per Insp (Model)` = Crit_Violations_Model / Total_Inspections),
+        j = list(`Daily critical violations \nfound per inspection \n(BAU)\n` = 
+                     Crit_Violations_BAU / Total_Inspections,
+                 `Daily critical violations \nfound per inspection \n(Model)\n` = 
+                     Crit_Violations_Model / Total_Inspections),
         keyby = list(`\nInspection Date` = Inspection_Date)], 
             id.vars = "\nInspection Date")) +
     aes(x=`\nInspection Date`, y=value, colour=variable, fill=variable) + 
     labs(title=paste0('Critical violations found on a daily basis\n',
                       'as a percent of total daily inspections\n',
                       "(smoothed results)\n") ) +
-     ylab("Percent of inspections resulting in critical violations\n") +
+     ylab("Percent of inspections resulting \n in critical violations\n") +
     scale_y_continuous(labels = percent) +
     stat_smooth(method = "gam", 
                 formula = y ~ s(x, k=10, sp=2, bs="ps"), 
