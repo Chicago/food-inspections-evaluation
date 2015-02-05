@@ -274,7 +274,38 @@ CDPH completed `r #dat[iiTest, .N]` inspections between `r #dat[iiTest, range(In
 ```
 
 
-[Insert bar graph comparing BAU and model in first half]
+```{r bar_graph_comparing_BAU_and_model_in_first_half}
+# datTest[period==1, list(.N, sum(criticalFound))]
+# datTest[period_modeled==1, list(.N, sum(criticalFound))]
+
+bar_plot_data <- data.table(
+    labels = c("Percent of violations \n found daily (BAU)", 
+               "Percent of violations \n found daily (Model)",
+               "Percent of all critical violations \n found in period 1 (BAU)",
+               "Percent of all critical violations \n found in period 1 (Model)"),
+    values = c(datTest[period==1, sum(criticalFound)/.N],
+               datTest[period_modeled==1, sum(criticalFound)/.N],
+               datTest[period==1, sum(criticalFound)] / datTest[ , sum(criticalFound)],
+               datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
+
+ggplot(bar_plot_data[1:2]) + 
+    aes(x = labels, y = values, fill=labels) + 
+    labs(title=paste0('Comparison of BAU results to Data Driven results\n',
+                      'Period 1 Daily averages\n') ) +
+    geom_bar(stat = "identity") + 
+    scale_y_continuous(labels = percent) +
+    xlab("") + ylab("")
+
+ggplot(bar_plot_data[3:4]) + 
+    aes(x = factor(labels), y = values, fill=labels) + 
+    labs(title=paste0('Comparison of BAU results to Data Driven results\n',
+                      'Period 1 Totals\n') ) +
+    geom_bar(stat = "identity") +
+    scale_y_continuous(labels = percent) +
+    xlab("") + ylab("") + expand_limits(y = 1)
+
+
+```
 
 
 ```{r prepare_calc_for_difference}
@@ -312,7 +343,7 @@ text(-45, 20, "Magenta = Reduced \n                        performance")
 ```{r time_diff_t-test, warning=FALSE, results='hide', message=FALSE}
 time_diff_t_test <- t.test(time_diff, mu=0)
 ```
-We conducted a t-test to measure whether the reduction in time to find a critical violation was greater than zero. Namely, the null hypothesis is the average time each food inspection was accelerated is equal to zero. The test ($$\sigma =$$ ```r sd(time_diff)```, df = ```r time_diff_t_test$parameter```) resulted in a p-value of ```r time_diff_t_test$statistic```, which indicates 
+We conducted a t-test to measure whether the reduction in time to find a critical violation was greater than zero. Namely, the null hypothesis is the average time each food inspection was accelerated is equal to zero. The test ($\sigma =$ `r sprintf("%0.2f", sd(time_diff))`, df = `r time_diff_t_test$parameter`) resulted in a p-value of `r sprintf("%.3e", time_diff_t_test$p.value)`, which indicates that the model is extremely likely to be significant.
 
 Below, Gini curves show the relative difference in the inspection regimes throughout the pilot. Since the first day, the data-driven model revealed more critical violations. Specifically, 111 more violations were found in the first week between September 2 and September 5 (141 under data-driven compared to 30 for business-as-usual). The cumulative number of violations found were always higher for the data-driven approach until the final day of the pilot.
 ```{r}
