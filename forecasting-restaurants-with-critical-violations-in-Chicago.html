@@ -97,7 +97,56 @@ img {
 <p>Food inspection history is combined with business license data published by BACP. Any food seller must be licensed by the City, but must also obtain licenses for other activities, such as cigarette sales and liqour licenses. The license data provides other information about the business, including when cetain licenses were first obtained–an approximation for the age of business.</p>
 <p>The location of the businesses are used to calculate nearby activity. Several variables were explored, but after conduting some data mining, we settled on burglaries, sanitation code complaints, and garbage cart requests. The density of each activity was calculated and stored.</p>
 <p>Weather data was obtained from <a href="www.forecast.io">forecast.io</a>. The data contains a significant wealth of information on not only highs, lows, and percipitation, but also on granular weather forecasts for any latitude and longitude. After several conversations with CDPH staff, we focused on the relationship of temperatures and inspections. High temperatures can lead to issues to cooling food within a food establishment, which results in a critical violation. Some empirical testing of that hypothesis helped support its inclusion.</p>
-<p>[Table of variables]</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable Name (Literal)</th>
+<th align="left">Variable Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>Inspectorblue</code> <code>Inspectorbrown</code> <code>Inspectorgreen</code> <code>Inspectororange</code> <code>Inspectorpurple</code> <code>Inspectoryellow</code></td>
+<td align="left">Indicator variables for the category of inspector</td>
+</tr>
+<tr class="even">
+<td align="left"><code>pastCritical</code></td>
+<td align="left">Indicates if the previous inspection resulted in any critical violations</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>pastSerious</code></td>
+<td align="left">Indicates if the previous inspection resulted in any serious violations</td>
+</tr>
+<tr class="even">
+<td align="left"><code>consumption_on_premises_incidental_activity</code></td>
+<td align="left">Presence of an additional license for consumption / incidental activity</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>ageAtInspection</code></td>
+<td align="left">Age of business license at the time of inspection</td>
+</tr>
+<tr class="even">
+<td align="left"><code>tobacco_retail_over_counter</code></td>
+<td align="left">Presence of an additional license for tobacco sales</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>heat_burglary</code></td>
+<td align="left">Local intensity of recent burglaries</td>
+</tr>
+<tr class="even">
+<td align="left"><code>heat_sanitation</code></td>
+<td align="left">Local intensity of recent sanitation complaints</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>heat_garbage</code></td>
+<td align="left">Local intensity of recent garbage cart requests</td>
+</tr>
+<tr class="even">
+<td align="left"><code>timeSinceLast</code></td>
+<td align="left">Elapsed time since previous inspection</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="model-development" class="section level1">
 <h1><span class="header-section-number">3</span> Model Development</h1>

@@ -16,12 +16,12 @@ output:
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-if(interactive()){
-    ## Remove all objects; perform garbage collection
-    rm(list=ls())
-    gc(reset=TRUE)
-    geneorama::detach_nonstandard_packages()
-}
+# if(interactive()){
+#     ## Remove all objects; perform garbage collection
+#     rm(list=ls())
+#     gc(reset=TRUE)
+#     geneorama::detach_nonstandard_packages()
+# }
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", 
                                    "splines", "reportr"))
 
@@ -91,6 +91,7 @@ ggplot <- function(...) {
 #                "#D55E00", "#CC79A7")
 # pie(rep(1,length(cbPalette)), col = cbPalette)
 ```
+
 ```{r, echo=FALSE, results='hide'}
 comp <- cbind(
     datTest[i = order(Inspection_Date), 
@@ -107,24 +108,7 @@ comp_summary <- comp[
              Crit_Violations_Model = sum(criticalFound_Model)), 
     keyby = list(Inspection_Date = Inspection_Date)]
 ```
-```{r, eval=FALSE, echo=FALSE, results='hide'}
-## Unadjusted plot
-ggplot(
-    melt(data = comp_summary[
-        i = -1,
-        j = list(Crit_Violations_BAU / Total_Inspections,
-                 Crit_Violations_Model / Total_Inspections),
-        keyby = Inspection_Date], 
-        id.vars = "Inspection_Date")) +
-    aes(x=Inspection_Date, y=value, colour=variable) + 
-    labs(title=paste0("Percent of inspections resulting in a Critical Violation\n",
-                      "(Daily intervals shown)\n"))+
-    geom_line()
-         
-    
 
-# geneorama::clipper(comp_summary)
-```
 
 > The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper develops a predictive model design to identify the likelihood any restaurant that contains critical violations. Since CDPH is obligated to inspect every food establishment, the goal of the model is to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. In testing, the predictive model was able to identify 23 percent more violations than current operations.
 
@@ -172,7 +156,28 @@ The location of the businesses are used to calculate nearby activity. Several va
 
 Weather data was obtained from [forecast.io](www.forecast.io). The data contains a significant wealth of information on not only highs, lows, and percipitation, but also on granular weather forecasts for any latitude and longitude. After several conversations with CDPH staff, we focused on the relationship of temperatures and inspections. High temperatures can lead to issues to cooling food within a food establishment, which results in a critical violation. Some empirical testing of that hypothesis helped support its inclusion.
 
-[Table of variables]
+
+
+```{r, echo=FALSE, eval=FALSE}
+## Print the names of the coefficients / copy to clipboard
+rownames(coefficients(model))
+# geneorama::clipper(rownames(coefficients(model)))
+
+```
+
+
+Variable Name (Literal)                     | Variable Description
+--------------------------------------------|-----------------------------------
+`Inspectorblue` `Inspectorbrown` `Inspectorgreen` `Inspectororange` `Inspectorpurple` `Inspectoryellow`                                   | Indicator variables for the category of inspector
+`pastCritical`                                | Indicates if the previous inspection resulted in any critical violations
+`pastSerious`                                 | Indicates if the previous inspection resulted in any serious violations
+`consumption_on_premises_incidental_activity` | Presence of an additional license for consumption / incidental activity
+`ageAtInspection`                             | Age of business license at the time of inspection
+`tobacco_retail_over_counter`                 | Presence of an additional license for tobacco sales
+`heat_burglary`                               | Local intensity of recent burglaries
+`heat_sanitation`                             | Local intensity of recent sanitation complaints
+`heat_garbage`                                | Local intensity of recent garbage cart requests
+`timeSinceLast`                               | Elapsed time since previous inspection
 
 # Model Development
 
