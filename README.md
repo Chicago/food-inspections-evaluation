@@ -32,6 +32,15 @@ The various data sources are joined to create a dataset ready for analysis which
 The data sources are joined(in SQLesque manner) on appropriate composite keys. These keys include Inspection ID, Business License, and Geography expressed as a Latitude / Longitude combination among others. For a more detailed explanation of this process, read the [technical document](http://).
 
 
+REQUIREMENTS
+------------
+
+Several packages are not compatible with ```R version < 3.1```. Thus, in order to reproduce all results it is advised to use ```R version >= 3.1```. 
+
+The code makes extensive usage of the ``data.table`` package. If you are not familiar with the package, you might want to consult the package manual on [CRAN](http://cran.r-project.org/web/packages/data.table/index.html) and/or on its GitHub [repository](https://github.com/Rdatatable/data.table/wiki).
+
+Multi-Core processing works only on Linux and OS X machines. It does not work with Windows machines.
+
 CODE
 -------------------
 
@@ -53,9 +62,7 @@ git submodule update
 
 The ``./CODE`` directory contains the scripts to set up your R environment, download the necessary data from Chicago’s open data portal, prepare the analysis-ready data set, and build, train and test the model.
 
-Several packages are not compatible with ```R version < 3.1```. Thus, in order to reproduce all results it is advised to use ```R version >= 3.1```. 
 
-The code makes extensive usage of the ``data.table`` package. If you are not familiar with the package, you might want to consult the package manual on [CRAN](http://cran.r-project.org/web/packages/data.table/index.html) and/or on its GitHub [repository](https://github.com/Rdatatable/data.table/wiki).
 
 After you have updated the R version, run the following scripts in the order specified below.
 
@@ -67,7 +74,7 @@ After you have updated the R version, run the following scripts in the order spe
        
 
 
-+    ```10_download_data.R``` **OPTIONAL**  Some of the data such as the weather data set is not available at the city data portal and might not be available to you in the format as used in the project from other sources. Thus, it is recommended to use the data provided in the. /DATA directory. However, if you want  to modify the model and import your own variables than most of the data is available at the Data Portal
++    ```10_download_data.R``` **OPTIONAL**  Some of the data such as the weather data set is not available at the city data portal and might not be available to you in the format as used in the project from other sources. Thus, it is recommended to use the data provided in the. /DATA directory. However, if you want  to modify the model and import your own variables than most of the data is available at the Data Portal. Make sure you change the value of ``multi`` based on machine where you are running the script.
 
 
 
