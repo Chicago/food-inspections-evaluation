@@ -74,7 +74,7 @@ After you have updated the R version, run the following scripts in the order spe
        
 
 
-+    ```10_download_data.R``` **OPTIONAL**  Some of the data such as the weather data set is not available at the city data portal and might not be available to you in the format as used in the project from other sources. Thus, it is recommended to use the data provided in the. /DATA directory. However, if you want  to modify the model and import your own variables than most of the data is available at the Data Portal. Make sure you change the value of ``multi`` based on machine where you are running the script.
++    ```10_download_data.R``` **OPTIONAL**  Some of the data such as the weather data set is not available at the city data portal and might not be available to you in the format as used in the project from other sources. Thus, it is recommended to use the data provided in the. /DATA directory. However, if you want  to modify the model and import your own variables than most of the data is available at the Data Portal. Make sure you change the value of ``multi`` variable based on the machine where you are running the script.
 
 
 
