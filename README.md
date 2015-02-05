@@ -32,13 +32,14 @@ The various data sources are joined to create a dataset ready for analysis which
 The data sources are joined(in SQLesque manner) on appropriate composite keys. These keys include Inspection ID, Business License, and Geography expressed as a Latitude / Longitude combination among others. For a more detailed explanation of this process, read the [technical document](http://).
 
 
-<a name="CODE"></a>
-------
+CODE
+-------------------
 
  
 To get started, first grab the code using the following steps. The [submodule](http://github.com/http://git-scm.com/docs/git-submodule) will be required when you will generate [knitr](http://cran.r-project.org/web/packages/knitr/index.html) reports.
 
 
+<a name="CODE"></a>
 
 ```
 git clone https://github.com/Chicago/food-inspections-evaluation.git
