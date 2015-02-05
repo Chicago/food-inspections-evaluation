@@ -22,7 +22,7 @@ output:
 #     gc(reset=TRUE)
 #     geneorama::detach_nonstandard_packages()
 # }
-geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", 
+geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", "knitr",
                                    "splines", "reportr", "scales"))
 
 ## Define melt to be the data.table melt
@@ -63,9 +63,13 @@ rm(confusion_values_test, dat, errors, errorsTest, iiTest, iiTrain,
 geneorama::lll()
 ```
 
+```{r, echo=FALSE}
+## Set global knitr option to NOT echo code
+opts_chunk$set(echo = FALSE)
+```
 
 
-```{r, echo=FALSE, results='hide'}
+```{r, results='hide'}
 ##==============================================================================
 ## DEFINE CUSTOM GGPLOT FUNCTION
 ##==============================================================================
@@ -79,20 +83,20 @@ ggplot <- function(...) {
     ggplot2::ggplot(...) +
         theme_grey()+
         scale_fill_manual(values=cbPalette) +
-        scale_colour_manual(values=cbPalette) +
-        theme(plot.title = element_text(size = 20))
+        scale_colour_manual(values=cbPalette)
+        # + theme(plot.title = element_text(size = 20))
     
 }
 ```
 
-```{r, echo=FALSE, results='hide'}
+```{r, results='hide'}
 # cbPalette <- c("#000000", "#E69F00", "#56B4E9", 
 #                "#009E73", "#F0E442", "#0072B2", 
 #                "#D55E00", "#CC79A7")
 # pie(rep(1,length(cbPalette)), col = cbPalette)
 ```
 
-```{r, echo=FALSE, results='hide'}
+```{r, results='hide'}
 comp <- cbind(
     datTest[i = order(Inspection_Date), 
             j = list(Inspection_ID_BAU   = Inspection_ID,
@@ -158,7 +162,7 @@ Weather data was obtained from [forecast.io](www.forecast.io). The data contains
 
 
 
-```{r, echo=FALSE, eval=FALSE}
+```{r, eval=FALSE}
 ## Print the names of the coefficients / copy to clipboard
 rownames(coefficients(model))
 # geneorama::clipper(rownames(coefficients(model)))
@@ -214,7 +218,7 @@ Characteristics besides the restaurant itself were also indicators of future per
 
 Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include:
 
-```{r table_of_coefficients, echo=FALSE}
+```{r table_of_coefficients}
 
 knitr::kable(data.table(Coefficients = names(coef),
                         Coefficients = coef), 
@@ -247,7 +251,7 @@ Note that this experimental design is assumed to yield the name number of restau
 ## Results
 
 CDPH completed `r #dat[iiTest, .N]` inspections between `r #dat[iiTest, range(Inspection_Date)][1]` and `r #dat[iiTest, range(Inspection_Date)][2]`. During this time, CDPH found `r #dat[iiTest, sum(criticalFound)] ` violations, ```r #dat[iiTest, 100*(sum(criticalFound)/.N)]```percent of all inspections. The rate of violations is consistent with the historical average of approximately 15 percent. While the rate of violations is slightly higher, it is close enough where we do not suspect this period is abnormal, thus, a valid comparison for our evaluation.
-```{r prepare_data, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+```{r prepare_data, warning=FALSE, results='hide', message=FALSE}
 # ## Subset test period
 # datTest <- dat[iiTest]
 # 
@@ -273,7 +277,7 @@ CDPH completed `r #dat[iiTest, .N]` inspections between `r #dat[iiTest, range(In
 [Insert bar graph comparing BAU and model in first half]
 
 
-```{r prepare_calc_for_difference, echo=FALSE}
+```{r prepare_calc_for_difference}
 date_comp <- merge(
     x = comp[i = TRUE,
              j = list (criticalFound_BAU,
@@ -305,7 +309,7 @@ hist(as.numeric(time_diff),
 text(40, 20, "Green = Improved \n                    performance")
 text(-45, 20, "Magenta = Reduced \n                        performance")
 ```
-```{r time_diff_t-test, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+```{r time_diff_t-test, warning=FALSE, results='hide', message=FALSE}
 time_diff_t_test <- t.test(time_diff, mu=0)
 ```
 We conducted a t-test to measure whether the reduction in time to find a critical violation was greater than zero. Namely, the null hypothesis is the average time each food inspection was accelerated is equal to zero. The test ($$\sigma =$$ ```r sd(time_diff)```, df = ```r time_diff_t_test$parameter```) resulted in a p-value of ```r time_diff_t_test$statistic```, which indicates 
@@ -330,7 +334,7 @@ ggplot(melt(data = comp_summary_cumsum,
 ```
 
 By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately 0.2 per day and stays above 0.1 violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
-```{r}
+```{r, fig.width=10}
 ggplot(
     melt(data = comp_summary[
         i = -1,
