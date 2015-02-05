@@ -10,7 +10,7 @@
 
 <meta name="author" content="City of Chicago" />
 
-<meta name="date" content="2015-02-04" />
+<meta name="date" content="2015-02-05" />
 
 <title>Forecasting restaurants with critical violations in Chicago</title>
 
@@ -65,7 +65,7 @@ img {
 <div id="header">
 <h1 class="title">Forecasting restaurants with critical violations in Chicago</h1>
 <h4 class="author"><em>City of Chicago</em></h4>
-<h4 class="date"><em>February 04, 2015</em></h4>
+<h4 class="date"><em>February 05, 2015</em></h4>
 </div>
 
 
@@ -118,16 +118,24 @@ img {
 <td align="left">Indicates if the previous inspection resulted in any serious violations</td>
 </tr>
 <tr class="even">
-<td align="left"><code>consumption_on_premises_incidental_activity</code></td>
-<td align="left">Presence of an additional license for consumption / incidental activity</td>
+<td align="left"><code>timeSinceLast</code></td>
+<td align="left">Elapsed time since previous inspection</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>ageAtInspection</code></td>
 <td align="left">Age of business license at the time of inspection</td>
 </tr>
 <tr class="even">
+<td align="left"><code>consumption_on_premises_incidental_activity</code></td>
+<td align="left">Presence of an additional license for consumption / incidental activity</td>
+</tr>
+<tr class="odd">
 <td align="left"><code>tobacco_retail_over_counter</code></td>
 <td align="left">Presence of an additional license for tobacco sales</td>
+</tr>
+<tr class="even">
+<td align="left"><code>temperatureMax</code></td>
+<td align="left">The daily high temperature in Chicago on the day of inspection</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>heat_burglary</code></td>
@@ -140,10 +148,6 @@ img {
 <tr class="odd">
 <td align="left"><code>heat_garbage</code></td>
 <td align="left">Local intensity of recent garbage cart requests</td>
-</tr>
-<tr class="even">
-<td align="left"><code>timeSinceLast</code></td>
-<td align="left">Elapsed time since previous inspection</td>
 </tr>
 </tbody>
 </table>
@@ -171,6 +175,81 @@ img {
 <p>The elapsed time since the last violation also increased the likelihood that inspectors found critical violations. However, restaurants probability of having critical violations fell over the lifespan of the restaurant. As restaurants grow older, they are less likely to have critical violations while long time-periods between inspections increased the likelihood.</p>
 <p>Characteristics besides the restaurant itself were also indicators of future performance. Trends in weather, nearby reports of burglary, and complaints about sanitation and garbage seems to explain increases. An increase in the moving three-day average high temperature was associated with more critical violations. In conversations with inspection managers, researchers understood this to be associated with potential mechanical failures—driven by the heat—of equipment that maintained food temperature, a main source of critical violations.</p>
 <p>Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include:</p>
+<table>
+<caption>Table of Coefficients</caption>
+<thead>
+<tr class="header">
+<th align="left">Coefficients</th>
+<th align="right">Coefficients</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Inspectorblue</td>
+<td align="right">0.9499</td>
+</tr>
+<tr class="even">
+<td align="left">Inspectorbrown</td>
+<td align="right">-1.3060</td>
+</tr>
+<tr class="odd">
+<td align="left">Inspectorgreen</td>
+<td align="right">-0.2438</td>
+</tr>
+<tr class="even">
+<td align="left">Inspectororange</td>
+<td align="right">0.2020</td>
+</tr>
+<tr class="odd">
+<td align="left">Inspectorpurple</td>
+<td align="right">1.5546</td>
+</tr>
+<tr class="even">
+<td align="left">Inspectoryellow</td>
+<td align="right">-0.6969</td>
+</tr>
+<tr class="odd">
+<td align="left">pastSerious</td>
+<td align="right">0.3016</td>
+</tr>
+<tr class="even">
+<td align="left">pastCritical</td>
+<td align="right">0.4273</td>
+</tr>
+<tr class="odd">
+<td align="left">timeSinceLast</td>
+<td align="right">0.0968</td>
+</tr>
+<tr class="even">
+<td align="left">ageAtInspection</td>
+<td align="right">-0.1644</td>
+</tr>
+<tr class="odd">
+<td align="left">consumption_on_premises_incidental_activity</td>
+<td align="right">0.4107</td>
+</tr>
+<tr class="even">
+<td align="left">tobacco_retail_over_counter</td>
+<td align="right">0.1706</td>
+</tr>
+<tr class="odd">
+<td align="left">temperatureMax</td>
+<td align="right">0.0049</td>
+</tr>
+<tr class="even">
+<td align="left">heat_burglary</td>
+<td align="right">0.0025</td>
+</tr>
+<tr class="odd">
+<td align="left">heat_sanitation</td>
+<td align="right">0.0018</td>
+</tr>
+<tr class="even">
+<td align="left">heat_garbage</td>
+<td align="right">-0.0041</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="evaluation" class="section level1">

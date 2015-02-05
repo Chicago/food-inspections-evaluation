@@ -23,7 +23,7 @@ output:
 #     geneorama::detach_nonstandard_packages()
 # }
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", 
-                                   "splines", "reportr"))
+                                   "splines", "reportr", "scales"))
 
 ## Define melt to be the data.table melt
 melt <- data.table:::melt.data.table
@@ -294,11 +294,16 @@ While the average gain was 7 days, there was a significant range in the change. 
 
 ```{r graph_of_time_diff}
 hist(as.numeric(time_diff),
-     main = paste0("Distribution of the difference \n",
-                   "in time to discover a critical violation"),
+#      main = paste0("Distribution of the difference \n",
+#                    "in time to discover a critical violation"),
+     main = paste0("During the test the data diriven approach would have \n",
+                   "generally found critical violations sooner"),
      breaks = 30, 
-     xlab = "days sooner",
+     xlim = c(-60, 60),
+     xlab = "Number of days earlier / (later) that a \ncritical violation would have been discovered",
      col = c(rep("#CC79A7", 10), rep("#009E73", 20)))
+text(40, 20, "Green = Improved \n                    performance")
+text(-45, 20, "Magenta = Reduced \n                        performance")
 ```
 ```{r time_diff_t-test, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
 time_diff_t_test <- t.test(time_diff, mu=0)
@@ -309,15 +314,19 @@ Below, Gini curves show the relative difference in the inspection regimes throug
 ```{r}
 comp_summary_cumsum <- comp_summary[
     i = TRUE,
-    j = list(Inspection_Date = Inspection_Date,
-             BAU = cumsum(Crit_Violations_BAU),
-             Model = cumsum(Crit_Violations_Model))]
+    j = list(`\nInspection Date` = Inspection_Date,
+             `Business As Usual` = cumsum(Crit_Violations_BAU),
+             `Data Driven` = cumsum(Crit_Violations_Model))]
 
 ggplot(melt(data = comp_summary_cumsum, 
-            id.vars = "Inspection_Date")) +
-    aes(x=Inspection_Date, y=value, colour=variable) + 
-    labs(title="Comparing cumulative violations") +
-    geom_line()
+            id.vars = "\nInspection Date")) +
+    aes(x = `\nInspection Date`, 
+        y = value, 
+        colour = variable) + 
+    labs(title="Comparing cumulative violations discovered\n") +
+    ylab("Cumulative critical violations to date\n") +
+    geom_line(lwd=1.5) + 
+    geom_point(colour="black")
 ```
 
 By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately 0.2 per day and stays above 0.1 violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
@@ -325,14 +334,16 @@ By extension, the rate of finding critical violations is higher for the initial 
 ggplot(
     melt(data = comp_summary[
         i = -1,
-        j = list(Pct_Crit_Violations_Found_BAU = Crit_Violations_BAU / Total_Inspections,
-                 Pct_Crit_Violations_Found_Model = Crit_Violations_Model / Total_Inspections),
-        keyby = Inspection_Date], 
-            id.vars = "Inspection_Date")) +
-    aes(x=Inspection_Date, y=value, colour=variable, fill=variable) + 
+        j = list(`Daily Crit Violations Found Per Insp (BAU)` = Crit_Violations_BAU / Total_Inspections,
+                 `Daily Crit Violations Found Per Insp (Model)` = Crit_Violations_Model / Total_Inspections),
+        keyby = list(`\nInspection Date` = Inspection_Date)], 
+            id.vars = "\nInspection Date")) +
+    aes(x=`\nInspection Date`, y=value, colour=variable, fill=variable) + 
     labs(title=paste0('Critical violations found on a daily basis\n',
-                      'as a percent of total inspections performed\n',
+                      'as a percent of total daily inspections\n',
                       "(smoothed results)\n") ) +
+     ylab("Percent of inspections resulting in critical violations\n") +
+    scale_y_continuous(labels = percent) +
     stat_smooth(method = "gam", 
                 formula = y ~ s(x, k=10, sp=2, bs="ps"), 
                 alpha=.3,
