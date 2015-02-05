@@ -171,13 +171,14 @@ Variable Name (Literal)                     | Variable Description
 `Inspectorblue` `Inspectorbrown` `Inspectorgreen` `Inspectororange` `Inspectorpurple` `Inspectoryellow`                                   | Indicator variables for the category of inspector
 `pastCritical`                                | Indicates if the previous inspection resulted in any critical violations
 `pastSerious`                                 | Indicates if the previous inspection resulted in any serious violations
-`consumption_on_premises_incidental_activity` | Presence of an additional license for consumption / incidental activity
+`timeSinceLast`                               | Elapsed time since previous inspection
 `ageAtInspection`                             | Age of business license at the time of inspection
+`consumption_on_premises_incidental_activity` | Presence of an additional license for consumption / incidental activity
 `tobacco_retail_over_counter`                 | Presence of an additional license for tobacco sales
+`temperatureMax`                              | The daily high temperature in Chicago on the day of inspection
 `heat_burglary`                               | Local intensity of recent burglaries
 `heat_sanitation`                             | Local intensity of recent sanitation complaints
 `heat_garbage`                                | Local intensity of recent garbage cart requests
-`timeSinceLast`                               | Elapsed time since previous inspection
 
 # Model Development
 
@@ -214,7 +215,11 @@ Characteristics besides the restaurant itself were also indicators of future per
 Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include:
 
 ```{r table_of_coefficients, echo=FALSE}
-#knitr::kable(model$beta[,w.lam], digits=2, caption="Table of Coefficients")
+
+knitr::kable(data.table(Coefficients = names(coef),
+                        Coefficients = coef), 
+             digits=4, 
+             caption="Table of Coefficients")
 ```
 
 # Evaluation

@@ -38,21 +38,19 @@ setkey(dat, Inspection_ID)
 ## CREATE MODEL DATA
 ##==============================================================================
 # sort(colnames(dat))
-xmat <- dat[ , list(criticalFound,
-                    # Inspector = Inspector_Grade, 
-                    Inspector = Inspector_Assigned,
+xmat <- dat[ , list(Inspector = Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
-                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     pastCritical = pmin(pastCritical, 1),
+                    timeSinceLast,
+                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     consumption_on_premises_incidental_activity,
                     tobacco_retail_over_counter,
                     temperatureMax,
                     heat_burglary = pmin(heat_burglary, 70),
                     heat_sanitation = pmin(heat_sanitation, 70),
                     heat_garbage = pmin(heat_garbage, 50),
-                    # risk = as.factor(Risk),
-                    # facility_type = as.factor(Facility_Type),
-                    timeSinceLast),
+                    # Facility_Type,
+                    criticalFound),
             keyby = Inspection_ID]
 mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
 mm <- as.data.table(mm)
