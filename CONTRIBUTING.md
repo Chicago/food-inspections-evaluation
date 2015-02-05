@@ -1,6 +1,6 @@
 # How to contribute
 
-We welcome volunteer efforts to improve the predictive model we have built. We are open to suggestions about using models as well. Show us that your model performs better and we will incorporate it and acknowledge your help. 
+We welcome volunteer efforts to improve the predictive model we have built. We are open to suggestions about using alternative models as well. Show us that your model performs better and we will incorporate it and acknowledge your help. 
 
 ## Reporting an Issue
 
