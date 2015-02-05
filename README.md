@@ -4,12 +4,12 @@ Food Inspections Evaluation
 Introduction
 ------------
 
-The City of Chicago conducts routine food inspections at various food establishments around the city. These food establishments include your favorite diner two blocks the road to the agency that serves food at the public school nearby. To test the potential of predictive analytics to improve the effectiveness of these food inspections, The City of Chicago recently conducted a pilot using data available between September 2011 and November 2014 on food establishment inspections. We built a predictive model to identify food establishments that are most at risk for having ‘critical violations’-, The types of violations that are most likely to spread food borne illnesses. This GitHub repository hosts the code and data used to test and train the predictive model we built. Feel free to clone, fork, send pull requests and file bugs.
+The [City of Chicago](https://github.com/Chicago) conducts routine food inspections at various food establishments around the city. These food establishments include your favorite diner two blocks down the street from your appartment to the agency that serves food at a public school nearby. While the city public health department does a great job at keep Chicagoans healthy, we wondered if preditive analytics could be help. To test the potential of predictive analytics to improve the effectiveness of these food inspections, The City of Chicago recently conducted a pilot using data available on sanitary inspections performed at food establishments in Chicago between September 2011 and November 2014. We built a predictive model to identify food establishments that are most at risk for having ‘critical violations’-, The types of violations that are most likely to spread food borne illnesses. This GitHub repository hosts the code and data used to test and train the predictive model we built. Feel free to clone, fork, send pull requests and file bugs.
 
 DATA
 ------
 
-Most of the data used to build and train the predictive model was sourced from the City’s data portal. The various data sources were joined to create a dataset ready for analysis which paints a statistical picture of a ‘business license’- The primary modelling unit / unit of observation in this project .
+Most of the data used to build and train the predictive model was sourced from the [Chicago’s Open Data Portal](http://data.cityofchicago.org). The various data sources were joined to create a dataset ready for analysis which paints a statistical picture of a ‘business license’- The primary modelling unit / unit of observation in this project.
 
 CODE
 ------
@@ -26,7 +26,7 @@ git submodule update
 ```
 
 
-The ``./CODE`` directory contains the scripts to set up your R environment, download the necessary data from [Chicago’s Open Data Portal](http://data.cityofchicago.org), prepare the analysis-ready data set, and build, train and test the model.
+The ``./CODE`` directory contains the scripts to set up your R environment, download the necessary data from Chicago’s open data portal, prepare the analysis-ready data set, and build, train and test the model.
 
 Several packages are not compatible with ```R version < 3.1```. Thus, in order to reproduce all results it is advised to use ```R version >= 3.1```. 
 
