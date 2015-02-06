@@ -281,4 +281,6 @@ a.twitter-hashtag-button:focus {
   .navbar-header {
     float: right;
   }
+@media only screen 
+and (max-device-width : 768px) { #kitchen background-image: url(../img/kitchen_tablet.jpg);}
 }
