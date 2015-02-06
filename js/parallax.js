@@ -33,7 +33,7 @@ $(document).ready(function(){
             }); // window scroll Ends
             });	
     
-}
+
 
 }); 
 /* 
