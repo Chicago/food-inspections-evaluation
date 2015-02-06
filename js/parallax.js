@@ -14,10 +14,10 @@ $(document).ready(function(){
         // iOS 2-4 so Do Something   
     } else if(/CPU like Mac OS X/i.test(navigator.userAgent)) {
         // iOS 1 so Do Something 
-    } else{
+    } else if (/OS [5-8]_\d(_\d)? like Mac OS X/i.test(navigator.userAgent){
         // iOS 5 or Newer so Do Nothing
-    }
-}
+    } else {
+
     
     
        // Cache the Window object
@@ -39,7 +39,9 @@ $(document).ready(function(){
     	        
             }); // window scroll Ends
             });	
-    
+    }
+}
+
 }); 
 /* 
  * Create HTML5 elements for IE's sake
