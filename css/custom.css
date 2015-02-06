@@ -282,17 +282,5 @@ a.twitter-hashtag-button:focus {
     float: right;
   }
 }
-@media screen and (max-device-width : 768px) { 
-	#kitchen {
-		background-image: url(../img/kitchen_tablet.jpg);
-		background-repeat: no-repeat;
-		background-size: cover;
-		background-position: center;
-		background-attachment: fixed;
-		height: 414px;
-		margin: 0 auto;
-		width: 100%;
-		margin: 0 auto;
-		position: relative;}
-}
+
 
