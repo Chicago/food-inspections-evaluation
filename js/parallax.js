@@ -10,7 +10,7 @@
 
 $(document).ready(function(){
 	var isiOS = /iP(ad|hone|od)/.test(navigator.userAgent);
-	if(isiOS == FALSE){
+	if(isiOS == false){
        // Cache the Window object
         $window = $(window);
         
