@@ -9,6 +9,8 @@
 
 
 $(document).ready(function(){
+	var isiOS = /iP(ad|hone|od)/.test(navigator.userAgent);
+	if(isiOS == FALSE){
        // Cache the Window object
         $window = $(window);
         
@@ -28,7 +30,7 @@ $(document).ready(function(){
     	        
             }); // window scroll Ends
             });	
-    
+	}
 
 
 }); 
