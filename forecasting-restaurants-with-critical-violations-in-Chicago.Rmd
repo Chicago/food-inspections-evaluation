@@ -149,7 +149,7 @@ After developing the statistical model to predict critical violations, the resea
 
 Section 5 summarizes the results of the paper. Ultimately, we find that XX percent increase in finding critical violations at food sellers. Beginning in 2015, CDPH will begin to use this analytical model to prioritize canvas inspections. Each risk 1 and risk 2 restaurant will still undergo inspections; however, these restaurants with the highest likelihood of the most serious issues will be prioritized.
 
-Finally, it is worth nothing that this research is an open source project. The source code of the statistical model is available on the City of Chicago [food inspection project page](http://github.com/Chicago/food-inspections-evaluation). The statistical modeling was completed using the R statistical software, with all the necessary data available online. This paper was generated using knitr, which allows others to view the underlying calculations to generate the summaries, tables, and diagrams in this document. The document is available in the same aforementioned repository.
+Finally, it is worth nothing that this research is an open source project. The source code of the statistical model is available on the City of Chicago [food inspection project page](http://github.com/Chicago/food-inspections-evaluation). The statistical modeling was completed using the R statistical software, with all the necessary data available online. This paper was generated using [knitr](http://yihui.name/knitr), which allows others to view the underlying calculations to generate the summaries, tables, and diagrams in this document. The document is available in the same aforementioned repository.
 
 # Data
 
@@ -239,13 +239,9 @@ One approach for an evaluation may have also sought to determine if the predicti
 
 ## Evaluation Design
 
-The analytical model was trained on data from January 2011 through January 2014, which results were described in the previous sections. 
+The analytical model was trained on data from January 2011 through January 2014. The researchers waited until CDPH completed food inspections in September and October 2014. This timeframe ensured significant time passed between the test period (January 2011 through January 2014) and the evaluation period to reduce any incidental correlation between the two periods. CDPH was not aware this timeframe would be used for an evaluation in order to prevent against a Hawthorne Effect or other bias. Again, to reduce any potential to bias within reason, senior management at CDPH was aware of on-going research, but sanitarians were not informed of the research. Finally, several months passed between model development and the evaluation period, reducing a perception of the evaluation period.
 
-[INSERT FIT CODE]
-
-The researchers waited until CDPH completed food inspections in September and October 2014. This timeframe ensured significant time passed between the test period (January 2011 through January 2014) and the evaluation period. It's likely any temporal correlation would subside between the test and evaluation period. CDPH was not aware this timeframe would be used for an evaluation in order to prevent against a Hawthorne Effect or other bias. Again, to reduce any potential to bias within reason, senior management at CDPH was aware of on-going research, but sanitarians were not informed of the research. Finally, several months passed between model development and the evaluation period, reducing a perception of the evaluation period.
-
-The evaluation period lasted two months, from `r #dat[iiTest, range(Inspection_Date)][1]` to `r #dat[iiTest, range(Inspection_Date)][2]` and calculate the percentage of inspections that result in critical violations in the first half of the inspections during this period. The number of violations found during this period can be considered as status quo or current mode of operation. It serves as a baseline to capture performance levels of sanitarians, namely, the proportion and rate of critical violations that are found.
+The evaluation period lasted two months, from [minimum date] to [maximum date] and calculate the percentage of inspections that result in critical violations in the first half of the inspections during this period. The number of violations found during this period can be considered as status quo or current mode of operation. It serves as a baseline to capture performance levels of sanitarians, namely, the proportion and rate of critical violations that are found.
 
 Meanwhile, we calculate the point predictions for each establishment using the training data from 2011 through 2014. The training data does not include the evaluation period so not to provide additional feedback from the evaluation period. We sort the establishments that were inspected during the evaluation in descending order of predicted values, placing the highest risk restaurants at the top of the list.
 
@@ -255,7 +251,7 @@ Note that this experimental design is assumed to yield the name number of restau
 
 ## Results
 
-CDPH completed `r #dat[iiTest, .N]` inspections between `r #dat[iiTest, range(Inspection_Date)][1]` and `r #dat[iiTest, range(Inspection_Date)][2]`. During this time, CDPH found `r #dat[iiTest, sum(criticalFound)] ` violations, ```r #dat[iiTest, 100*(sum(criticalFound)/.N)]```percent of all inspections. The rate of violations is consistent with the historical average of approximately 15 percent. While the rate of violations is slightly higher, it is close enough where we do not suspect this period is abnormal, thus, a valid comparison for our evaluation.
+CDPH completed `r geneorama::comma(datTest[, .N])` inspections between `r datTest[ , min(Inspection_Date)]` and `r datTest[ , max(Inspection_Date)]`. During this time, CDPH found `r datTest[ , sum(criticalFound)]` violations, `r datTest[ , paste0(round(100*(sum(criticalFound)/.N), 1), "%")]`percent of all inspections. The rate of violations is consistent with the historical average of approximately 15 percent. While the rate of violations is slightly higher, it is close enough where we do not suspect this period is abnormal, thus, a valid comparison for our evaluation.
 
 ```{r bar_graph_comparing_BAU_and_model_in_first_half}
 # datTest[period==1, list(.N, sum(criticalFound))]
@@ -330,7 +326,7 @@ time_diff_t_test <- t.test(time_diff, mu=0)
 ```
 We conducted a t-test to measure whether the reduction in time to find a critical violation was greater than zero. Namely, the null hypothesis is the average time each food inspection was accelerated is equal to zero. The test ($\sigma =$ `r sprintf("%0.2f", sd(time_diff))`, df = `r time_diff_t_test$parameter`) resulted in a p-value of `r sprintf("%.3e", time_diff_t_test$p.value)`, which indicates that the model is extremely likely to be significant.
 
-Below, Gini curves show the relative difference in the inspection regimes throughout the pilot. Since the first day, the data-driven model revealed more critical violations. Specifically, 111 more violations were found in the first week between September 2 and September 5 (141 under data-driven compared to 30 for business-as-usual). The cumulative number of violations found were always higher for the data-driven approach until the final day of the pilot.
+Below, Gini curves show the relative difference in the inspection regimes throughout the pilot. Since the first day, the data-driven model revealed more critical violations. Specifically, [111] more violations were found in the first week between September 2 and September 5 ([141] under data-driven compared to [30] for business-as-usual). The cumulative number of violations found were always higher for the data-driven approach until the final day of the pilot.
 
 ```{r}
 ## Create data for cumulative violation summaries
@@ -360,7 +356,7 @@ ggplot(melt(data = comp_summary_cumsum_subset,
     geom_point(colour="black")
 ```
 
-By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately 0.2 per day and stays above 0.1 violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
+By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately [0.2] per day and stays above [0.1] violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
 ```{r, fig.width=10}
 ggplot(
     melt(data = comp_summary[
@@ -400,7 +396,9 @@ ggplot(melt(data = comp_summary_cumsum,
 
 
 # Summary
-This model was able to reduce the timeframe to discover critical violations at Chicago's food establishments. Within a two-month window, the average time to find a critical violation was reduced by `r sprintf("%0.2f", mean(time_diff))` days, a statistically significant finding.
+This model was able to reduce the timeframe to discover critical violations at Chicago's food establishments. The sanitarians proved to be significant predictors of finding critical violations, as did the outcomes of previous food inspections, the time since the last inspection, whether the establishment had an alcohol consumption and tobacco retail licenses, the average temperature, nearby burglaries and sanitation though 311. Older businesses and the number of garbage complaints through 311 were negatively related to finding critical violations.
+
+Within a two-month window, the average time to find a critical violation was reduced by `r sprintf("%0.2f", mean(time_diff))` days, a statistically significant finding. 
 
 At times, we've explicitly assumed that finding violations is time invariant throughout the pilot phase. That is, a food establishment found with a critical violation on day 40 would have also been found to have a violation even if it was inspected earlier. Unfortunately, we do not have a method to test this assumption. However, the relatively short time window of the study helped ensure external factors, such as severe weather, had limited impact on temporal violations.
 
