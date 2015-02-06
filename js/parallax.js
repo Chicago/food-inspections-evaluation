@@ -9,14 +9,7 @@
 
 
 $(document).ready(function(){
-    if(/(iPhone|iPod|iPad)/i.test(navigator.userAgent)) { 
-    if(/OS [2-4]_\d(_\d)? like Mac OS X/i.test(navigator.userAgent)) {  
-        // iOS 2-4 so Do Something   
-    } else if(/CPU like Mac OS X/i.test(navigator.userAgent)) {
-        // iOS 1 so Do Something 
-    } else if (/OS [5-8]_\d(_\d)? like Mac OS X/i.test(navigator.userAgent){
-        // iOS 5 or Newer so Do Nothing
-    } else {
+    
 
     
     
@@ -39,7 +32,7 @@ $(document).ready(function(){
     	        
             }); // window scroll Ends
             });	
-    }
+    
 }
 
 }); 
