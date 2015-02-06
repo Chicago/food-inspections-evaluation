@@ -105,11 +105,16 @@ comp <- cbind(
     datTest[i = order(-glm_pred), 
             j = list(Inspection_ID_Model   = Inspection_ID,
                      criticalFound_Model   = criticalFound)])
+comp <- comp[ , Best_Possible := criticalFound_Model[order(-criticalFound_Model)]]
+comp <- comp[ , Worst_Possible := criticalFound_Model[order(criticalFound_Model)]]
+
 comp_summary <- comp[
     i = TRUE, 
     j = list(Total_Inspections = .N,
              Crit_Violations_BAU = sum(criticalFound_BAU),
-             Crit_Violations_Model = sum(criticalFound_Model)), 
+             Crit_Violations_Model = sum(criticalFound_Model),
+             Best_Possible = sum(Best_Possible),
+             Worst_Possible = sum(Worst_Possible)), 
     keyby = list(Inspection_Date = Inspection_Date)]
 ```
 
@@ -251,60 +256,39 @@ Note that this experimental design is assumed to yield the name number of restau
 ## Results
 
 CDPH completed `r #dat[iiTest, .N]` inspections between `r #dat[iiTest, range(Inspection_Date)][1]` and `r #dat[iiTest, range(Inspection_Date)][2]`. During this time, CDPH found `r #dat[iiTest, sum(criticalFound)] ` violations, ```r #dat[iiTest, 100*(sum(criticalFound)/.N)]```percent of all inspections. The rate of violations is consistent with the historical average of approximately 15 percent. While the rate of violations is slightly higher, it is close enough where we do not suspect this period is abnormal, thus, a valid comparison for our evaluation.
-```{r prepare_data, warning=FALSE, results='hide', message=FALSE}
-# ## Subset test period
-# datTest <- dat[iiTest]
-# 
-# ## Identify the ACTUAL first and second periods
-# datTest[ , period := ifelse(Inspection_Date < median(Inspection_Date), 1, 2)]
-# datTest[, .N, keyby=list(period)]
-# ## Identify top half of scores (which *would have* been the first period)
-# datTest[ , period_modeled := ifelse(glm_pred > median(glm_pred), 1, 2)]
-# datTest[, .N, keyby=list(period_modeled)]
-# 
-# ## Total of inspections / critical found for ACTUAL data
-# datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-# 
-# ## Total of inspections / critical found for MODELED scenario
-# datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
-# 
-# ## Another way to say "how many would you have found  in the first period"
-# datTest[period == 1, sum(criticalFound)]
-# datTest[period_modeled == 1, sum(criticalFound)]
-```
-
 
 ```{r bar_graph_comparing_BAU_and_model_in_first_half}
 # datTest[period==1, list(.N, sum(criticalFound))]
 # datTest[period_modeled==1, list(.N, sum(criticalFound))]
 
-bar_plot_data <- data.table(
-    labels = c("Percent of violations \n found daily (BAU)", 
-               "Percent of violations \n found daily (Model)",
-               "Percent of all critical violations \n found in period 1 (BAU)",
-               "Percent of all critical violations \n found in period 1 (Model)"),
+crit_viol_rate <- data.table(
+    Regime = c("Business As Usual", 
+               "Data Driven"),
     values = c(datTest[period==1, sum(criticalFound)/.N],
-               datTest[period_modeled==1, sum(criticalFound)/.N],
-               datTest[period==1, sum(criticalFound)] / datTest[ , sum(criticalFound)],
+               datTest[period_modeled==1, sum(criticalFound)/.N]))
+crit_viol_cumulative <- data.table(
+    Regime = c("Business As Usual",
+               "Data Driven"),
+    values = c(datTest[period==1, sum(criticalFound)] / datTest[ , sum(criticalFound)],
                datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
 
-ggplot(bar_plot_data[1:2]) + 
-    aes(x = labels, y = values, fill=labels) + 
-    labs(title=paste0('Comparison of BAU results to Data Driven results\n',
-                      'Period 1 Daily averages\n') ) +
+ggplot(crit_viol_rate) + 
+    aes(x = Regime, y = values, fill=Regime) + 
+    labs(title=paste0('Percentage of inspections resulting in a critical violation\n',
+                      'during Period 1\n') ) +
     geom_bar(stat = "identity") + 
+    # guides(fill=FALSE) +
     scale_y_continuous(labels = percent) +
     xlab("") + ylab("")
 
-ggplot(bar_plot_data[3:4]) + 
-    aes(x = factor(labels), y = values, fill=labels) + 
-    labs(title=paste0('Comparison of BAU results to Data Driven results\n',
-                      'Period 1 Totals\n') ) +
+ggplot(crit_viol_cumulative) + 
+    aes(x = factor(Regime), y = values, fill=Regime) + 
+    labs(title=paste0('Percentage of period 1 & period critical violations\n',
+                      'found in Period 1\n') ) +
     geom_bar(stat = "identity") +
+    # guides(fill=FALSE) +
     scale_y_continuous(labels = percent) +
     xlab("") + ylab("") + expand_limits(y = 1)
-
-
 ```
 
 
@@ -322,10 +306,11 @@ date_comp <- merge(
 
 # Store this data as a variable to be used in text
 time_diff <- date_comp[criticalFound_Model==1, -(date_model - date_bau)]
-```
-On average, food establishments were identified `r mean(time_diff)` days earlier under a data-driven model. Generally, critical violations would have been found sooner under the data-driven regime. The rate of finding critical violations in the first half of the would have increased by 25 percent under the data-driven model. [Fifty-five percent] of critical food violations were found in the first half; meanwhile, under the data-driven model, [sixty-nine percent] of all of the critical violations. 
 
-While the average gain was 7 days, there was a significant range in the change. Some restaurants were identified `r max(time_diff)` days earlier than business-as-usual. Half of the crticial violations were identified over `r quantile(time_diff)[3]` earlier while quarter of all violations were prioritized over `r quantile(time_diff)[4]` sooner. Yet, some restaurants would be prioritized lower, `r sum(time_diff < 0)` restaurants were incorrectly prioritized lower and were found to have critical violations later--`r sum(time_diff < 0) / length(time_diff)` of the observed critical violations.
+```
+On average, food establishments were identified `r sprintf("%0.2f", mean(time_diff))` days earlier under a data-driven model. Generally, critical violations would have been found sooner under the data-driven regime. The rate of finding critical violations in the first half of the would have increased by `r paste0(sprintf("%0.1f", crit_viol_rate[,diff(values)/values[1]]*100), "%")` percent under the data-driven model. `r paste0(sprintf("%0.1f", crit_viol_cumulative[Regime=='Business As Usual',values]*100), "%")` of critical food violations were found in the first half; meanwhile, under the data-driven model, `r paste0(sprintf("%0.1f", crit_viol_cumulative[Regime=='Data Driven',values]*100), "%")` of all of the critical violations (an increase of `r paste0(sprintf("%0.1f", crit_viol_cumulative[,diff(values)/values[1]]*100), "%")`). 
+
+While the average gain was `r sprintf("%0.0f", mean(time_diff))` days, there was a significant range in the change. Some restaurants were identified `r max(time_diff)` days earlier than business-as-usual. Half of the crticial violations were identified over `r quantile(time_diff)[3]` days earlier while quarter of all violations were prioritized over `r quantile(time_diff)[4]` days sooner. Yet, some restaurants would be prioritized lower, `r sum(time_diff < 0)` restaurants were incorrectly prioritized lower and were found to have critical violations later--`r paste0(sprintf("%0.0f", sum(time_diff < 0) / length(time_diff)*100), "%")` of the observed critical violations.
 
 ```{r graph_of_time_diff}
 hist(as.numeric(time_diff),
@@ -346,14 +331,25 @@ time_diff_t_test <- t.test(time_diff, mu=0)
 We conducted a t-test to measure whether the reduction in time to find a critical violation was greater than zero. Namely, the null hypothesis is the average time each food inspection was accelerated is equal to zero. The test ($\sigma =$ `r sprintf("%0.2f", sd(time_diff))`, df = `r time_diff_t_test$parameter`) resulted in a p-value of `r sprintf("%.3e", time_diff_t_test$p.value)`, which indicates that the model is extremely likely to be significant.
 
 Below, Gini curves show the relative difference in the inspection regimes throughout the pilot. Since the first day, the data-driven model revealed more critical violations. Specifically, 111 more violations were found in the first week between September 2 and September 5 (141 under data-driven compared to 30 for business-as-usual). The cumulative number of violations found were always higher for the data-driven approach until the final day of the pilot.
+
 ```{r}
+## Create data for cumulative violation summaries
 comp_summary_cumsum <- comp_summary[
     i = TRUE,
     j = list(`\nInspection Date` = Inspection_Date,
              `Business As Usual` = cumsum(Crit_Violations_BAU),
-             `Data Driven` = cumsum(Crit_Violations_Model))]
+             `Data Driven` = cumsum(Crit_Violations_Model),
+             `Best Possible` = cumsum(Best_Possible),
+             `Worst Possible` = cumsum(Worst_Possible))]
+comp_summary_cumsum_subset <- comp_summary_cumsum[
+    i = TRUE, 
+    j = list(`\nInspection Date`,
+             `Business As Usual`,
+             `Data Driven`)]
+```
 
-ggplot(melt(data = comp_summary_cumsum, 
+```{r, fig.width=10}
+ggplot(melt(data = comp_summary_cumsum_subset, 
             id.vars = "\nInspection Date")) +
     aes(x = `\nInspection Date`, 
         y = value, 
@@ -368,7 +364,7 @@ By extension, the rate of finding critical violations is higher for the initial 
 ```{r, fig.width=10}
 ggplot(
     melt(data = comp_summary[
-        i = -1,
+        i = TRUE,
         j = list(`Daily critical violations \nfound per inspection \n(BAU)\n` = 
                      Crit_Violations_BAU / Total_Inspections,
                  `Daily critical violations \nfound per inspection \n(Model)\n` = 
@@ -389,9 +385,22 @@ ggplot(
 
 The retrospective analysis allows us to surmise and compare to a "best case scenario", the most efficient order of restaurants to inspect based on their risk. In this case, we surmise the best case scenario is where every critical violation is found Below, a graph shows the difference between the most efficient path
 
+```{r, fig.width=10}
+ggplot(melt(data = comp_summary_cumsum, 
+            id.vars = "\nInspection Date")) +
+    aes(x = `\nInspection Date`, 
+        y = value, 
+        colour = variable) + 
+    labs(title=paste0("Comparing cumulative violations discovered\n",
+                      "with additional optimal path\n")) +
+    ylab("Cumulative critical violations to date\n") +
+    geom_line(lwd=1.5) + 
+    geom_point(colour="black")
+```
+
 
 # Summary
-This model was able to reduce the timeframe to discover critical violations at Chicago's food establishments. Within a two-month window, the average time to find a critical violation was reduced by ```r mean(time_diff)``` days, a statistically significant finding.
+This model was able to reduce the timeframe to discover critical violations at Chicago's food establishments. Within a two-month window, the average time to find a critical violation was reduced by `r sprintf("%0.2f", mean(time_diff))` days, a statistically significant finding.
 
 At times, we've explicitly assumed that finding violations is time invariant throughout the pilot phase. That is, a food establishment found with a critical violation on day 40 would have also been found to have a violation even if it was inspected earlier. Unfortunately, we do not have a method to test this assumption. However, the relatively short time window of the study helped ensure external factors, such as severe weather, had limited impact on temporal violations.
 

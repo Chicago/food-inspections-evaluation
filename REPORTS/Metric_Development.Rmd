@@ -9,7 +9,7 @@ gc(reset=TRUE)
 geneorama::detach_nonstandard_packages()
 ## Load libraries that are used
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", "splines",
-                                   "knitr", "printr"))
+                                   "knitr", "printr", "scales"))
 ## Load custom functions
 geneorama::sourceDir("CODE/functions/")
 
@@ -86,6 +86,43 @@ ggplot <- function(...) {
 #                "#D55E00", "#CC79A7")
 # pie(rep(1,length(cbPalette)), col = cbPalette)
 ```
+
+## Bar plots
+
+```{r bar_graph_comparing_BAU_and_model_in_first_half}
+# datTest[period==1, list(.N, sum(criticalFound))]
+# datTest[period_modeled==1, list(.N, sum(criticalFound))]
+
+crit_viol_rate <- data.table(
+    Regime = c("Business As Usual", 
+               "Data Driven"),
+    values = c(datTest[period==1, sum(criticalFound)/.N],
+               datTest[period_modeled==1, sum(criticalFound)/.N]))
+crit_viol_cumulative <- data.table(
+    Regime = c("Business As Usual",
+               "Data Driven"),
+    values = c(datTest[period==1, sum(criticalFound)] / datTest[ , sum(criticalFound)],
+               datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
+
+ggplot(crit_viol_rate) + 
+    aes(x = Regime, y = values, fill=Regime) + 
+    labs(title=paste0('Percentage of inspections resulting in a critical violation\n',
+                      'during Period 1\n') ) +
+    geom_bar(stat = "identity") + 
+    # guides(fill=FALSE) +
+    scale_y_continuous(labels = percent) +
+    xlab("") + ylab("")
+
+ggplot(crit_viol_cumulative) + 
+    aes(x = factor(Regime), y = values, fill=Regime) + 
+    labs(title=paste0('Percentage of period 1 & period critical violations\n',
+                      'found in Period 1\n') ) +
+    geom_bar(stat = "identity") +
+    # guides(fill=FALSE) +
+    scale_y_continuous(labels = percent) +
+    xlab("") + ylab("") + expand_limits(y = 1)
+```
+
 
 
 ## Aggregate count comparisons
@@ -200,21 +237,23 @@ ggplot(melt(data = comp_summary_percent, id.vars = "Inspection_Date")) +
 ```{r}
 comp_summary_cumsum <- comp_summary[
     i = TRUE,
-    j = list(Inspection_Date = Inspection_Date,
-             BAU = cumsum(Crit_Violations_BAU),
-             Model = cumsum(Crit_Violations_Model),
-             Best_Possible = cumsum(Best_Possible),
-             Worst_Possible = cumsum(Worst_Possible))]
+    j = list(`\nInspection Date` = Inspection_Date,
+             `Business As Usual` = cumsum(Crit_Violations_BAU),
+             `Data Driven` = cumsum(Crit_Violations_Model),
+             `Best Possible` = cumsum(Best_Possible),
+             `Worst Possible` = cumsum(Worst_Possible))]
 
-comp_summary_cumsum_melted <- melt(
-    data = comp_summary_cumsum, 
-    id.vars = "Inspection_Date")
 
-ggplot(comp_summary_cumsum_melted) +
-    aes(x=Inspection_Date, y=value, colour=variable) + 
-    labs(title=paste0("Cumulative Critical Violations Found\n",
-                      "BAU Versus Model\n")) +
-    geom_line(lwd=1.5)
+ggplot(melt(data = comp_summary_cumsum, 
+            id.vars = "\nInspection Date")) +
+    aes(x = `\nInspection Date`, 
+        y = value, 
+        colour = variable) + 
+    labs(title="Comparing cumulative violations discovered\n") +
+    ylab("Cumulative critical violations to date\n") +
+    geom_line(lwd=1.5) + 
+    geom_point(colour="black")
+
 ```
 
 ```{r}
