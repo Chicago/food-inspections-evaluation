@@ -9,7 +9,7 @@
 
 
 $(document).ready(function(){
-	var isiOS = /iP(ad|hone|od)/.test(navigator.userAgent);
+	var isiOS = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 	if(isiOS == false){
        // Cache the Window object
         $window = $(window);
