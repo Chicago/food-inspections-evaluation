@@ -221,7 +221,11 @@ The elapsed time since the last violation also increased the likelihood that ins
 
 Characteristics besides the restaurant itself were also indicators of future performance. Trends in weather, nearby reports of burglary, and complaints about sanitation and garbage seems to explain increases. An increase in the moving three-day average high temperature was associated with more critical violations. In conversations with inspection managers, researchers understood this to be associated with potential mechanical failures---driven by the heat---of equipment that maintained food temperature, a main source of critical violations.
 
-Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include:
+Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include: [INSERT LIST OF SANITATION CODE TYPES]
+
+The largest source of influence in the model was which sanitarian performed the inspection. Initially we included the sanitarian information directly into the model; however for many reasons we wanted to be able to protect the identity of the sanitarian. We used our initial results of individual sanitarian coefficients to group the sanitarians into clusters, and we then arbitrarily assigned the clusters color names.  This masking had very little effect on the model performance.
+
+A summary of the model coefficient is presented below:
 
 ```{r table_of_coefficients}
 
@@ -241,7 +245,7 @@ One approach for an evaluation may have also sought to determine if the predicti
 
 The analytical model was trained on data from January 2011 through January 2014. The researchers waited until CDPH completed food inspections in September and October 2014. This timeframe ensured significant time passed between the test period (January 2011 through January 2014) and the evaluation period to reduce any incidental correlation between the two periods. CDPH was not aware this timeframe would be used for an evaluation in order to prevent against a Hawthorne Effect or other bias. Again, to reduce any potential to bias within reason, senior management at CDPH was aware of on-going research, but sanitarians were not informed of the research. Finally, several months passed between model development and the evaluation period, reducing a perception of the evaluation period.
 
-The evaluation period lasted two months, from [minimum date] to [maximum date] and calculate the percentage of inspections that result in critical violations in the first half of the inspections during this period. The number of violations found during this period can be considered as status quo or current mode of operation. It serves as a baseline to capture performance levels of sanitarians, namely, the proportion and rate of critical violations that are found.
+The evaluation period lasted two months, from `r datTest[ , as.POSIXct(min(Inspection_Date))]` to `r datTest[ , as.POSIXct(max(Inspection_Date))]` and calculate the percentage of inspections that result in critical violations in the first half of the inspections during this period. The number of violations found during this period can be considered as status quo or current mode of operation. It serves as a baseline to capture performance levels of sanitarians, namely, the proportion and rate of critical violations that are found.
 
 Meanwhile, we calculate the point predictions for each establishment using the training data from 2011 through 2014. The training data does not include the evaluation period so not to provide additional feedback from the evaluation period. We sort the establishments that were inspected during the evaluation in descending order of predicted values, placing the highest risk restaurants at the top of the list.
 
