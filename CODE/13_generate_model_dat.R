@@ -1,5 +1,6 @@
 
 stop()  ## This stop is to prevent *accidental* execution of the entire script
+        ## on hitting CTRL/CMD + ENTER by mistake
 
 ##==============================================================================
 ## INITIALIZE
@@ -61,7 +62,7 @@ foodInspect[ , Facility_Type_Clean :=
                            ignore.case = TRUE)]
 
 ##==============================================================================
-## Create basis for model to be used in model
+## Create basis for model that is subsequently developed
 ##==============================================================================
 dat_model <- foodInspect[i = TRUE , 
                          j = list(Inspection_Date, 
