@@ -2,17 +2,16 @@
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-## Remove all objects; perform garbage collection
-rm(list=ls())
-gc(reset=TRUE)
-## Check for dependencies
-if(!"geneorama" %in% rownames(installed.packages())){
-    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
-    devtools::install_github('geneorama/geneorama')}
-## Load libraries
-geneorama::detach_nonstandard_packages()
-# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
+if(interactive()){
+    ## Remove all objects; perform garbage collection
+    rm(list=ls())
+    gc(reset=TRUE)
+    ## Detach libraries that are not used
+    geneorama::detach_nonstandard_packages()
+}
+## Load libraries that are used
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2"))
+## Load custom functions
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
@@ -39,21 +38,19 @@ setkey(dat, Inspection_ID)
 ## CREATE MODEL DATA
 ##==============================================================================
 # sort(colnames(dat))
-xmat <- dat[ , list(criticalFound,
-                    # Inspector = Inspector_Grade, 
-                    Inspector = Inspector_Assigned,
+xmat <- dat[ , list(Inspector = Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
-                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     pastCritical = pmin(pastCritical, 1),
+                    timeSinceLast,
+                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     consumption_on_premises_incidental_activity,
                     tobacco_retail_over_counter,
                     temperatureMax,
                     heat_burglary = pmin(heat_burglary, 70),
                     heat_sanitation = pmin(heat_sanitation, 70),
                     heat_garbage = pmin(heat_garbage, 50),
-                    # risk = as.factor(Risk),
-                    # facility_type = as.factor(Facility_Type),
-                    timeSinceLast),
+                    # Facility_Type,
+                    criticalFound),
             keyby = Inspection_ID]
 mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
 mm <- as.data.table(mm)
@@ -95,22 +92,22 @@ errors <- sapply(model$lambda,
                                         s=lam, 
                                         type="response")[,1], 
                             y = xmat[iiTrain, criticalFound]))
+## Plot of the errors by lambda
 plot(x=log(model$lambda), y=errors, type="l")
 which.min(errors)
 model$lambda[which.min(errors)]
-## manual lambda selection
+## Manual selection of lambda
 w.lam <- 100
 lam <- model$lambda[w.lam]
 coef <- model$beta[,w.lam]
 inspCoef <- coef[grepl("^Inspector",names(coef))]
 inspCoef <- inspCoef[order(-inspCoef)]
-## coefficients for the inspectors, and for other variables
+
+## Print coefficients for the Inspectors (and for other variables)
 inspCoef
 coef[!grepl("^Inspector",names(coef))]
 
-
-## By the way, if we had knowledge of the future, we would have chosen a 
-## different lambda
+## Plot of the errors by Lambda for the out of sample Test data
 errorsTest <- sapply(model$lambda, 
                      function(lam) 
                          logLik(p = predict(model, 
@@ -127,7 +124,7 @@ dat$glm_pred <- predict(model, newx=as.matrix(mm),
                         s=lam, 
                         type="response")[,1]
 
-# show gini performance of inspector model on tune data set
+# Show gini performance of inspector model on tune data set
 dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 
 ## Calculate confusion matrix values for evaluation
