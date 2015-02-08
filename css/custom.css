@@ -301,10 +301,12 @@ a.twitter-hashtag-button:focus {
 	} 
 	#kitchen main { 
 		font-size: 46px;
+		align: center;
 		
 	} 
 	#kitchen sub {
 		font-size: 22px;
+		align: center;
 		
 	}
 	
