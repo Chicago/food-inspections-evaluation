@@ -317,12 +317,12 @@ a.twitter-hashtag-button:focus {
 		left: 2%;
 	}
 	#kitchen main { 
-		font-size: 32px;
+		font-size: 20px;
     		text-align:-webkit-center;
 		
 	} 
 	#kitchen sub {
-		font-size: 18px;
+		font-size: 10px;
 		text-align:-webkit-center;
 		
 	}
