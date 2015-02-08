@@ -218,7 +218,7 @@ a.twitter-hashtag-button:focus {
 #kitchen {
 	background: url(../img/kitchen.jpg);
 	/* 50% 0; no-repeat fixed;*/
-	/*background-size: 100% 100%;*/
+	background-size: 100% 100%;
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: center;
