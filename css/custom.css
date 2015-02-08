@@ -275,7 +275,7 @@ a.twitter-hashtag-button:focus {
 }
 
 /* Adjustments for browser size */
-@media only screen and (max-width: 768px) { 
+@media all and (max-width: 768px) { 
 	#kitchen {background: url(../img/kitchen_tablet.png);
 		
 	} 
@@ -289,9 +289,9 @@ a.twitter-hashtag-button:focus {
 	}
 	
 } 
-@media only screen and (max-width: 650px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main { font-size: 46px;} #kitchen sub {font-size: 22px;}} 
-@media only screen and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
-@media only screen and (min-width: 768px) {
+@media all and (max-width: 650px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main { font-size: 46px;} #kitchen sub {font-size: 22px;}} 
+@media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
+@media all and (min-width: 768px) {
   	.navbar-header {
     		float: right;
   	}
