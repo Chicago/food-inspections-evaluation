@@ -300,16 +300,7 @@ a.twitter-hashtag-button:focus {
     		vertical-align: left;
 		
 	} 
-	#kitchen main { 
-		font-size: 15px;
-    		text-align:-webkit-center;
-		
-	} 
-	#kitchen sub {
-		font-size: 8px;
-		text-align:-webkit-center;
-		
-	}
+	
 	
 } 
 @media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
@@ -323,6 +314,16 @@ a.twitter-hashtag-button:focus {
 @media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) and (max-width: 320px){ 
 	#kitchen article {
 		top: 20%;
-		left: -2%;
+		left: 2%;
+	}
+	#kitchen main { 
+		font-size: 15px;
+    		text-align:-webkit-center;
+		
+	} 
+	#kitchen sub {
+		font-size: 8px;
+		text-align:-webkit-center;
+		
 	}
 }
