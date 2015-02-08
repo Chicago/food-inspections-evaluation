@@ -232,7 +232,7 @@ a.twitter-hashtag-button:focus {
 }
 
 #kitchen article{
-	position: relative;
+	position: fixed;
 	top: 50%;
 	left: 50%;
     margin-right: -50%;
@@ -289,8 +289,8 @@ a.twitter-hashtag-button:focus {
 	}
 	
 } 
-@media screen and (max-width: 650px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 46px;} #kitchen sub {font-size: 22px;}} 
-@media screen and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
+@media screen and (max-width: 650px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main { text-align: center; font-size: 46px;} #kitchen sub {text-align: center; font-size: 22px;}} 
+@media screen and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {text-align: center; font-size: 32px;} #kitchen sub {text-align: center; font-size: 18px;}} 
 @media (min-width: 768px) {
   	.navbar-header {
     		float: right;
