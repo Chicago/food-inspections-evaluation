@@ -319,11 +319,14 @@ a.twitter-hashtag-button:focus {
 	#kitchen main { 
 		font-size: 20px;
     		text-align:-webkit-center;
-		
+		margin-left:auto;
+		margin-right:auto;
 	} 
 	#kitchen sub {
 		font-size: 10px;
 		text-align:-webkit-center;
+		margin-left: auto;
+		margin-right: auto;
 		
 	}
 }
