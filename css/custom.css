@@ -216,7 +216,7 @@ a.twitter-hashtag-button:focus {
 /* Parallax Effect*/
 
 #kitchen {
-	/*background: url(../img/kitchen_tablet.jpeg); */
+	background: url(../img/kitchen.jpg);
 	/* 50% 0; no-repeat fixed;*/
 	/*background-size: 100% 100%;*/
 	background-repeat: no-repeat;
@@ -276,10 +276,6 @@ a.twitter-hashtag-button:focus {
 
 
 @media all and (min-width: 768px) {
-	#kitchen {
-		background: url(../img/kitchen.jpg);
-		
-	}
   	.navbar-header {
     		float: right;
   	}
