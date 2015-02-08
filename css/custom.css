@@ -296,6 +296,8 @@ a.twitter-hashtag-button:focus {
 		margin: 0 auto;
 		/*max-width: 3281px;*/
 		position: relative;
+		display: inline-block;
+    		vertical-align: middle;
 	} 
 	#kitchen main { 
 		font-size: 46px;
