@@ -274,14 +274,7 @@ a.twitter-hashtag-button:focus {
 }
 
 /* Adjustments for browser size */
-@media all and (max-width: 750px) { 
-	#kitchen main {font-size: 64px;} 
-	#kitchen sub {font-size: 26px;}
-	#kitchen {
-		background: url(../img/kitchen_tablet.jpg);
-	}
-	
-} 
+@media all and (max-width: 750px) { #kitchen main {font-size: 64px;} #kitchen sub {font-size: 26px;}} 
 @media all and (max-width: 650px) { #kitchen main {font-size: 46px;} #kitchen sub {font-size: 22px;}} 
 @media all and (max-width: 500px) { #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
 @media (min-width: 768px) {
