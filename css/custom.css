@@ -282,7 +282,7 @@ a.twitter-hashtag-button:focus {
 }
 
  
-@media all and (max-width: 640px) { 
+@media all and (max-width: 320px) { 
 	#kitchen {
 		background: url(../img/kitchen_tablet.png);
 		background-size: 100% 100%;
@@ -301,12 +301,12 @@ a.twitter-hashtag-button:focus {
 	} 
 	#kitchen main { 
 		font-size: 46px;
-		align: center;
+    		text-align:-webkit-center;;
 		
 	} 
 	#kitchen sub {
 		font-size: 22px;
-		align: center;
+		text-align:-webkit-center;
 		
 	}
 	
