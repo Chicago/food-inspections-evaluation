@@ -290,14 +290,14 @@ a.twitter-hashtag-button:focus {
 		background-size: cover;
 		background-position: center;
 		background-attachment: fixed;
-		/*height: 700px;*/
+		height: 200px;
 		margin: 0 auto;
 		width: 100%;
 		margin: 0 auto;
 		/*max-width: 3281px;*/
 		position: relative;
 		display: inline-block;
-    		vertical-align: middle;
+    		vertical-align: left;
 	} 
 	#kitchen main { 
 		font-size: 46px;
