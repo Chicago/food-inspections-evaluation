@@ -321,12 +321,14 @@ a.twitter-hashtag-button:focus {
     		text-align:-webkit-center;
 		margin-left:auto;
 		margin-right:auto;
+		width: 66%;
 	} 
 	#kitchen sub {
 		font-size: 10px;
 		text-align:-webkit-center;
 		margin-left: auto;
 		margin-right: auto;
+		width: 66%;
 		
 	}
 }
