@@ -311,7 +311,6 @@ a.twitter-hashtag-button:focus {
 	}
 	
 } 
-@media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
 
 @media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) { 
 	#kitchen article {
