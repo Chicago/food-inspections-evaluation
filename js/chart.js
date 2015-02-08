@@ -33,8 +33,8 @@ $(function () {
         series: [{
             name: 'Percentage of critical violations found in the first month',
             data: [
-                ['Current Workflow', 57.0],
-                ['Data-driven Workflow', 65.0]
+                ['Business-as-usual Workflow', 55.0],
+                ['Data-driven Workflow', 69.0]
             ],
             dataLabels: {
                 enabled: false,
