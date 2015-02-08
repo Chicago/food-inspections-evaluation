@@ -216,7 +216,7 @@ a.twitter-hashtag-button:focus {
 /* Parallax Effect*/
 
 #kitchen {
-	background: url(../img/kitchen_tablet.jpeg);
+	/*background: url(../img/kitchen_tablet.jpeg); */
 	/* 50% 0; no-repeat fixed;*/
 	/*background-size: 100% 100%;*/
 	background-repeat: no-repeat;
@@ -232,7 +232,7 @@ a.twitter-hashtag-button:focus {
 }
 
 #kitchen article{
-	position: relative;
+	position: absolute;
 	top: 50%;
 	left: 50%;
     margin-right: -50%;
@@ -274,30 +274,18 @@ a.twitter-hashtag-button:focus {
 	margin-bottom: 40px;
 }
 
-/* Adjustments for browser size */
-@media all and (max-width: 768px) { 
-	#kitchen {background: url(../img/kitchen_tablet.png);
-		background-repeat: no-repeat;
-		background-size: cover;
-		background-position: center;
-		background-attachment: fixed;
-		height: 700px;
-		margin: 0 auto;
-		width: 100%;
-		margin: 0 auto;
-		max-width: 3281px;
-		position: relative;
-	} 
-	#kitchen main {
-		font-size: 64px;
-		
-	} 
-	#kitchen sub {
-		font-size: 26px;
+
+@media only screen and (min-width: 768px) {
+	#kitchen {
+		background: url(../img/kitchen.jpg);
 		
 	}
-	
-} 
+  	.navbar-header {
+    		float: right;
+  	}
+}
+
+ 
 @media all and (max-width: 650px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main { font-size: 46px;} #kitchen sub {font-size: 22px;}} 
 @media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
 @media all and (min-width: 768px) {
