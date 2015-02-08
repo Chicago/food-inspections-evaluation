@@ -8,15 +8,15 @@
  */
 
 $(document).ready(function(){
-    //var isSmall = false;
+    var isSmall = false;
  
-   // if (window.innerWidth >= 480){
+   if (window.innerWidth >= 480){
        // Cache the Window object
         $window = $(window);
         $('section[data-type="background"]').each(function(){
             var $bgobj = $(this); // assigning the object
             $(window).scroll(function() {
-                //if(!isSmall){
+                if(!isSmall){
                 // Scroll the background at var speed
         	        // the yPos is a negative value because we're scrolling it UP!								
     		        var yPos = -($window.scrollTop() / $bgobj.data('speed')); 
@@ -26,17 +26,17 @@ $(document).ready(function(){
  
     		        // Move the background
     		        $bgobj.css({ backgroundPosition: coords });
-                //}
+                }
             }); // window scroll Ends
         });	
-   // }
+   }
  
-    /*$(window).resize(function() {
+    $(window).resize(function() {
         if(window.innerWidth <= 480)
             isSmall = true;
         else
             isSmall = false;
-    });*/
+    });
  
 }); 
  
