@@ -334,3 +334,47 @@ a.twitter-hashtag-button:focus {
 		
 	}
 }
+@media all and (max-width: 414px) { 
+	#kitchen {
+		background: url(../img/kitchen_tablet.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		/*background-size: cover;*/
+		/*-webkit-background-size: cover;*/
+		background-position: center;
+		background-attachment: fixed;
+		height: 350px;
+		/*margin: 0 auto;*/
+		width: 100%;
+		/*margin: 0 auto;*/
+		max-width: 480px;
+		position: relative;
+		display: inline-block;
+    		vertical-align: left;
+		
+	} 
+	
+	
+} 
+@media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (max-width: 414px){ 
+	#kitchen article {
+		top: 15%;
+		left: 0.5%;
+		margin-right: auto;
+	}
+	#kitchen main { 
+		font-size: 32px;
+    		text-align:-webkit-center;
+		margin-left:auto;
+		margin-right:auto;
+		width: 66%;
+	} 
+	#kitchen sub {
+		font-size: 18px;
+		text-align:-webkit-center;
+		margin-left: auto;
+		margin-right: auto;
+		width: 66%;
+		
+	}
+}
