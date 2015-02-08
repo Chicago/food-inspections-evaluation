@@ -8,7 +8,7 @@
  */
 
 $(document).ready(function(){
-    var isSmall = false;
+    //var isSmall = false;
  
     if (window.innerWidth >= 480){
        // Cache the Window object
@@ -31,12 +31,12 @@ $(document).ready(function(){
         });	
     }
  
-    $(window).resize(function() {
+    /*$(window).resize(function() {
         if(window.innerWidth <= 480)
             isSmall = true;
         else
             isSmall = false;
-    });
+    });*/
  
 }); 
  
