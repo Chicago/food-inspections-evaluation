@@ -291,11 +291,11 @@ a.twitter-hashtag-button:focus {
 		/*-webkit-background-size: cover;*/
 		background-position: center;
 		background-attachment: fixed;
-		height: 200px;
-		margin: 0 auto;
+		height: 300px;
+		/*margin: 0 auto;*/
 		width: 100%;
-		margin: 0 auto;
-		/*max-width: 3281px;*/
+		/*margin: 0 auto;*/
+		max-width: 480px;
 		position: relative;
 		display: inline-block;
     		vertical-align: left;
