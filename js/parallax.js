@@ -10,7 +10,7 @@
 $(document).ready(function(){
     //var isSmall = false;
  
-    if (window.innerWidth >= 480){
+   // if (window.innerWidth >= 480){
        // Cache the Window object
         $window = $(window);
         $('section[data-type="background"]').each(function(){
@@ -29,7 +29,7 @@ $(document).ready(function(){
                 }
             }); // window scroll Ends
         });	
-    }
+   // }
  
     /*$(window).resize(function() {
         if(window.innerWidth <= 480)
