@@ -1,6 +1,7 @@
 ---
 title: "Forecasting restaurants with critical violations in Chicago"
-author: "City of Chicago"
+author: Tom Schenk (City of Chicago), Gene Leynes (City of Chicago), Aakash Solanki
+  (City of Chicago)
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
   html_document:
@@ -118,6 +119,36 @@ comp_summary <- comp[
     keyby = list(Inspection_Date = Inspection_Date)]
 ```
 
+```{r prepare_calc_for_difference}
+date_comp <- merge(
+    x = comp[i = TRUE,
+             j = list (criticalFound_BAU,
+                       date_bau = Inspection_Date),
+             keyby = list(id = Inspection_ID_BAU)],
+    y = comp[i = TRUE,
+             j = list (criticalFound_Model,
+                       date_model = Inspection_Date),
+             keyby = list(id = Inspection_ID_Model)],
+    by = "id")
+
+# Store this data as a variable to be used in text
+time_diff <- date_comp[criticalFound_Model==1, -(date_model - date_bau)]
+```
+```{r calculate_violation_rates}
+# datTest[period==1, list(.N, sum(criticalFound))]
+# datTest[period_modeled==1, list(.N, sum(criticalFound))]
+
+crit_viol_rate <- data.table(
+    Regime = c("Business As Usual", 
+               "Data Driven"),
+    values = c(datTest[period==1, sum(criticalFound)/.N],
+               datTest[period_modeled==1, sum(criticalFound)/.N]))
+crit_viol_cumulative <- data.table(
+    Regime = c("Business As Usual",
+               "Data Driven"),
+    values = c(datTest[period==1, sum(criticalFound)] / datTest[ , sum(criticalFound)],
+               datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
+```
 
 > The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper develops a predictive model design to identify the likelihood any restaurant that contains critical violations. Since CDPH is obligated to inspect every food establishment, the goal of the model is to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. In testing, the predictive model was able to identify 23 percent more violations than current operations.
 
@@ -137,17 +168,17 @@ The Foodborne program and 311 system has assisted CDPH in targeting and identify
 
 The work is organized by CDPH-defined "risk levels", which are divided into three categories: risk 1 (highest), risk 2, and risk 3. The risk levels are determined by food handling practices required for each establishment. Restaurants and other establishments that directly handle ingredients and prepare food, such as needs to cool or heat food, are generally categorized as risk 1. The lowest risk generally consists of prepackages and non-perishable food. Risk level also drives frequency of inspection. Risk 1 facilities are inspected more frequently, with a target of at least twice a year; risk 2 are inspected at least once a year; and risk 3 is inspected once every other year.
 
-Risk levels do help prioritize inspections by focusing on establishments with the highest likelihood of spreading food born illnesses through categorization of food handling practices. However, `r #percent(table(dat$Risk)[1]/sum(table(dat$Risk)))` of those establishments in our dataset are categorized as risk 1. The high proportion of risk 1 establishments means there is still a substantial queue to be inspected. Yet, the work is certainly achievable. Assuming 32 inspectors, each inspector would need to complete `r #format(round(table(dat$Risk)[1]/32/230, 0), nsmall=0)` canvass inspections each working day---in addition to complaint-driven and new license inspections.
+Risk levels do help prioritize inspections by focusing on establishments with the highest likelihood of spreading food born illnesses through categorization of food handling practices. However, [`r #percent(table(dat$Risk)[1]/sum(table(dat$Risk)))`] of those establishments in our dataset are categorized as risk 1. The high proportion of risk 1 establishments means there is still a substantial queue to be inspected. Yet, the work is certainly achievable. Assuming 32 inspectors, each inspector would need to complete [`r #format(round(table(dat$Risk)[1]/32/230, 0), nsmall=0)`] canvass inspections each working day---in addition to complaint-driven and new license inspections.
 
 There are 42 different possible violations that can be cited by CDPH. Often, these violations are classified into three categories: critical, serious, and minor violations. Critical violations consist of 9 different violations that are most likely to create conditions for food born illnesses, such as failure to heat food to proper temperatures or to keep items properly fridgerated at the proper temperatures. Conversely, minor violations can be as simple as leaving a rag in the sink. Restaurants can fail their inspections with as little as one critical violation. Several serious and minor violations during an inspection can also lead to a failed outcome.
 
-The clear priority of CDPH food inspection team is to prevent foodborne illnesses, which are most likely to stem from critical violations. With a XX risk 1 establishments to inspect throughout the year, the question also extends to which establishments should be inspected first. Fortunately, the city dollects data on multiple facets of food inspections, including the outcomes of inspections, information about businesses and their activities, and events around each food establishment, such as 311 complaints, crime, and even weather. Section 2 describes data that has been collected by the research team for this project.
+The clear priority of CDPH food inspection team is to prevent foodborne illnesses, which are most likely to stem from critical violations. With a [XX] risk 1 establishments to inspect throughout the year, the question also extends to which establishments should be inspected first. Fortunately, the city dollects data on multiple facets of food inspections, including the outcomes of inspections, information about businesses and their activities, and events around each food establishment, such as 311 complaints, crime, and even weather. Section 2 describes data that has been collected by the research team for this project.
 
 Section 3 describes how these data sources can be combined to show the relationship between the characteristics of a food seller with critical violations. We formulates a model to derive the likelihood for each establishment to have critical violations. This model can be used to prioritize which restaurants should be inspected first. By targeting the highest-probability restaurants, CDPH can minimize the amount of exposure restaurant patrons have to the unsanitary conditions that are most likely to lead to food born illnesses. This paper will focus on prioritizing inspections of risk 1 and risk 2 restaurants, since these must be inspected at least once a year.
 
 After developing the statistical model to predict critical violations, the research team evaluates whether the model could optimize food inspection processes (section 4). Namely, the model is used to determine how much faster the food inspection team can discover critical violations. The team uses a simulation to compare real-life results to an alternate, data-driven arrangement.
 
-Section 5 summarizes the results of the paper. Ultimately, we find that XX percent increase in finding critical violations at food sellers. Beginning in 2015, CDPH will begin to use this analytical model to prioritize canvas inspections. Each risk 1 and risk 2 restaurant will still undergo inspections; however, these restaurants with the highest likelihood of the most serious issues will be prioritized.
+Section 5 summarizes the results of the paper. Ultimately, we find that a data-driven model can help inspectors discover critical violations earlier than normal. On average, critical violations would have been discovered `r sprintf("%0.2f", mean(time_diff))` days earlier over the two-month period. The first half of the experiment yielded `r paste0(sprintf("%0.1f", crit_viol_rate[,diff(values)/values[1]]*100), "%")` higher successful inspections. Beginning in 2015, CDPH has begun to use this analytical model to prioritize canvas inspections. Each risk 1 and risk 2 restaurant will still undergo inspections; however, these restaurants with the highest likelihood of the most serious issues will be prioritized.
 
 Finally, it is worth nothing that this research is an open source project. The source code of the statistical model is available on the City of Chicago [food inspection project page](http://github.com/Chicago/food-inspections-evaluation). The statistical modeling was completed using the R statistical software, with all the necessary data available online. This paper was generated using [knitr](http://yihui.name/knitr), which allows others to view the underlying calculations to generate the summaries, tables, and diagrams in this document. The document is available in the same aforementioned repository.
 
@@ -165,15 +196,12 @@ The location of the businesses are used to calculate nearby activity. Several va
 
 Weather data was obtained from [forecast.io](www.forecast.io). The data contains a significant wealth of information on not only highs, lows, and percipitation, but also on granular weather forecasts for any latitude and longitude. After several conversations with CDPH staff, we focused on the relationship of temperatures and inspections. High temperatures can lead to issues to cooling food within a food establishment, which results in a critical violation. Some empirical testing of that hypothesis helped support its inclusion.
 
-
-
 ```{r, eval=FALSE}
 ## Print the names of the coefficients / copy to clipboard
 rownames(coefficients(model))
 # geneorama::clipper(rownames(coefficients(model)))
 
 ```
-
 
 Variable Name (Literal)                     | Variable Description
 --------------------------------------------|-----------------------------------
@@ -225,9 +253,9 @@ Sanitation code complaints are one of the top complaints registered with the Cit
 
 ```{r table_of_coefficients}
 
-knitr::kable(data.table(Coefficients = names(coef),
+knitr::kable(data.table(Variables = names(coef),
                         Coefficients = coef), 
-             digits=4, 
+             digits=3, 
              caption="Table of Coefficients")
 ```
 
@@ -254,57 +282,26 @@ Note that this experimental design is assumed to yield the name number of restau
 CDPH completed `r geneorama::comma(datTest[, .N])` inspections between `r datTest[ , as.POSIXct(min(Inspection_Date))]` and `r datTest[ , as.POSIXct(max(Inspection_Date))]`. During this time, CDPH found `r datTest[ , sum(criticalFound)]` violations, `r datTest[ , paste0(round(100*(sum(criticalFound)/.N), 1), "%")]`percent of all inspections. The rate of violations is consistent with the historical average of approximately 15 percent. While the rate of violations is slightly higher, it is close enough where we do not suspect this period is abnormal, thus, a valid comparison for our evaluation.
 
 ```{r bar_graph_comparing_BAU_and_model_in_first_half}
-# datTest[period==1, list(.N, sum(criticalFound))]
-# datTest[period_modeled==1, list(.N, sum(criticalFound))]
-
-crit_viol_rate <- data.table(
-    Regime = c("Business As Usual", 
-               "Data Driven"),
-    values = c(datTest[period==1, sum(criticalFound)/.N],
-               datTest[period_modeled==1, sum(criticalFound)/.N]))
-crit_viol_cumulative <- data.table(
-    Regime = c("Business As Usual",
-               "Data Driven"),
-    values = c(datTest[period==1, sum(criticalFound)] / datTest[ , sum(criticalFound)],
-               datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
-
 ggplot(crit_viol_rate) + 
-    aes(x = Regime, y = values, fill=Regime) + 
+    aes(x = Regime, y = values) + 
     labs(title=paste0('Percentage of inspections resulting in a critical violation\n',
                       'during Period 1\n') ) +
     geom_bar(stat = "identity") + 
     # guides(fill=FALSE) +
     scale_y_continuous(labels = percent) +
-    xlab("") + ylab("")
+    xlab("") + ylab("") + theme(legend.position="none")
 
 ggplot(crit_viol_cumulative) + 
-    aes(x = factor(Regime), y = values, fill=Regime) + 
+    aes(x = factor(Regime), y = values) + 
     labs(title=paste0('Percentage of period 1 & period critical violations\n',
                       'found in Period 1\n') ) +
     geom_bar(stat = "identity") +
     # guides(fill=FALSE) +
     scale_y_continuous(labels = percent) +
-    xlab("") + ylab("") + expand_limits(y = 1)
+    xlab("") + ylab("") + expand_limits(y = 1) + theme(legend.position="none")
 ```
 
-
-```{r prepare_calc_for_difference}
-date_comp <- merge(
-    x = comp[i = TRUE,
-             j = list (criticalFound_BAU,
-                       date_bau = Inspection_Date),
-             keyby = list(id = Inspection_ID_BAU)],
-    y = comp[i = TRUE,
-             j = list (criticalFound_Model,
-                       date_model = Inspection_Date),
-             keyby = list(id = Inspection_ID_Model)],
-    by = "id")
-
-# Store this data as a variable to be used in text
-time_diff <- date_comp[criticalFound_Model==1, -(date_model - date_bau)]
-
-```
-On average, food establishments were identified `r sprintf("%0.2f", mean(time_diff))` days earlier under a data-driven model. Generally, critical violations would have been found sooner under the data-driven regime. The rate of finding critical violations in the first half of the would have increased by `r paste0(sprintf("%0.1f", crit_viol_rate[,diff(values)/values[1]]*100), "%")` percent under the data-driven model. `r paste0(sprintf("%0.1f", crit_viol_cumulative[Regime=='Business As Usual',values]*100), "%")` of critical food violations were found in the first half; meanwhile, under the data-driven model, `r paste0(sprintf("%0.1f", crit_viol_cumulative[Regime=='Data Driven',values]*100), "%")` of all of the critical violations (an increase of `r paste0(sprintf("%0.1f", crit_viol_cumulative[,diff(values)/values[1]]*100), "%")`). 
+On average, food establishments were identified `r sprintf("%0.2f", mean(time_diff))` days earlier under a data-driven model. Generally, critical violations would have been found sooner under the data-driven regime. The rate of finding critical violations in the first half of the would have increased by `r paste0(sprintf("%0.1f", crit_viol_rate[,diff(values)/values[1]]*100), "%")` under the data-driven model. `r paste0(sprintf("%0.1f", crit_viol_cumulative[Regime=='Business As Usual',values]*100), "%")` of critical food violations were found in the first half; meanwhile, under the data-driven model, `r paste0(sprintf("%0.1f", crit_viol_cumulative[Regime=='Data Driven',values]*100), "%")` of all of the critical violations (an increase of `r paste0(sprintf("%0.1f", crit_viol_cumulative[,diff(values)/values[1]]*100), "%")`). 
 
 While the average gain was `r sprintf("%0.0f", mean(time_diff))` days, there was a significant range in the change. Some restaurants were identified `r max(time_diff)` days earlier than business-as-usual. Half of the crticial violations were identified over `r quantile(time_diff)[3]` days earlier while quarter of all violations were prioritized over `r quantile(time_diff)[4]` days sooner. Yet, some restaurants would be prioritized lower, `r sum(time_diff < 0)` restaurants were incorrectly prioritized lower and were found to have critical violations later--`r paste0(sprintf("%0.0f", sum(time_diff < 0) / length(time_diff)*100), "%")` of the observed critical violations.
 
@@ -353,7 +350,8 @@ ggplot(melt(data = comp_summary_cumsum_subset,
     labs(title="Comparing cumulative violations discovered\n") +
     ylab("Cumulative critical violations to date\n") +
     geom_line(lwd=1.5) + 
-    geom_point(colour="black")
+    geom_point(colour="black") +
+    theme(legend.position="bottom")
 ```
 
 By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately [0.2] per day and stays above [0.1] violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
@@ -361,9 +359,9 @@ By extension, the rate of finding critical violations is higher for the initial 
 ggplot(
     melt(data = comp_summary[
         i = TRUE,
-        j = list(`Daily critical violations \nfound per inspection \n(BAU)\n` = 
+        j = list(`Business As Usual` = 
                      Crit_Violations_BAU / Total_Inspections,
-                 `Daily critical violations \nfound per inspection \n(Model)\n` = 
+                 `Data Driven` = 
                      Crit_Violations_Model / Total_Inspections),
         keyby = list(`\nInspection Date` = Inspection_Date)], 
             id.vars = "\nInspection Date")) +
@@ -372,6 +370,7 @@ ggplot(
                       'as a percent of total daily inspections\n',
                       "(smoothed results)\n") ) +
      ylab("Percent of inspections resulting \n in critical violations\n") +
+    theme(legend.position="bottom") +
     scale_y_continuous(labels = percent) +
     stat_smooth(method = "gam", 
                 formula = y ~ s(x, k=10, sp=2, bs="ps"), 
@@ -390,6 +389,7 @@ ggplot(melt(data = comp_summary_cumsum,
     labs(title=paste0("Comparing cumulative violations discovered\n",
                       "with additional optimal path\n")) +
     ylab("Cumulative critical violations to date\n") +
+    theme(legend.position="bottom") +
     geom_line(lwd = 1.5)
 ```
 
@@ -401,4 +401,8 @@ Within a two-month window, the average time to find a critical violation was red
 
 At times, we've explicitly assumed that finding violations is time invariant throughout the pilot phase. That is, a food establishment found with a critical violation on day 40 would have also been found to have a violation even if it was inspected earlier. Unfortunately, we do not have a method to test this assumption. However, the relatively short time window of the study helped ensure external factors, such as severe weather, had limited impact on temporal violations.
 
-Additional data can also be used to supplement this model. Restaurant review data, such as the Google Places API or Yelp, could help supplement data on the conditions of a food establishment.
+While we found inspectors are helpful in fitting and explaining the variation of restaurants, it is not practical to include inspector estimates on a daily basis. Inspectors may be reassigned based on absences, uneven workload, and other factors. Thus, the daily model removes inspectors from generating the estimates levels for each restaurant. 
+
+Likewise, weather is included, but effectively undifferentiating factor in daily estimates. Our weather model uses a single temperature across the entire city, which does not impact any region more than the other. Since we're only moving the intercept for all restaurants, the inclusion of weather only provides a more meaningful predicted value of a food establishment, but does not help change the order of inspections.
+
+Additional data can also be used to supplement this model. Restaurant review data, such as the Google Places API or Yelp, could help supplement data on the conditions of a food establishment. Because this is an open-source model, outside researchers will be able to freely reproduce, verify, and suggest improvements to the model presented in this paper. Researchers can submit suggestions and modifications by creating a [pull reqest](https://help.github.com/articles/using-pull-requests/). The instructions to submitting a pull request can be found in this study's [contributing guidelines](https://github.com/Chicago/food-inspections-evaluation/blob/master/README.md).
