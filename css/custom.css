@@ -300,12 +300,12 @@ a.twitter-hashtag-button:focus {
     		vertical-align: left;
 	} 
 	#kitchen main { 
-		font-size: 30px;
+		font-size: 15px;
     		text-align:-webkit-center;
 		
 	} 
 	#kitchen sub {
-		font-size: 15px;
+		font-size: 8px;
 		text-align:-webkit-center;
 		
 	}
