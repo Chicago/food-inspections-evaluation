@@ -287,7 +287,7 @@ a.twitter-hashtag-button:focus {
 		background: url(../img/kitchen_tablet.png);
 		background-size: 100% 100%;
 		background-repeat: no-repeat;
-		/*background-size: cover;*/
+		background-size: cover;*/
 		background-position: center;
 		background-attachment: relative;
 		/*height: 200px;*/
@@ -295,9 +295,8 @@ a.twitter-hashtag-button:focus {
 		width: 100%;
 		margin: 0 auto;
 		/*max-width: 3281px;*/
-		position: relative;
-		display: inline-block;
-    		vertical-align: left;
+		position: fixed;
+		
 	} 
 	#kitchen main { 
 		font-size: 15px;
