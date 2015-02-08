@@ -318,4 +318,8 @@ a.twitter-hashtag-button:focus {
 		top: 20%;
 	}
 }
-
+@media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) and (max-width: 320px){ 
+	#kitchen article {
+		top: 20%;
+	}
+}
