@@ -301,6 +301,16 @@ a.twitter-hashtag-button:focus {
     		vertical-align: left;
 		
 	} 
+	#kitchen main {
+		margin-left: auto;
+		margin-right: auto;
+		text-align:-webkit-center;
+	}
+	#kitchen sub {
+		margin-left: auto;
+		margin-right: auto;
+		text-align:-webkit-center;
+	}
 	
 	
 } 
