@@ -316,6 +316,7 @@ a.twitter-hashtag-button:focus {
 	#kitchen article {
 		top: 15%;
 		left: 0.5%;
+		margin-right: 50%;
 	}
 	#kitchen main { 
 		font-size: 32px;
