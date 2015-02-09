@@ -232,7 +232,7 @@ a.twitter-hashtag-button:focus {
 }
 
 #kitchen article{
-	margin: 10% 0 0 0;
+	margin: auto;
     	transform: translate(-50%, -50%);	
     	text-align:-webkit-center;
     	text-align: center;
