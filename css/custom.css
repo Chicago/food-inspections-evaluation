@@ -238,7 +238,6 @@ a.twitter-hashtag-button:focus {
     margin-right: -50%;
     transform: translate(-50%, -50%);	
     text-align:-webkit-center;
-    text-align: center;
 }
 
 #kitchen main,sub{
@@ -282,7 +281,7 @@ a.twitter-hashtag-button:focus {
   	}
 }
 
-/* So that mobile devices use the smaller iamge and corresponding changes */ 
+ 
 @media all and (max-width: 1024px) { 
 	#kitchen {
 		background: url(../img/kitchen_tablet.png);
@@ -296,7 +295,7 @@ a.twitter-hashtag-button:focus {
 		/*margin: 0 auto;*/
 		width: 100%;
 		/*margin: 0 auto;*/
-		//max-width: 480px;
+		max-width: 480px;
 		position: relative;
 		display: inline-block;
     		vertical-align: left;
@@ -315,22 +314,19 @@ a.twitter-hashtag-button:focus {
 	
 	
 } 
-/*@media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} */
-/* Desktop Safari */
+@media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
+
 @media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) { 
 	#kitchen article {
 		left: 2%;
 		top: 20%;
-		
 	}
 }
-/* iPhones */
 @media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (max-width: 1024px){ 
 	#kitchen article {
 		top: 15%;
 		left: 0.5%;
 		margin-right: auto;
-		margin-left:auto;
 	}
 	#kitchen main { 
 		font-size: 32px;
@@ -348,43 +344,3 @@ a.twitter-hashtag-button:focus {
 		
 	}
 }
-/* For iPad
-
-@media only screen 
-and (min-device-width : 768px) 
-and (max-device-width : 1024px)  { 
-	#kitchen {
-		background: url(../img/kitchen_tablet.png);
-		/* 50% 0; no-repeat fixed;
-		background-size: 100% 100%;
-		background-repeat: no-repeat;
-		/*background-size: cover;
-		background-position: center;
-		background-attachment: fixed;
-		height: 400px;
-		/*margin: 0 auto;
-		width: 100%;
-		/*margin: 0 auto;
-		position: relative;
-		display: inline-block;
-    		vertical-align: left;
-		
-	} 
-	#kitchen main {
-		font-size: 40px;
-		margin-left: auto;
-		margin-right: auto;
-		text-align:-webkit-center;
-		text-align:center;
-	}
-	#kitchen sub {
-		font-size: 28px;
-		margin-left: auto;
-		margin-right: auto;
-		text-align:-webkit-center;
-		text-align:center;
-	}
-	
-	
-}
-*/
