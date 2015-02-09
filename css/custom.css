@@ -351,6 +351,28 @@ a.twitter-hashtag-button:focus {
 	}
 }
 @media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (min-width: 768px){
-	
+	#kitchen article {
+		top: 25%;
+		left: 15%;
+		margin-right: auto;
+		text-align:center;
+		text-align:--webkit-center;
+		
+	}
+	#kitchen main { 
+		font-size: 32px;
+    		text-align:-webkit-center;
+		margin-left:auto;
+		margin-right:auto;
+		width: 66%;
+	} 
+	#kitchen sub {
+		font-size: 18px;
+		text-align:-webkit-center;
+		margin-left: auto;
+		margin-right: auto;
+		
+		width: 66%;
+	}
 }
 	
