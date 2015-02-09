@@ -347,7 +347,7 @@ a.twitter-hashtag-button:focus {
 		text-align:-webkit-center;
 		/*margin-left: auto;*/
 		/*margin-right: auto;*/
-		display:inline-block;
+		display:flex;
 		width: 66%;
 	}
 }
