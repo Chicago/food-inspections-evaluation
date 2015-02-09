@@ -324,7 +324,7 @@ a.twitter-hashtag-button:focus {
 		top: 20%;
 	}
 }
-@media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (max-width: 1024px){ 
+@media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) { 
 	#kitchen article {
 		top: 15%;
 		left: 0.5%;
