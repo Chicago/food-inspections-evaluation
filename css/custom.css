@@ -216,8 +216,13 @@ a.twitter-hashtag-button:focus {
 /* Parallax Effect*/
 
 #kitchen {
-	background: url(../img/kitchen.jpg)  50% 0 no-repeat fixed;
-	/*background-size: 100% 100%;*/
+	background: url(../img/kitchen.jpg);
+	/* 50% 0; no-repeat fixed;*/
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	background-attachment: fixed;
 	height: 700px;
 	margin: 0 auto;
 	width: 100%;
@@ -232,7 +237,7 @@ a.twitter-hashtag-button:focus {
 	left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);	
-    text-align: center;
+    text-align:-webkit-center;
 }
 
 #kitchen main,sub{
@@ -269,12 +274,73 @@ a.twitter-hashtag-button:focus {
 	margin-bottom: 40px;
 }
 
-/* Adjustments for browser size */
-@media all and (max-width: 750px) { #kitchen main {font-size: 64px;} #kitchen sub {font-size: 26px;}} 
-@media all and (max-width: 650px) { #kitchen main {font-size: 46px;} #kitchen sub {font-size: 22px;}} 
-@media all and (max-width: 500px) { #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
-@media (min-width: 768px) {
-  .navbar-header {
-    float: right;
-  }
+
+@media all and (min-width: 768px) {
+  	.navbar-header {
+    		float: right;
+  	}
+}
+
+ 
+@media all and (max-width: 1024px) { 
+	#kitchen {
+		background: url(../img/kitchen_tablet.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		/*background-size: cover;*/
+		/*-webkit-background-size: cover;*/
+		background-position: center;
+		background-attachment: fixed;
+		height: 350px;
+		/*margin: 0 auto;*/
+		width: 100%;
+		/*margin: 0 auto;*/
+		max-width: 480px;
+		position: relative;
+		display: inline-block;
+    		vertical-align: left;
+		
+	} 
+	#kitchen main {
+		margin-left: auto;
+		margin-right: auto;
+		text-align:-webkit-center;
+	}
+	#kitchen sub {
+		margin-left: auto;
+		margin-right: auto;
+		text-align:-webkit-center;
+	}
+	
+	
+} 
+@media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
+
+@media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) { 
+	#kitchen article {
+		left: 2%;
+		top: 20%;
+	}
+}
+@media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (max-width: 1024px){ 
+	#kitchen article {
+		top: 15%;
+		left: 0.5%;
+		margin-right: auto;
+	}
+	#kitchen main { 
+		font-size: 32px;
+    		text-align:-webkit-center;
+		margin-left:auto;
+		margin-right:auto;
+		width: 66%;
+	} 
+	#kitchen sub {
+		font-size: 18px;
+		text-align:-webkit-center;
+		margin-left: auto;
+		margin-right: auto;
+		width: 66%;
+		
+	}
 }
