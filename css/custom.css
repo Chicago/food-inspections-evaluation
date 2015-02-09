@@ -238,6 +238,7 @@ a.twitter-hashtag-button:focus {
     margin-right: -50%;
     transform: translate(-50%, -50%);	
     text-align:-webkit-center;
+    text-align:center;
 }
 
 #kitchen main,sub{
@@ -305,11 +306,13 @@ a.twitter-hashtag-button:focus {
 		margin-left: auto;
 		margin-right: auto;
 		text-align:-webkit-center;
+		text-align: center;
 	}
 	#kitchen sub {
 		margin-left: auto;
 		margin-right: auto;
 		text-align:-webkit-center;
+		text-align: center;
 	}
 	
 	
