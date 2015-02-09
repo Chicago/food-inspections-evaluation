@@ -369,6 +369,7 @@ a.twitter-hashtag-button:focus {
 and (min-device-width : 768px) 
 and (max-device-width : 1024px)  { 
 	#kitchen {
+		background: url(../img/kitchen_tablet2.png);
 		/* 50% 0; no-repeat fixed;*/
 		background-size: 100% 100%;
 		background-repeat: no-repeat;
