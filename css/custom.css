@@ -282,7 +282,7 @@ a.twitter-hashtag-button:focus {
 }
 
  
-@media all and (max-width: 2048px) { 
+@media all and (max-width: 1024px) { 
 	#kitchen {
 		background: url(../img/kitchen.png);
 		background-size: 100% 100%;
@@ -322,7 +322,7 @@ a.twitter-hashtag-button:focus {
 		top: 20%;
 	}
 }
-@media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (max-width: 2048px){ 
+@media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (max-width: 1024px){ 
 	#kitchen article {
 		top: 15%;
 		left: 0.5%;
