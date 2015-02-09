@@ -288,7 +288,6 @@ a.twitter-hashtag-button:focus {
 		background: url(../img/kitchen_tablet3.png);
 		/*background-size: 100% 100%;*/
 		background-repeat: no-repeat;
-		background-size: cover;
 		-webkit-background-size: cover;
 		background-position: center;
 		background-attachment: fixed;
