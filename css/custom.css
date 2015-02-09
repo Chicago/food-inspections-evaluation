@@ -295,7 +295,7 @@ a.twitter-hashtag-button:focus {
 		/*margin: 0 auto;*/
 		width: 100%;
 		/*margin: 0 auto;*/
-		max-width: 480px;
+		//max-width: 480px;
 		position: relative;
 		display: inline-block;
     		vertical-align: left;
