@@ -4,3 +4,6 @@
 [submodule "fonts/league-spartan"]
 	path = fonts/league-spartan
 	url = https://github.com/theleagueof/league-spartan.git
+[submodule "journal-chicago"]
+	path = "assets/journal-chicago"
+	url = https://github.com/Chicago/journal-chicago.git
