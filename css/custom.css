@@ -331,10 +331,7 @@ a.twitter-hashtag-button:focus {
 		left: 0.5%;
 		margin-right: auto;
 		height: 200px;
-		display: -webkit-flex; /* Safari */
-    		-webkit-align-items: center; /* Safari 7.0+ */
-    		display: flex;
-    		align-items: center;
+
 		
 	}
 	#kitchen main { 
