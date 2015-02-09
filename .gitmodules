@@ -1,3 +1,6 @@
 [submodule "github-buttons"]
 	path = github-buttons
 	url = https://github.com/mdo/github-buttons.git
+[submodule "fonts/league-spartan"]
+	path = fonts/league-spartan
+	url = https://github.com/theleagueof/league-spartan.git

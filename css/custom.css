@@ -39,7 +39,7 @@ body {
 	}
 
 h1,.h1 {
-	font-family: Futura, Futura-Medium, "Futura Medium", "Century Gothic", CenturyGothic, "Apple Gothic", AppleGothic, "URW Gothic L", "Avant Garde", "Questrial" sans-serif;
+	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "sans-serif";
 	font-size: 64px;
 	font-weight: bold;
 	color: black;
@@ -236,7 +236,7 @@ a.twitter-hashtag-button:focus {
 }
 
 #kitchen main,sub{
-	font-family: Futura, Futura-Medium, "Futura Medium", "Century Gothic", CenturyGothic, "Apple Gothic", AppleGothic, "URW Gothic L", "Avant Garde", "Questrial" sans-serif;
+	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "sans-serif";
 	color: white;
 	margin-left: auto;
 	margin-right: auto;
