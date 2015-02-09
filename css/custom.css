@@ -282,7 +282,7 @@ a.twitter-hashtag-button:focus {
   	}
 }
 
- 
+/* So that mobile devices use the smaller iamge and corresponding changes */ 
 @media all and (max-width: 1024px) { 
 	#kitchen {
 		background: url(../img/kitchen_tablet.png);
@@ -316,7 +316,7 @@ a.twitter-hashtag-button:focus {
 	
 } 
 /*@media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} */
-
+/* Desktop Safari */
 @media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) { 
 	#kitchen article {
 		left: 2%;
@@ -340,6 +340,7 @@ a.twitter-hashtag-button:focus {
 		
 	}
 }
+/* iPhones */
 @media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (max-width: 768px){ 
 	#kitchen article {
 		top: 15%;
@@ -363,6 +364,7 @@ a.twitter-hashtag-button:focus {
 		
 	}
 }
+/* For iPad */
 @media only screen 
 and (min-device-width : 768px) 
 and (max-device-width : 1024px)  { 
