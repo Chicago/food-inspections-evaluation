@@ -232,10 +232,11 @@ a.twitter-hashtag-button:focus {
 }
 
 #kitchen article{
-	position: absolute;
+/*	position: absolute;
 	top: 50%;
 	left:50%;
-	margin-right:-50%;
+	margin-right:-50%;*/
+	margin: 10% 0 0 0;
     	transform: translate(-50%, -50%);	
     	text-align:-webkit-center;
     	text-align: center;
@@ -326,8 +327,8 @@ a.twitter-hashtag-button:focus {
 }
 @media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) { 
 	#kitchen article {
-		top: 15%;
-		left: 0.5%;
+		/*top: 15%;*/
+		/*left: 0.5%;*/
 		margin-right: auto;
 		text-align:center;
 		text-align:--webkit-center;
@@ -336,16 +337,16 @@ a.twitter-hashtag-button:focus {
 	#kitchen main { 
 		font-size: 32px;
     		text-align:-webkit-center;
-		margin-left:auto;
-		margin-right:auto;
+		/*margin-left:auto;*/
+		/*margin-right:auto;*/
 		width: 66%;
 		display:inline-block;
 	} 
 	#kitchen sub {
 		font-size: 18px;
 		text-align:-webkit-center;
-		margin-left: auto;
-		margin-right: auto;
+		/*margin-left: auto;*/
+		/*margin-right: auto;*/
 		display:inline-block;
 		width: 66%;
 	}
