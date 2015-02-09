@@ -321,22 +321,6 @@ a.twitter-hashtag-button:focus {
 	#kitchen article {
 		left: 2%;
 		top: 20%;
-		margin-right: auto;
-		margin-left:auto;
-	}
-	#kitchen main { 
-		font-size: 32px;
-    		text-align:-webkit-center;
-		margin-left:auto;
-		margin-right:auto;
-		width: 66%;
-	} 
-	#kitchen sub {
-		font-size: 18px;
-		text-align:-webkit-center;
-		margin-left: auto;
-		margin-right: auto;
-		width: 66%;
 		
 	}
 }
