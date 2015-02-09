@@ -238,6 +238,7 @@ a.twitter-hashtag-button:focus {
     margin-right: -50%;
     transform: translate(-50%, -50%);	
     text-align:-webkit-center;
+    text-align: center;
 }
 
 #kitchen main,sub{
