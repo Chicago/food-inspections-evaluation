@@ -339,6 +339,7 @@ a.twitter-hashtag-button:focus {
 		margin-left:auto;
 		margin-right:auto;
 		width: 66%;
+		display:inline-block;
 	} 
 	#kitchen sub {
 		font-size: 18px;
@@ -346,7 +347,7 @@ a.twitter-hashtag-button:focus {
 		margin-left: auto;
 		margin-right: auto;
 		width: 66%;
-		
+		display:inline-block;
 	}
 }
 @media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) and (min-width: 768px){
