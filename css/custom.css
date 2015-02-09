@@ -378,6 +378,8 @@ and (max-device-width : 1024px)  {
 		width: 100%;
 		margin: 0 auto;
 		position: relative;
+		display: inline-block;
+    		vertical-align: left;
 		
 	} 
 	#kitchen main {
