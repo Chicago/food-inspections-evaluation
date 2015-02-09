@@ -285,7 +285,7 @@ a.twitter-hashtag-button:focus {
 /* So that mobile devices use the smaller iamge and corresponding changes */ 
 @media all and (max-width: 1024px) { 
 	#kitchen {
-		background: url(../img/kitchen_tablet2.png);
+		background: url(../img/kitchen_tablet.png);
 		background-size: 100% 100%;
 		background-repeat: no-repeat;
 		/*background-size: cover;*/
@@ -369,7 +369,7 @@ a.twitter-hashtag-button:focus {
 and (min-device-width : 768px) 
 and (max-device-width : 1024px)  { 
 	#kitchen {
-		
+		background: url(../img/kitchen.jpg);
 		/* 50% 0; no-repeat fixed;*/
 		background-size: 100% 100%;
 		background-repeat: no-repeat;
