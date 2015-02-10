@@ -1,21 +1,24 @@
-# How to contribute
+# How to Contribute
 
-We welcome volunteer efforts to improve the predictive model we have built. We are open to suggestions about using alternative models as well. Show us that your model performs better and we will incorporate it and acknowledge your help. 
+We welcome efforts to improve this proect, and we are open to contributions for model improvements, process immprovements, and general good ideas.  Please use this guide to help structure your contributions and to make it easier for us to consider your contributions and provide feedback.  If we do use your work we will acknowledge your contributions to the best of ability, and all contributions will be govenred under the license terms speified in the LICENSE.md file in this project. 
+
+In general we use the structure provided by github for our work flow management, so if you're new to github please see this guide first: https://guides.github.com/activities/contributing-to-open-source/#contributing
+
+Your contributions have the potential to have a positive impact on not just us, but everyone who is impacted by anyone who uses this project.  So, consider that a big thanks in advance.
 
 ## Reporting an Issue
 
-Food Inspections Evaluation uses [GitHub Issue Tracking](https://github.com/Chicago/food-inspections-evaluation/issues) to track issues (primarily bugs and contributions of new code). If you've found a bug in Food Inspections Evaluation, this is the place to start. 
+Food Inspections Evaluation uses [GitHub Issue Tracking](https://github.com/Chicago/food-inspections-evaluation/issues) to track issues. This is usually a good plase to start, and can be a helpful place to manage both technical and non-technical issues. 
 
-
-## Submitting changes
+## Submitting Code Changes
 
 Please send a [GitHub Pull Request to City of Chicago](https://github.com/chicago/food-inspections-evaluation/pull/new/master) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). Always write a clear log message for your commits. 
 
-
 ## Demostrating Model Performance
 
-We welcome improvements to the analytic model that creates predictions for the Department of Public Health. The city may adopt a pull request that sufficiently improves the accuracy and prediction, thus, allowing you to contribute to the inspection practice for the City.
-If your pull request is to improve the model, please consider the following steps when submitting a pull request.
+WWe welcome improvements to the analytic model that creates predictions for the Department of Public Health. The city may adopt a pull request that sufficiently improves the accuracy and prediction, thus, allowing you to contribute to the inspection practice for the City.
+
+If your pull request is to improve the model, please consider the following steps when submitting a pull request:
 * Identify how your model is improving prior results
 * Run a test using the benchmark data provided in the repository
 * Create a pull request which describes those improvements in the description.
@@ -37,4 +40,4 @@ If you would like to submit an improvement, please open a pull request that note
 
 Model improvements that include new data must use data that is freely (*gratis* or *libre*) to the City of Chicago. There must not be any terms that would prohibit the City from storing data.on local servers.
 
-Likewise, by submitting a pull request, you agree that the City of Chicago will be allowed to use your code for analytic purposes and that your software will be licensed under the licensing found on LICENSE.md in this repository.
+Likewise, by submitting a pull request, you agree that the City of Chicago will be allowed to use your code for analytic purposes and that your software will be licensed under the licensing found in LICENSE.md in this repository.
