@@ -51,7 +51,7 @@ body {
 	}
 
 h1,.h1 {
-	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "sans-serif";
+	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "Arial", sans-serif";
 	font-size: 64px;
 	font-weight: bold;
 	color: black;
@@ -255,7 +255,7 @@ a.twitter-hashtag-button:focus {
 }
 
 #kitchen main,sub{
-	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "sans-serif";
+	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "Arial", "sans-serif";
 	color: white;
 	margin-left: auto;
 	margin-right: auto;
