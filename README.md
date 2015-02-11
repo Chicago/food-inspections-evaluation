@@ -53,7 +53,7 @@ To get started, first grab the code using the following steps. The [submodule](h
 
 ```
 git clone https://github.com/Chicago/food-inspections-evaluation.git
-cd assets/
+cd REPORTS/assets/
 git submodule init
 git submodule update
 
