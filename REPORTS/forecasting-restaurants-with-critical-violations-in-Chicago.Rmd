@@ -312,7 +312,11 @@ Other variables based on the food inspection history include: time since last in
 
 ## Business License History
 
-Food inspection history is combined with business license data published by BACP. Any food seller must be licensed by the City, but must also obtain licenses for other activities, such as cigarette sales and liqour licenses. The license data provides other information about the business, including when cetain licenses were first obtained--an approximation for the age of business.
+Food inspection history is combined with business license data published by BACP. Any food seller must not only be licensed by the City but also obtain licenses for other activities, such as cigarette sales and liqour licenses before they can start selling such items. The license data provides other information about the business, including when certain licenses were first obtained--an approximation for the age of business which allows for calculating age of the food establishment at inspection. 
+
+Food inspection and Business license datasets are matched based on business names and business addresses. License description information found in the BACP data is also added to the analysis-ready data set. It lists whether a food establishment is a retail food establishment or a tobaco retail over the counter. The BACP data also consists of information whether the license is active or not, when was the application for obtaining a license to do business was filed among other information. 
+
+The BACP dataset is important in the sense that in combination with the Food Inspection dataset it curates a full list of all restaurants in the city on which predictions can be made. 
 
 
 
