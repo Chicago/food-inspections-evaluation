@@ -1,0 +1,3 @@
+[submodule "REPORTS/ASSETS/journal-chicago"]
+	path = REPORTS/ASSETS/journal-chicago
+	url = https://github.com/Chicago/journal-chicago
