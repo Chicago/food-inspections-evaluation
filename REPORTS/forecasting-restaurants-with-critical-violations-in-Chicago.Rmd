@@ -67,7 +67,11 @@ rm(confusion_values_test, dat, errors, errorsTest, iiTest, iiTrain,
 
 ## List objects (besides functions) to check with comments above:
 geneorama::lll()
+
+## Load Food Inspection Data
+food <- readRDS("DATA/food_inspections.Rds")
 ```
+
 
 ```{r, echo=FALSE}
 ## Set global knitr option to NOT echo code
@@ -155,17 +159,79 @@ crit_viol_cumulative <- data.table(
                datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
 ```
 
-> The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper develops a predictive model design to identify the likelihood any restaurant that contains critical violations. Since CDPH is obligated to inspect every food establishment, the goal of the model is to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. In testing, the predictive model was able to identify 23 percent more violations than current operations.
+> The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper describes a predictive model designed to identify the presence of a critical violation in a particular food establishment. The goal of this model is to priortize inspections by likelyhood in order to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. Critical violations were identified approximately 7.4 days earlier over a 60 day period comapred to current operations in the out-of-sample test.
 
 # Introduction
 
-The [Chicago Department of Public Health](http://www.cityofchicago.org/city/en/depts/cdph.html) inspects more than 15,000 restaurants with fewer than three dozen inspectors. City of Chicago ordinance requires that most of these establishments must be inspected at least once a year. The task to inspect each restaurant, while also performing other inspections, is completed over the year. 
+In 2014 the [Chicago Department of Public Health](http://www.cityofchicago.org/city/en/depts/cdph.html) inspected performed over 20,000 inspections at nearly 13,000 food establishments across Chicago with fewer than three dozen inspectors. Traditionally, priortizing these inspections is a largely manual task that relies on a combination of ordinance requirements, a complaint process, and the experience and expertise of the inspection team.
 
-CDPH conducts three different types of inspections. First, CDPH conducts license inspections for any new establishment with a food license prior to the establishment opening. Each establishment must pass this initial inspection before it is allowed to serve food to patrons. Second, CDPH will conduct canvas inspections; periodic inspections to check the quality of sanitary conditions. The number and frequency of inspections is driven by the type of facility and how it prepares food, inspecting the riskiest restaurants at least two times a year.
+```{r, results='hide'}
+## These are the calculations to support the rounded numbers in the previous
+## paragraph
 
-License inspections are coordinated with [Business Affairs and Consumer Protection (BACP)](http://www.cityofchicago.org/city/en/depts/bacp.html), who grants food establishment licenses to new establishments. The quantity and location of these inspections is driven by license applications, thereby, dependent on the economy, entrepreneurship, and other outside factors beyond the control of the City. These inspections can be characterized as routine, but not a guarantee to pass. Establishments fail these initial inspections because they have not yet finished setting-up equipment, such as turning-on a refrigerator, or have not finished construction. Under these circumstances, CDPH will re-inspect those establishments to ensure those conditions are passed before they are allowed to open.
+## Total inspections by Risk
+food[year(Inspection_Date)==2014 & grepl("Risk", Risk), .N, keyby=Risk]
+food[year(Inspection_Date)==2014 & grepl("Risk", Risk), .N, keyby=Risk][,sum(N)]
+## Licenses inspected by Risk
+food[year(Inspection_Date)==2014 & grepl("Risk", Risk), .N,list(License, Risk)][
+    i=TRUE, .N, keyby=Risk]
+food[year(Inspection_Date)==2014 & grepl("Risk", Risk), .N,list(License, Risk)][
+    i=TRUE, .N, keyby=Risk][,sum(N)]
+```
 
-Complaints are registered from residents, alderman, and referrals from hospitals. Often, these requests are driven through the City of Chicago's 311 system, which can be submitted through residents calling 311 or submitting a request through an online form. Individuals are asked to submit where they believe they contracted food poisoning, the address of the establishment, describe the symptoms and what was eaten, and when it happened. CDPH reviews the materials and may initiate a food inpsection if it does seem the illness and restaurant can be linked together.
+The guidelines for inspecting food establishments provides a limited degree of priortization.  Food Establishments are classified into three risk categories from Risk 1 to Risk 3, where Risk 1 Establishments are the establishments that represent the greatest risk to consumers.  However, this does little to focus the problem because Risk 1 Food Establishments includes most restaurants and many other types of food establishments.
+
+```{r}
+risk_2014 <- food[year(Inspection_Date)==2014 & grepl("Risk", Risk),
+     .N,list(License, Risk)]
+risk_2014_table <- rbind(risk_2014[,.N,keyby=Risk], 
+                         data.table(Risk = "TOTAL", 
+                                    N = nrow(risk_2014)))
+risk_2014_table <- risk_2014_table[
+    i = TRUE, 
+    j = list(`Risk Category` = Risk, 
+             `Count of Licenses` = geneorama::comma(N))]
+kable(risk_2014_table, align = c("l", "r"))
+
+ggplot(risk_2014) + 
+    aes(x = Risk) + 
+    labs(title=paste0('Breakdown of Food Establishments\n',
+                      'by Risk Classification\n') ) +
+    geom_bar() + 
+    # guides(fill=FALSE) +
+    # scale_y_continuous(labels = percent) +
+    xlab("") + ylab("") + theme(legend.position="none")
+```
+
+CDPH conducts three different types of inspections; regular canvass inspections, new license inspections, and inspections in response to a complaint. 
+
+Initially, CDPH conducts license inspections for any new Food Establishments prior to the establishment opening. New license inspections are coordinated with [Business Affairs and Consumer Protection (BACP)](http://www.cityofchicago.org/city/en/depts/bacp.html), who grants food establishment licenses to new establishments. Each establishment must pass this initial inspection before it is allowed to serve food to patrons, however re-inspections are quite common. Establishments often fail these initial inspections because they have not yet finished setting-up equipment, such as turning-on a refrigerator, or have not finished construction. Under these circumstances, CDPH will re-inspect those establishments to ensure those conditions are passed before they are allowed to open.  Also, these need for inspections is driven by license applications. These inspections are not used in the model because they are not characteristic of normal inspections, and their prioritization is driven by the application process.
+
+The majority of the food inspections are regular canvass visits, which must be done on a regular basis to check the quality of sanitary conditions. The number and frequency of inspections is driven by the type of facility and how it prepares food, inspecting the riskiest restaurants at least two times a year.  If a restaurant fails the inspction, because of citations, the inspector will return at a later date to see if the situation has been remediated.  Currently regular canvas visits are the only type of inspection included in the model.
+
+The third type of inspection occurs when complaints are registered from residents, alderman, and referrals from hospitals. Often, these requests are driven through the City of Chicago's 311 system, which can be submitted through residents calling 311 or submitting a request through an online form. Individuals are asked to submit where they believe they contracted food poisoning, the address of the establishment, describe the symptoms and what was eaten, and when it happened. CDPH reviews the materials and may initiate a food inpsection if it does seem the illness and restaurant can be linked together.
+
+A breakdown of the inspection types in 2014:
+
+```{r}
+geneorama::set_project_dir("food-inspections-evaluation")
+source("CODE/functions/categorize.R")
+# food[year(Inspection_Date)==2014,.N,Inspection_Type][order(-N)]
+insp_types_2014 <- food[year(Inspection_Date)==2014, list(Inspection_Type)]
+# insp_types_2014
+main_inspection_types <- c("Canvass", "Canvass Re-Inspection", 
+                           "License", "License Re-Inspection",
+                           "Complaint", "Short Form Complaint",
+                           "Complaint Re-Inspection")
+insp_types_2014 <- insp_types_2014[
+    i = TRUE , 
+    j = Inspection_Type := categorize(x = Inspection_Type, 
+                                      primary = main_inspection_types)]
+kable(insp_types_2014[i = TRUE,
+                      list(`2014 Count` = geneorama::comma(.N)), 
+                      keyby = Inspection_Type][c(main_inspection_types, "Other")], 
+      align = c("l", "r"))
+```
 
 Uniquely, CDPH also encourages submissions through the [Foodborne Chicago](http://www.cdc.gov/mmwr/preview/mmwrhtml/mm6332a1.htm) program. [Machine learning algorithms](https://github.com/smartchicago/foodborne) scans Twitter for individuals complaining or indicating potential food poisioning cases. These tweets are identified and a human will contact the user, providing a link and information on how they can [report their complaint](https://www.foodbornechicago.org/) to CDPH. In a nine-month span, 133 food inspections were instigated from this program, where 20 percent (27 instances) of those inspections resulted in critical violations `r citep(biblio[[2]])`.
 
@@ -261,11 +327,15 @@ The largest source of influence in the model was which sanitarian performed the 
 A summary of the model coefficient is presented below:
 
 ```{r table_of_coefficients}
-
+# coef_df <- data.frame(Variables = names(coef),
+#                       Coefficients = coef)
 knitr::kable(data.table(Variables = names(coef),
                         Coefficients = coef), 
              digits=3, 
              caption="Table of Coefficients")
+# kable(as.data.frame(coef), format="html", caption="hi")
+# kable(head(iris), format = "html", caption = "Title of the table")
+
 ```
 
 # Evaluation

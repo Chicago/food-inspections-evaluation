@@ -37,16 +37,27 @@
 
 categorize <- function(x, primary, other = "Other", ...){
     primary <- rev(primary)
+    ## intitialize a new vector ret to be returned
     ret <- vector(mode=mode(x), length = length(x))
     ret[] <- NA
-    cat_names <- names(primary)
-    for(i in 1:length(primary)){
-        if(cat_names[i] == "") cat_names[i] <- primary[[i]]
+    ## Get category names
+    if(is.null(names(primary))){
+        ## If no names are specified use "primary" directly
+        cat_names <- unlist(primary)
+    } else {
+        ## If names are specified use primary's names, unless missing
+        cat_names <- names(primary)
+        for(i in 1:length(primary)){
+            if(cat_names[i] == "") cat_names[i] <- primary[[i]]
+        }
     }
+    ## Set the new vector to the primary category when it matches a primary name
     for(i in 1:length(primary)){
-        ret[grep(primary[i], x, ...)] = cat_names[i]
+        ret[grep(paste0("^" , primary[i], "$"), x, ...)] = cat_names[i]
     }
+    ## otherwise set it to the "other" label
     ret[which(is.na(ret))] <- other
+    
     return(ret)
 }
 
