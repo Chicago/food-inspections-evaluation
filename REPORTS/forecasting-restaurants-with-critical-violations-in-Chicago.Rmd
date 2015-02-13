@@ -336,16 +336,21 @@ rownames(coefficients(model))
 # geneorama::clipper(rownames(coefficients(model)))
 ```
 
-Variable Name (Literal)                     | Variable Description
---------------------------------------------|-----------------------------------
-`Inspectorblue` `Inspectorbrown` `Inspectorgreen` `Inspectororange` `Inspectorpurple` `Inspectoryellow`                                   | Indicator variables for the category of inspector
-`pastCritical`                                | Indicates if the previous inspection resulted in any critical violations
-`pastSerious`                                 | Indicates if the previous inspection resulted in any serious violations
+Variable Name (Literal)                       | Variable Description
+----------------------------------------------|---------------------------------
+`Inspectorblue`                               | Indicator variable for Sanitarian Cluster 1
+`Inspectorbrown`                              | Indicator variable for Sanitarian Cluster 2
+`Inspectorgreen`                              | Indicator variable for Sanitarian Cluster 3
+`Inspectororange`                             | Indicator variable for Sanitarian Cluster 4
+`Inspectorpurple`                             | Indicator variable for Sanitarian Cluster 5
+`Inspectoryellow`                             | Indicator variable for Sanitarian Cluster 6
+`pastCritical`                                | Indicates any previous critical violations (last visit)
+`pastSerious`                                 | Indicates any previous serious violations (last visit)
 `timeSinceLast`                               | Elapsed time since previous inspection
 `ageAtInspection`                             | Age of business license at the time of inspection
-`consumption_on_premises_incidental_activity` | Presence of an additional license for consumption / incidental activity
+`consumption_on_premises_incidental_activity` | Presence of a license for consumption / incidental activity
 `tobacco_retail_over_counter`                 | Presence of an additional license for tobacco sales
-`temperatureMax`                              | The daily high temperature in Chicago on the day of inspection
+`temperatureMax`                              | The daily high temperature on the day of inspection
 `heat_burglary`                               | Local intensity of recent burglaries
 `heat_sanitation`                             | Local intensity of recent sanitation complaints
 `heat_garbage`                                | Local intensity of recent garbage cart requests
@@ -424,10 +429,11 @@ Note that this experimental design is assumed to yield the name number of restau
 
 CDPH completed `r geneorama::comma(datTest[, .N])` inspections between `r datTest[ , as.POSIXct(min(Inspection_Date))]` and `r datTest[ , as.POSIXct(max(Inspection_Date))]`. During this time, CDPH found `r datTest[ , sum(criticalFound)]` violations, `r datTest[ , paste0(round(100*(sum(criticalFound)/.N), 1), "%")]`percent of all inspections. The rate of violations is consistent with the historical average of approximately 15 percent. While the rate of violations is slightly higher, it is close enough where we do not suspect this period is abnormal, thus, a valid comparison for our evaluation.
 
-```{r bar_graph_comparing_BAU_and_model_in_first_half}
+```{r bar_graph_comparing_BAU_and_model_in_first_half, fig.show='hold', fig.width=3}
 ggplot(crit_viol_rate) + 
     aes(x = Regime, y = values) + 
-    labs(title=paste0('Percentage of inspections resulting in a critical violation\n',
+    labs(title=paste0('Percentage of inspections\n',
+                      'resulting in a critical violation\n',
                       'during Period 1\n') ) +
     geom_bar(stat = "identity") + 
     # guides(fill=FALSE) +
@@ -436,7 +442,8 @@ ggplot(crit_viol_rate) +
 
 ggplot(crit_viol_cumulative) + 
     aes(x = factor(Regime), y = values) + 
-    labs(title=paste0('Percentage of period 1 & period critical violations\n',
+    labs(title=paste0('Percentage of period 1 &\n',
+                      'period 2 critical violations\n',
                       'found in Period 1\n') ) +
     geom_bar(stat = "identity") +
     # guides(fill=FALSE) +
@@ -448,7 +455,7 @@ On average, food establishments were identified `r sprintf("%0.2f", mean(time_di
 
 While the average gain was `r sprintf("%0.0f", mean(time_diff))` days, there was a significant range in the change. Some restaurants were identified `r max(time_diff)` days earlier than business-as-usual. Half of the crticial violations were identified over `r quantile(time_diff)[3]` days earlier while quarter of all violations were prioritized over `r quantile(time_diff)[4]` days sooner. Yet, some restaurants would be prioritized lower, `r sum(time_diff < 0)` restaurants were incorrectly prioritized lower and were found to have critical violations later--`r paste0(sprintf("%0.0f", sum(time_diff < 0) / length(time_diff)*100), "%")` of the observed critical violations.
 
-```{r graph_of_time_diff}
+```{r graph_of_time_diff, fig.width=6.5, fig.height=5.5}
 hist(as.numeric(time_diff),
 #      main = paste0("Distribution of the difference \n",
 #                    "in time to discover a critical violation"),
@@ -484,7 +491,7 @@ comp_summary_cumsum_subset <- comp_summary_cumsum[
              `Data Driven`)]
 ```
 
-```{r, fig.width=10}
+```{r, fig.width=10, fig.height=8}
 ggplot(melt(data = comp_summary_cumsum_subset, 
             id.vars = "\nInspection Date")) +
     aes(x = `\nInspection Date`, 
@@ -523,7 +530,7 @@ ggplot(
 
 The retrospective analysis allows us to surmise and compare to a "best case scenario", the most efficient order of restaurants to inspect based on their risk. In this case, we surmise the best case scenario is where every critical violation is found Below, a graph shows the difference between the most efficient path
 
-```{r, fig.width=10}
+```{r, fig.width=10, fig.height=8}
 ggplot(melt(data = comp_summary_cumsum, 
             id.vars = "\nInspection Date")) +
     aes(x = `\nInspection Date`, 
