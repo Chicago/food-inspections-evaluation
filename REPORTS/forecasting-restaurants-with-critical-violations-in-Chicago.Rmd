@@ -4,10 +4,10 @@ author: Tom Schenk (City of Chicago), Gene Leynes (City of Chicago), Aakash Sola
   (City of Chicago)
 date: '`r format(Sys.time(), "%B %d, %Y")`'
 output:
+  pdf_document:
+    number_sections: yes
   html_document:
     css: ASSETS/journal-chicago/css/journal-chicago.css
-    number_sections: yes
-  pdf_document:
     number_sections: yes
   word_document: default
 bibliography: references.bib
@@ -32,7 +32,7 @@ melt <- data.table:::melt.data.table
 
 ```
 
-```{r, echo=FALSE, results='hide', fig.show='hide', message=FALSE}
+```{r, echo=FALSE, results='hide', fig.show='hide', message=FALSE, warning=FALSE}
 ##==============================================================================
 ## RUN GLMNET MODEL
 ##==============================================================================
@@ -386,7 +386,7 @@ A review of the methods to find this solution is provided by `r citep(citation(p
 
 Several variables were found to be significant when building the model. Many variables were tested, some were discarded, and as time goes on many may find their way back into the model. 
 
-The past performance of food inspections was one of the leading indicators of current likelyhood for a critical violation. Both critical and serious violations from the previous inspection were used as a predictor of future performance. In effect, past performance perdicted future outcomes, with those with critical violations more likely to repeat those violations than even those with, at most, serious violations.
+The past performance of food inspections was one of the leading indicators of current likelihood for a critical violation. Both critical and serious violations from the previous inspection were used as a predictor of future performance. In effect, past performance predicted future outcomes, with those with critical violations more likely to repeat those violations than even those with, at most, serious violations.
 
 The elapsed time since the last violation was also a significant variable. The longer that it had been since an inspection the more likely the sanitarian was to find at least one critical violation. However, restaurants' scores decreased over the lifespan of the restaurant. As restaurants grow older, they are less likely to have critical violations while long time-periods between inspections increased the likelihood.
 
@@ -394,7 +394,7 @@ Environmental characteristics were also indicators of future performance. Trends
 
 Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include several types of complaints such as overflowing garbage cans, food left outside, or litter.
 
-The largest source of influence in the model was which sanitarian performed the inspection. We included the effect of the individual sanitarian, but we also anonomyzed the data to protect the individual identity of the sanitarian. Initial results with individual sanitarian coefficients were used to group the sanitarians into clusters. Those clusters were  then arbitrarily assigned color code names.  This masking had very little effect on the model performance, but makes it very difficult to tell which sanitarian performed which inspection.
+The largest source of influence in the model was which sanitarian performed the inspection. We included the effect of the individual sanitarian, but we also anonymized the data to protect the individual identity of the sanitarian. Initial results with individual sanitarian coefficients were used to group the sanitarians into clusters. Those clusters were  then arbitrarily assigned color code names.  This masking had very little effect on the model performance, but makes it very difficult to tell which sanitarian performed which inspection.
 
 A summary of the model coefficient is presented below:
 
@@ -426,7 +426,7 @@ The evaluation period lasted two months, from `r datTest[ , as.POSIXct(min(Inspe
 
 Meanwhile, we calculate the point predictions for each establishment using the training data from 2011 through 2014. The training data does not include the evaluation period so not to provide additional feedback from the evaluation period. We sort the establishments that were inspected during the evaluation in descending order of predicted values, placing the highest risk restaurants at the top of the list.
 
-We calculate the percentage of those restaurants that would be inspected in the first half if the predictive model was used. The difference between the percentage of establishments found with critical violations during this period reflects the relative gain or loss of efficiency. Finding a greater percentage of critical violations with the predictive model indicates results can be found earlier. A similiar or reduced amount indicates the predictive model provides no benefit or is less efficient, respectively.
+We calculate the percentage of those restaurants that would be inspected in the first half if the predictive model was used. The difference between the percentage of establishments found with critical violations during this period reflects the relative gain or loss of efficiency. Finding a greater percentage of critical violations with the predictive model indicates results can be found earlier. A similar or reduced amount indicates the predictive model provides no benefit or is less efficient, respectively.
 
 Note that this experimental design is assumed to yield the name number of restaurants found with critical violations. Indeed, under the premise that CDPH will inspect all restaurants, researchers will presume the number of violations will remain relatively the same. The objective of the model is to find critical violations earlier throughout the year.
 
@@ -509,7 +509,7 @@ ggplot(melt(data = comp_summary_cumsum_subset,
     theme(legend.position="bottom")
 ```
 
-By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately [0.2] per day and stays above [0.1] violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
+By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the violations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately [0.2] per day and stays above [0.1] violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
 ```{r, fig.width=10, fig.height=8}
 ggplot(
     melt(data = comp_summary[
