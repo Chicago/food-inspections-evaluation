@@ -2,12 +2,12 @@
 title: "Forecasting restaurants with critical violations in Chicago"
 author: Tom Schenk (City of Chicago), Gene Leynes (City of Chicago), Aakash Solanki
   (City of Chicago)
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
 output:
+  pdf_document:
+    number_sections: yes
   html_document:
     css: ASSETS/journal-chicago/css/journal-chicago.css
-    number_sections: yes
-  pdf_document:
     number_sections: yes
   word_document: default
 bibliography: references.bib
@@ -159,15 +159,8 @@ crit_viol_cumulative <- data.table(
                datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
 ```
 
-> The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper describes a predictive model designed to identify the presence of a critical violation in a particular food establishment. The goal of this model is to priortize inspections by likelyhood in order to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. Critical violations were identified approximately 7.4 days earlier over a 60 day period comapred to current operations in the out-of-sample test.
-
-# Introduction
-
-In 2014 the [Chicago Department of Public Health](http://www.cityofchicago.org/city/en/depts/cdph.html) inspected performed over 20,000 inspections at nearly 13,000 food establishments across Chicago with fewer than three dozen inspectors. Traditionally, priortizing these inspections is a largely manual task that relies on a combination of ordinance requirements, a complaint process, and the experience and expertise of the inspection team.
-
 ```{r, results='hide'}
-## These are the calculations to support the rounded numbers in the previous
-## paragraph
+## These are the calculations to support the rounded numbers in the introduction
 
 ## Total inspections by Risk
 food[year(Inspection_Date)==2014 & grepl("Risk", Risk), .N, keyby=Risk]
@@ -179,29 +172,57 @@ food[year(Inspection_Date)==2014 & grepl("Risk", Risk), .N,list(License, Risk)][
     i=TRUE, .N, keyby=Risk][,sum(N)]
 ```
 
-The guidelines for inspecting food establishments provides a limited degree of priortization.  Food Establishments are classified into three risk categories from Risk 1 to Risk 3, where Risk 1 Establishments are the establishments that represent the greatest risk to consumers.  However, this does little to focus the problem because Risk 1 Food Establishments includes most restaurants and many other types of food establishments.
+```{r}
+## Tables used in discussion of inspection types
+
+geneorama::set_project_dir("food-inspections-evaluation")
+source("CODE/functions/categorize.R")
+# food[year(Inspection_Date)==2014,.N,Inspection_Type][order(-N)]
+insp_types_2014 <- food[year(Inspection_Date)==2014, list(Inspection_Type)]
+# insp_types_2014
+insp_types_primary <- c("Canvass", "Canvass Re-Inspection", 
+                           "License", "License Re-Inspection",
+                           "Complaint", "Short Form Complaint",
+                           "Complaint Re-Inspection")
+insp_types_2014 <- insp_types_2014[
+    i = TRUE , 
+    j = Inspection_Type := categorize(x = Inspection_Type, 
+                                      primary = insp_types_primary)]
+```
+
 
 ```{r}
+## Tables used in discussion of risk types
+
 risk_2014 <- food[year(Inspection_Date)==2014 & grepl("Risk", Risk),
      .N,list(License, Risk)]
 risk_2014_table <- rbind(risk_2014[,.N,keyby=Risk], 
                          data.table(Risk = "TOTAL", 
                                     N = nrow(risk_2014)))
-risk_2014_table <- risk_2014_table[
+risk_2014_table_formatted <- risk_2014_table[
     i = TRUE, 
     j = list(`Risk Category` = Risk, 
              `Count of Licenses` = geneorama::comma(N))]
-kable(risk_2014_table, align = c("l", "r"))
 
-ggplot(risk_2014) + 
-    aes(x = Risk) + 
-    labs(title=paste0('Breakdown of Food Establishments\n',
-                      'by Risk Classification\n') ) +
-    geom_bar() + 
-    # guides(fill=FALSE) +
-    # scale_y_continuous(labels = percent) +
-    xlab("") + ylab("") + theme(legend.position="none")
 ```
+
+> The Chicago Department of Public Health (CDPH) inspects more than 15,000 restaurants with fewer than three dozen inspectors over the course of the year. This paper describes a predictive model designed to identify the presence of a critical violation in a particular food establishment. The goal of this model is to priortize inspections by likelyhood in order to identify the riskiest restaurants earlier, thereby reducing the length of exposure of risky restaurants to patrons. Critical violations were identified approximately `r sprintf("%0.2f", mean(time_diff))` days earlier over a 60 day period comapred to current operations in the out-of-sample test.
+
+# Introduction
+
+In 2014 the [Chicago Department of Public Health](http://www.cityofchicago.org/city/en/depts/cdph.html) inspected performed over 20,000 inspections at nearly 13,000 food establishments across Chicago with fewer than three dozen inspectors. The majority of these food inspections were routine inspections that don't uncover serious problems, but some of these inspections uncovered issues that affect the health and safty of the patrons who visit these establishments. Traditionally, priortizing these inspections is a largely manual task that relies on a combination of administrative processes and personal expertise. 
+
+In this paper a model is documented which can help with the prioritization of usual planned inspections. Though insights gained from several data sources and advanced modeling techniques, the model can provide additional insight into an establishment's actual risk based on real-time data. 
+
+This paper is organized as follows: Section 1 provides an introduction and background to describe the current process and scope of the problem. Section 2 describes data that has been collected by the research team for this project and how that data was combined. Section 3 describes the model.  Section 4 describes the model evaluation. Section 5 contains details of the model results from the experiment.  Finally, the Summary section concludes with a brief summary of results and information regarding the ongoing project.
+
+Ultimately, we find that a data-driven model can help inspectors discover critical violations earlier than the current "Business As Ususal" (BAU) process. On average, critical violations would have been discovered `r sprintf("%0.2f", mean(time_diff))` days earlier over the two-month period. The first half of the experiment yielded `r paste0(sprintf("%0.1f", crit_viol_rate[,diff(values)/values[1]]*100), "%")` higher successful inspections. Beginning in 2015, CDPH has begun to use this analytical model to prioritize canvas inspections. Each risk 1 and risk 2 restaurant will still undergo inspections; however, these restaurants with the highest likelihood of the most serious issues will be prioritized.
+
+It is worth nothing that this research is an open source project. The source code of the statistical model is available on the City of Chicago [food inspection project page](http://github.com/Chicago/food-inspections-evaluation). The statistical modeling was completed using the R statistical software, and all the necessary data to replicate these results is available online. This paper was generated using [knitr](http://yihui.name/knitr), which allows others to view the underlying calculations to generate the summaries, tables, and diagrams in this document. The document is available in the same aforementioned repository.
+
+## Background
+
+## Types of Inspections
 
 CDPH conducts three different types of inspections; regular canvass inspections, new license inspections, and inspections in response to a complaint. 
 
@@ -214,22 +235,9 @@ The third type of inspection occurs when complaints are registered from resident
 A breakdown of the inspection types in 2014:
 
 ```{r}
-geneorama::set_project_dir("food-inspections-evaluation")
-source("CODE/functions/categorize.R")
-# food[year(Inspection_Date)==2014,.N,Inspection_Type][order(-N)]
-insp_types_2014 <- food[year(Inspection_Date)==2014, list(Inspection_Type)]
-# insp_types_2014
-main_inspection_types <- c("Canvass", "Canvass Re-Inspection", 
-                           "License", "License Re-Inspection",
-                           "Complaint", "Short Form Complaint",
-                           "Complaint Re-Inspection")
-insp_types_2014 <- insp_types_2014[
-    i = TRUE , 
-    j = Inspection_Type := categorize(x = Inspection_Type, 
-                                      primary = main_inspection_types)]
 kable(insp_types_2014[i = TRUE,
                       list(`2014 Count` = geneorama::comma(.N)), 
-                      keyby = Inspection_Type][c(main_inspection_types, "Other")], 
+                      keyby = Inspection_Type][c(insp_types_primary, "Other")], 
       align = c("l", "r"))
 ```
 
@@ -237,41 +245,95 @@ Uniquely, CDPH also encourages submissions through the [Foodborne Chicago](http:
 
 The Foodborne program and 311 system has assisted CDPH in targeting and identifying complaint-driven requests. Yet, the department has a sizeable task to complete canvas inspections. Canvas inspections occur throughout the year and are somewhat random inspections of various restaurants. The process is key to checking and enforcing consistent food safety practices throughout the city. Identifying critical issues at restaurants help rectify those issues and reduce exposure to patrons. 
 
-The work is organized by CDPH-defined "risk levels", which are divided into three categories: risk 1 (highest), risk 2, and risk 3. The risk levels are determined by food handling practices required for each establishment. Restaurants and other establishments that directly handle ingredients and prepare food, such as needs to cool or heat food, are generally categorized as risk 1. The lowest risk generally consists of prepackages and non-perishable food. Risk level also drives frequency of inspection. Risk 1 facilities are inspected more frequently, with a target of at least twice a year; risk 2 are inspected at least once a year; and risk 3 is inspected once every other year.
+## Current Inspection Process - Risk Classes
 
-Risk levels do help prioritize inspections by focusing on establishments with the highest likelihood of spreading food born illnesses through categorization of food handling practices. However, [`r #percent(table(dat$Risk)[1]/sum(table(dat$Risk)))`] of those establishments in our dataset are categorized as risk 1. The high proportion of risk 1 establishments means there is still a substantial queue to be inspected. Yet, the work is certainly achievable. Assuming 32 inspectors, each inspector would need to complete [`r #format(round(table(dat$Risk)[1]/32/230, 0), nsmall=0)`] canvass inspections each working day---in addition to complaint-driven and new license inspections.
+The risk levels are determined by food handling practices required for each establishment. Restaurants and other establishments are generally categorized as risk 1 if they directly handle ingredients, prepare food, or if they cool or heat food. The lowest risk generally consists of prepackages and non-perishable food. 
 
-There are 42 different possible violations that can be cited by CDPH. Often, these violations are classified into three categories: critical, serious, and minor violations. Critical violations consist of 9 different violations that are most likely to create conditions for food born illnesses, such as failure to heat food to proper temperatures or to keep items properly fridgerated at the proper temperatures. Conversely, minor violations can be as simple as leaving a rag in the sink. Restaurants can fail their inspections with as little as one critical violation. Several serious and minor violations during an inspection can also lead to a failed outcome.
+The Risk level also drives frequency of inspection. Risk 1 facilities are inspected more frequently, with a target of two annual inspections; risk 2 are inspected at least once a year; and risk 3 is inspected once every other year.
 
-The clear priority of CDPH food inspection team is to prevent foodborne illnesses, which are most likely to stem from critical violations. With a [XX] risk 1 establishments to inspect throughout the year, the question also extends to which establishments should be inspected first. Fortunately, the city dollects data on multiple facets of food inspections, including the outcomes of inspections, information about businesses and their activities, and events around each food establishment, such as 311 complaints, crime, and even weather. Section 2 describes data that has been collected by the research team for this project.
+Although Risk levels help prioritize inspections by focusing on higher risk establishments, in 2014 [`r percent(risk_2014[Risk=="Risk 1 (High)",.N] / risk_2014[,.N])`] of the food establishment licenses were categorized as risk 1. The high proportion of risk 1 establishments means there is still a substantial queue to be inspected. 
 
-Section 3 describes how these data sources can be combined to show the relationship between the characteristics of a food seller with critical violations. We formulates a model to derive the likelihood for each establishment to have critical violations. This model can be used to prioritize which restaurants should be inspected first. By targeting the highest-probability restaurants, CDPH can minimize the amount of exposure restaurant patrons have to the unsanitary conditions that are most likely to lead to food born illnesses. This paper will focus on prioritizing inspections of risk 1 and risk 2 restaurants, since these must be inspected at least once a year.
+```{r, results='hide'}
+## Originally this calculation was used for the "number of inspections per day"
+## However, the risk variable is no longer in the data (since we're not using
+## it in the model)
+## Also, "dat" from the 30 file represented all the records that had no NA's
+## over the past several years, so it would be over counting each risk class
+## because it's not grouped by License
+# format(round(table(dat$Risk)[3]/32/230, 0), nsmall=0)
 
-After developing the statistical model to predict critical violations, the research team evaluates whether the model could optimize food inspection processes (section 4). Namely, the model is used to determine how much faster the food inspection team can discover critical violations. The team uses a simulation to compare real-life results to an alternate, data-driven arrangement.
+## This is closer to the desired calculation, but the result doesn't seem right
+## (I think we have fewer than 32 full time inspectors)
+format(round(risk_2014_table[Risk=="Risk 1 (High)", N]/32/230, 0), nsmall=0)
 
-Section 5 summarizes the results of the paper. Ultimately, we find that a data-driven model can help inspectors discover critical violations earlier than normal. On average, critical violations would have been discovered `r sprintf("%0.2f", mean(time_diff))` days earlier over the two-month period. The first half of the experiment yielded `r paste0(sprintf("%0.1f", crit_viol_rate[,diff(values)/values[1]]*100), "%")` higher successful inspections. Beginning in 2015, CDPH has begun to use this analytical model to prioritize canvas inspections. Each risk 1 and risk 2 restaurant will still undergo inspections; however, these restaurants with the highest likelihood of the most serious issues will be prioritized.
+## Original paragraph:
+## Although Risk levels help prioritize inspections by focusing on higher risk establishments, in 2014 [`r percent(risk_2014[Risk=="Risk 1 (High)",.N] / risk_2014[,.N])`] of the food establishment licenses were categorized as risk 1. The high proportion of risk 1 establishments means there is still a substantial queue to be inspected. Yet, the work is certainly achievable. Assuming 32 inspectors, each inspector would need to complete [`r format(round(table(dat$)[3]/32/230, 0), nsmall=0)`] canvass inspections each working day---in addition to complaint-driven and new license inspections.
+```
 
-Finally, it is worth nothing that this research is an open source project. The source code of the statistical model is available on the City of Chicago [food inspection project page](http://github.com/Chicago/food-inspections-evaluation). The statistical modeling was completed using the R statistical software, with all the necessary data available online. This paper was generated using [knitr](http://yihui.name/knitr), which allows others to view the underlying calculations to generate the summaries, tables, and diagrams in this document. The document is available in the same aforementioned repository.
+A summary of the risk types appears below:
+
+```{r}
+kable(risk_2014_table_formatted, align = c("l", "r"))
+
+ggplot(risk_2014) + 
+    aes(x = Risk) + 
+    labs(title=paste0('Breakdown of Food Establishments\n',
+                      'by Risk Classification\n') ) +
+    geom_bar() + 
+    # guides(fill=FALSE) +
+    # scale_y_continuous(labels = percent) +
+    xlab("") + ylab("") + theme(legend.position="none")
+```
 
 # Data
 
+Multiple sources of data were used in the development of the model, including information about previous food inspections, information about business licenses, information about associated business licenses, and events around each food establishment, such as 311 complaints, crime, and even weather. Thanks to a long-standing progressive stance on information technology and data collection, the City of Chicago has world class data in terms of quality, availablity, and accessibility. Data availability was a key factor in the ability to build this model. 
+
 The City of Chicago publishes over 600 datasets on the [open data portal](https://data.cityofchicago.org), including the results of food inspections from 2011 to present. The [food inspection dataset](https://data.cityofchicago.org/Health-Human-Services/Food-Inspections/4ijn-s7e5) includes the name of the establishment, address, risk level, inspection date, results, and a detailed list of violations found during the inspection.
 
-At this time, the food inspection database is not hosted by the City of Chicago, instead, a file of all food inspections are sent to the City of Chicago open data team on a daily basis, which is automatically uploaded to the portal every morning. Thus, the rawest form of data available to the research team was the data available on the open data portal.
+At this time, the food inspection database is not hosted by the City of Chicago, instead, a file of all food inspections are sent to the City of Chicago open data team on a daily basis, which is automatically uploaded to the online data portal every morning. Thus, the rawest form of data available to the research team was the same data available on the open data portal.
 
 In addition, the City also publishes other relevant data on the portal, including: business licenses from 2011 to present, detailed crime data from 2011 to present, and various 311 data, including garbage and sanitation complaints.
 
+## Food Inspection History
+
+For modeling purposes this data set formed the basis of our analysis.  Each regular canvass inspection was considered as an observation in the model.  We excluded inspection records that didn't result in an inspection because the business was closed.  We also filtered our data to only include Retail Food Establishments, which excluded establishments such as schools and hospitals. We believe that these establishments have different risk characteristics that are not generalizable across the entire population, and their inspection schedules follow a different planning process.
+
+Each historical inspection record contained an "Inspection Key" that made it possible to uniquely identify and group inspections. Also, each record contained a license number which could later be tied back to the original business license.
+
+Several model variables were created based on the food inspection history. Most importantly, the inspection history was a strong indicator. Separate variables were calculated to capature the presence of a previous inspection failure, serious violation, or critical violation.  Currently the model looks at the previous inspection.
+
+There are 42 different possible violations that can be cited by CDPH. Often, these violations are classified into three categories: critical, serious, and minor violations. Critical violations consist of 14 different violations that are most likely to create conditions for food born illnesses, such as failure to heat food to proper temperatures or to keep items properly fridgerated at the proper temperatures. Conversely, minor violations can be as simple as leaving a rag in the sink. Restaurants can fail their inspections with as little as one critical violation, however serious and minor violations during an inspection can also culminate to a failed outcome.
+
+Other variables based on the food inspection history include: time since last inspection, if this inspection is the first recorded inspection, and (not _currently_ used) the facility type.
+
+## Business License History
+
 Food inspection history is combined with business license data published by BACP. Any food seller must be licensed by the City, but must also obtain licenses for other activities, such as cigarette sales and liqour licenses. The license data provides other information about the business, including when cetain licenses were first obtained--an approximation for the age of business.
+
+
+
+
+
+
+
+
+
+
+## Event Data
 
 The location of the businesses are used to calculate nearby activity. Several variables were explored, but after conduting some data mining, we settled on burglaries, sanitation code complaints, and garbage cart requests. The density of each activity was calculated and stored.
 
 Weather data was obtained from [forecast.io](www.forecast.io). The data contains a significant wealth of information on not only highs, lows, and percipitation, but also on granular weather forecasts for any latitude and longitude. After several conversations with CDPH staff, we focused on the relationship of temperatures and inspections. High temperatures can lead to issues to cooling food within a food establishment, which results in a critical violation. Some empirical testing of that hypothesis helped support its inclusion.
 
+# Model Development
+
+The final variables used in the model are displayed below:
+
 ```{r, eval=FALSE}
 ## Print the names of the coefficients / copy to clipboard
 rownames(coefficients(model))
 # geneorama::clipper(rownames(coefficients(model)))
-
 ```
 
 Variable Name (Literal)                     | Variable Description
@@ -288,7 +350,7 @@ Variable Name (Literal)                     | Variable Description
 `heat_sanitation`                             | Local intensity of recent sanitation complaints
 `heat_garbage`                                | Local intensity of recent garbage cart requests
 
-# Model Development
+
 
 The principle question is whether we can reasonably determine the probability that a restaurant inspection will yield at least one critical violation. That is, the focus will be whether or not any critical violation is found---a binary response. We use a glmnet model to estimate the impact of 
 
@@ -312,17 +374,17 @@ A review of the methods to find this solution is provided by `r citep(citation(p
 
 ## Significant Variables 
 
-The regression analysis shows the inspectors have a significant impact of the rate of finding critical violations. To provide anonymity, inspectors were grouped by similar performance estimated by individual regression coefficients. 
+Several variables were found to be significant when building the model. Many variables were tested, some were discarded, and as time goes on many may find their way back into the model. 
 
-Whether the restaurant had a critical violation in the past was a positive perdictor of future critical violations.  Likewise, historical serious violations was also a predictor of future performance. In effect, past performance perdicted future outcomes, with those with critical violations more likely to repeat those violations than even those with, at most, serious violations.
+The past performance of food inspections was one of the leading indicators of current likelyhood for a critical violation. Both critical and serious violations from the previous inspection were used as a predictor of future performance. In effect, past performance perdicted future outcomes, with those with critical violations more likely to repeat those violations than even those with, at most, serious violations.
 
-The elapsed time since the last violation also increased the likelihood that inspectors found critical violations. However, restaurants probability of having critical violations fell over the lifespan of the restaurant. As restaurants grow older, they are less likely to have critical violations while long time-periods between inspections increased the likelihood.
+The elapsed time since the last violation was also a significant variable. The longer that it had been since an inspection the more likely the sanitarian was to find at least one critical violation. However, restaurants' scores decreased over the lifespan of the restaurant. As restaurants grow older, they are less likely to have critical violations while long time-periods between inspections increased the likelihood.
 
-Characteristics besides the restaurant itself were also indicators of future performance. Trends in weather, nearby reports of burglary, and complaints about sanitation and garbage seems to explain increases. An increase in the moving three-day average high temperature was associated with more critical violations. In conversations with inspection managers, researchers understood this to be associated with potential mechanical failures---driven by the heat---of equipment that maintained food temperature, a main source of critical violations.
+Environmental characteristics were also indicators of future performance. Trends in weather, nearby reports of burglary, and complaints about sanitation and garbage are all significant variables in the model. An increase in the moving three-day average high temperature was associated with more critical violations. In conversations with inspection managers, researchers understood this to be associated with potential mechanical failures---driven by the heat---of equipment that maintained food temperature, a main source of critical violations.
 
-Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include: [INSERT LIST OF SANITATION CODE TYPES]
+Sanitation code complaints are one of the top complaints registered with the City of Chicago through its 311 system (including web and text reports). Sanitation code complaints include several types of complaints such as overflowing garbage cans, food left outside, or litter.
 
-The largest source of influence in the model was which sanitarian performed the inspection. Initially we included the sanitarian information directly into the model; however for many reasons we wanted to be able to protect the identity of the sanitarian. We used our initial results of individual sanitarian coefficients to group the sanitarians into clusters, and we then arbitrarily assigned the clusters color names.  This masking had very little effect on the model performance.
+The largest source of influence in the model was which sanitarian performed the inspection. We included the effect of the individual sanitarian, but we also anonomyzed the data to protect the individual identity of the sanitarian. Initial results with individual sanitarian coefficients were used to group the sanitarians into clusters. Those clusters were  then arbitrarily assigned color code names.  This masking had very little effect on the model performance, but makes it very difficult to tell which sanitarian performed which inspection.
 
 A summary of the model coefficient is presented below:
 
@@ -340,6 +402,8 @@ knitr::kable(data.table(Variables = names(coef),
 
 # Evaluation
 
+After developing the statistical model to predict critical violations, the research team evaluates whether the model could optimize food inspection processes. Namely, the model is used to determine how much faster the food inspection team can discover critical violations. The team uses a simulation to compare real-life results to an alternate, data-driven arrangement.
+
 After formulating the analytical model, the the principal question for researchers turned to whether this analytical model provides more efficiency for the food inspection team. CDPH operational procedures requires the department to inspect every risk 1 and risk 2 restaurant. Therefore, the operational goal is to allow inspectors to discover critical violations earlier than their current operations (business-as-usual).
 
 One approach for an evaluation may have also sought to determine if the predictive model could discover more restaurants with critical violations. Since CDPH is required to inspect every risk 1 and risk 2 restaurant, discovering more restaurants is not a pertinent goal. Instead, it serves a greater public interest to discover violations sooner, thereby, reducing the potential exposure of conditions that breed foodborne illnesses to the public.
@@ -356,7 +420,7 @@ We calculate the percentage of those restaurants that would be inspected in the 
 
 Note that this experimental design is assumed to yield the name number of restaurants found with critical violations. Indeed, under the premise that CDPH will inspect all restaurants, researchers will presume the number of violations will remain relatively the same. The objective of the model is to find critical violations earlier throughout the year.
 
-## Results
+# Results
 
 CDPH completed `r geneorama::comma(datTest[, .N])` inspections between `r datTest[ , as.POSIXct(min(Inspection_Date))]` and `r datTest[ , as.POSIXct(max(Inspection_Date))]`. During this time, CDPH found `r datTest[ , sum(criticalFound)]` violations, `r datTest[ , paste0(round(100*(sum(criticalFound)/.N), 1), "%")]`percent of all inspections. The rate of violations is consistent with the historical average of approximately 15 percent. While the rate of violations is slightly higher, it is close enough where we do not suspect this period is abnormal, thus, a valid comparison for our evaluation.
 
