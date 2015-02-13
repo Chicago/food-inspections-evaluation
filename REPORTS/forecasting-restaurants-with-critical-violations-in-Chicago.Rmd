@@ -4,10 +4,10 @@ author: Tom Schenk (City of Chicago), Gene Leynes (City of Chicago), Aakash Sola
   (City of Chicago)
 date: '`r format(Sys.time(), "%B %d, %Y")`'
 output:
-  pdf_document:
-    number_sections: yes
   html_document:
     css: ASSETS/journal-chicago/css/journal-chicago.css
+    number_sections: yes
+  pdf_document:
     number_sections: yes
   word_document: default
 bibliography: references.bib
@@ -313,26 +313,17 @@ Several model variables were created based on the food inspection history, inclu
 
 ### Violation History
 
-There are 42 different possible violations that can be cited by CDPH. Often, these violations are classified into three categories: critical, serious, and minor violations. Critical violations consist of 14 different violations that are most likely to create conditions for food born illnesses, such as failure to heat food to proper temperatures or to keep items properly fridgerated at the proper temperatures. Conversely, minor violations can be as simple as leaving a rag in the sink. Restaurants can fail their inspections with as little as one critical violation, however serious and minor violations during an inspection can also culminate to a failed outcome.
+There are 42 different possible violations that can be cited by CDPH. Often, these violations are classified into three categories: critical, serious, and minor violations. Critical violations consist of 14 different violations that are most likely to create conditions for food born illnesses, such as failure to heat food to proper temperatures or to keep items properly refrigerated at the proper temperatures. Conversely, minor violations can be as simple as leaving a rag in the sink. Restaurants can fail their inspections with as little as one critical violation, however serious and minor violations during an inspection can also culminate to a failed outcome.
 
-We included the results of the previous inspection in the model, which was one of the most important variables. We only captured if a serious or critical violation had been discovered in the previous inspection, only looking back one period.
+We included the results of the previous inspection in the model, which was one of the most important variables. We used previous serious and critical violations in the model, looking back one period, but we did not use minor violations as an indicator.
 
 ## Business License History
 
-Food inspection history is combined with business license data published by BACP. Any food seller must not only be licensed by the City but also obtain licenses for other activities, such as cigarette sales and liqour licenses before they can start selling such items. The license data provides other information about the business, including when certain licenses were first obtained--an approximation for the age of business which allows for calculating age of the food establishment at inspection. 
+Food inspection history is combined with business license data published by BACP. Any food seller must not only be licensed by the City but also obtain licenses for other activities, such as cigarette sales and liquor licenses before they can start selling such items. The license data provides other information about the business, including when certain licenses were first obtained--an approximation for the age of business which allows for calculating age of the food establishment at inspection. 
 
 Food inspection and Business license datasets are matched based on business names and business addresses. License description information found in the BACP data is also added to the analysis-ready data set. It lists whether a food establishment is a retail food establishment or a tobaco retail over the counter. The BACP data also consists of information whether the license is active or not, when was the application for obtaining a license to do business was filed among other information. 
 
 The BACP dataset is important in the sense that in combination with the Food Inspection dataset it curates a full list of all restaurants in the city on which predictions can be made. 
-
-
-
-
-
-
-
-
-
 
 ## Event Data
 
