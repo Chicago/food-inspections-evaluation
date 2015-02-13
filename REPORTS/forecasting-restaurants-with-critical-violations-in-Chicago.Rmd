@@ -148,13 +148,13 @@ time_diff <- date_comp[criticalFound_Model==1, -(date_model - date_bau)]
 # datTest[period_modeled==1, list(.N, sum(criticalFound))]
 
 crit_viol_rate <- data.table(
-    Regime = c("Business As Usual", 
-               "Data Driven"),
+    Regime = c("Business\nAs Usual", 
+               "Data\nDriven"),
     values = c(datTest[period==1, sum(criticalFound)/.N],
                datTest[period_modeled==1, sum(criticalFound)/.N]))
 crit_viol_cumulative <- data.table(
-    Regime = c("Business As Usual",
-               "Data Driven"),
+    Regime = c("Business\nAs Usual", 
+               "Data\nDriven"),
     values = c(datTest[period==1, sum(criticalFound)] / datTest[ , sum(criticalFound)],
                datTest[period_modeled==1, sum(criticalFound)] / datTest[ , sum(criticalFound)]))
 ```
@@ -272,17 +272,20 @@ format(round(risk_2014_table[Risk=="Risk 1 (High)", N]/32/230, 0), nsmall=0)
 
 A summary of the risk types appears below:
 
-```{r}
+```{r, fig.width=4, fig.show='hold'}
 kable(risk_2014_table_formatted, align = c("l", "r"))
 
-ggplot(risk_2014) + 
-    aes(x = Risk) + 
-    labs(title=paste0('Breakdown of Food Establishments\n',
-                      'by Risk Classification\n') ) +
-    geom_bar() + 
-    # guides(fill=FALSE) +
-    # scale_y_continuous(labels = percent) +
-    xlab("") + ylab("") + theme(legend.position="none")
+## Can't make plots and tables appear side by side!!! 
+## so omitting this plot
+
+# ggplot(risk_2014) + 
+#     aes(x = Risk) + 
+#     labs(title=paste0('Breakdown of Food Establishments\n',
+#                       'by Risk Classification\n') ) +
+#     geom_bar() + 
+#     # guides(fill=FALSE) +
+#     # scale_y_continuous(labels = percent) +
+#     xlab("") + ylab("") + theme(legend.position="none")
 ```
 
 # Data
@@ -442,8 +445,8 @@ ggplot(crit_viol_rate) +
 
 ggplot(crit_viol_cumulative) + 
     aes(x = factor(Regime), y = values) + 
-    labs(title=paste0('Percentage of period 1 &\n',
-                      'period 2 critical violations\n',
+    labs(title=paste0('Percentage of period 1 & 2\n',
+                      'critical violations\n',
                       'found in Period 1\n') ) +
     geom_bar(stat = "identity") +
     # guides(fill=FALSE) +
@@ -455,7 +458,7 @@ On average, food establishments were identified `r sprintf("%0.2f", mean(time_di
 
 While the average gain was `r sprintf("%0.0f", mean(time_diff))` days, there was a significant range in the change. Some restaurants were identified `r max(time_diff)` days earlier than business-as-usual. Half of the crticial violations were identified over `r quantile(time_diff)[3]` days earlier while quarter of all violations were prioritized over `r quantile(time_diff)[4]` days sooner. Yet, some restaurants would be prioritized lower, `r sum(time_diff < 0)` restaurants were incorrectly prioritized lower and were found to have critical violations later--`r paste0(sprintf("%0.0f", sum(time_diff < 0) / length(time_diff)*100), "%")` of the observed critical violations.
 
-```{r graph_of_time_diff, fig.width=6.5, fig.height=5.5}
+```{r graph_of_time_diff, fig.width=6.5, fig.height=5}
 hist(as.numeric(time_diff),
 #      main = paste0("Distribution of the difference \n",
 #                    "in time to discover a critical violation"),
@@ -505,7 +508,7 @@ ggplot(melt(data = comp_summary_cumsum_subset,
 ```
 
 By extension, the rate of finding critical violations is higher for the initial quarter of the pilot. The rate of the volations are higher in the first portion as the analytic model correctly ranks higher-risk restaurants for earlier inspection. Business-as-usual has a more consistent rate of discovery, approximately [0.2] per day and stays above [0.1] violations per day. However, whereas the data-driven model is more successful early, the rate of finding violations declines in the last quarter of the pilot.
-```{r, fig.width=10}
+```{r, fig.width=10, fig.height=8}
 ggplot(
     melt(data = comp_summary[
         i = TRUE,
