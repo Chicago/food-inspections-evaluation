@@ -1,13 +1,13 @@
 ---
 title: "Forecasting restaurants with critical violations in Chicago"
-author: Tom Schenk (City of Chicago), Gene Leynes (City of Chicago), Aakash Solanki
-  (City of Chicago)
+author: Gene Leynes (City of Chicago), Aakash Solanki (City of Chicago), Tom Schenk,
+  Jr. (City of Chicago)
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
-  pdf_document:
-    number_sections: yes
   html_document:
     css: ../assets/journal-chicago/css/journal-chicago.css
+    number_sections: yes
+  pdf_document:
     number_sections: yes
   word_document: default
 bibliography: references.bib
@@ -220,10 +220,6 @@ Ultimately, we find that a data-driven model can help inspectors discover critic
 
 It is worth nothing that this research is an open source project. The source code of the statistical model is available on the City of Chicago [food inspection project page](http://github.com/Chicago/food-inspections-evaluation). The statistical modeling was completed using the open source statistical software R, and all the necessary data to replicate these results is available online. This paper was generated using [knitr](http://yihui.name/knitr), which allows others to view the underlying calculations to generate the summaries, tables, and diagrams in this document. This document is available in the same aforementioned repository.
 
-## Background
-
-## Types of Inspections
-
 CDPH mainly conducts three different types of inspections; regular canvass inspections, new license inspections, and inspections in response to a complaint. Currently regular canvas visits are the only type of inspection included in the model.
 
 Before a food establishment opens their doors CDPH conducts an initial new license inspection. New license inspections are coordinated with [Business Affairs and Consumer Protection (BACP)](http://www.cityofchicago.org/city/en/depts/bacp.html), who grants food establishment licenses to new establishments. Each establishment must pass this initial inspection before it is allowed to serve food to patrons. Establishments often fail these initial inspections because they have not yet finished setting-up equipment, such as turning-on a refrigerator, or have not finished construction. Under these circumstances, CDPH will re-inspect those establishments to ensure those conditions are passed before they are allowed to open.  New license inspections are not used in the model because we believe that they are not characteristic of normal inspections, and because they occur when a new business applies for a license, and are therefore not schedule. 
@@ -234,7 +230,6 @@ If a restaurant fails the inspection, because of violations / citations, the ins
 
 The third type of inspection occurs when complaints are registered from residents, alderman, and referrals from hospitals. Often, these requests are driven through the City of Chicago's 311 system, which can be submitted through residents calling 311 or submitting a request through an online form. Individuals are asked to submit where they believe they contracted food poisoning, the address of the establishment, describe the symptoms and what was eaten, and when it happened. CDPH reviews the materials and may initiate a food inspection if it does seem the illness and restaurant can be linked together.
 
-
 A breakdown of the inspection types in 2014:
 
 ```{r}
@@ -244,13 +239,9 @@ kable(insp_types_2014[i = TRUE,
       align = c("l", "r"))
 ```
 
-## Foodborne Chicago
-
 Uniquely, CDPH also encourages submissions through the [Foodborne Chicago](http://www.cdc.gov/mmwr/preview/mmwrhtml/mm6332a1.htm) program. Foodborne's [Machine learning algorithms](https://github.com/smartchicago/foodborne) scan Twitter looking for individuals complaining or indicating potential food poisoning cases. These tweets are identified and a human will contact the user, providing a link and information on how they can [report their complaint](https://www.foodbornechicago.org/) to CDPH. In a nine-month span, 133 food inspections were instigated from this program, where 20 percent (27 instances) of those inspections resulted in critical violations `r citep(biblio[[2]])`.
 
 The Foodborne program and 311 system has assisted CDPH in targeting and identifying complaint-driven requests. Yet, a sizeable task to complete regular canvas inspections remains. Canvas inspections occur throughout the year and are somewhat random inspections of various restaurants. The process is key to checking and enforcing consistent food safety practices throughout the city. Identifying critical issues at restaurants help rectify those issues and reduce exposure to patrons. 
-
-## Inspection Risk Classes
 
 The risk levels are determined by food handling practices required for each establishment. Restaurants and other establishments are generally categorized as risk 1 if they directly handle ingredients, prepare food, or if they cool or heat food. The lowest risk establishments generally consist of prepackaged and non-perishable food. 
 
@@ -303,7 +294,7 @@ At this time, the food inspection database is not maintained and hosted by the C
 
 In addition, the City also publishes other relevant data on the portal, including: business licenses from 2011 to present, detailed crime data from 2011 to present, and various 311 data, including garbage and sanitation complaints. All of the data that was used in the model came from the [data portal](https://data.cityofchicago.org), except the weather data and sanitarian data.
 
-## Food Inspection History
+## Historical data
 
 For modeling purposes the food inspection history formed the basis of our analysis. Each regular canvass inspection was used as an observation in the model. Some filtering rules were applied. We filtered the inspections to only include Retail Food Establishments, which excluded establishments such as schools and hospitals. Their inspection schedules follow a different planning process, and we also believe that these establishments have different risk characteristics that are not generalizable across the entire population. We also excluded inspection records that didn't result in an inspection because the business was closed.
 
@@ -311,21 +302,15 @@ Each historical inspection record contained an "Inspection Key" that made it pos
 
 Several model variables were created based on the food inspection history, including: time since last inspection, if this inspection was their first canvass inspection, and (not _currently_ used) the facility type.
 
-### Violation History
-
 There are 42 different possible violations that can be cited by CDPH. Often, these violations are classified into three categories: critical, serious, and minor violations. Critical violations consist of 14 different violations that are most likely to create conditions for food born illnesses, such as failure to heat food to proper temperatures or to keep items properly refrigerated at the proper temperatures. Conversely, minor violations can be as simple as leaving a rag in the sink. Restaurants can fail their inspections with as little as one critical violation, however serious and minor violations during an inspection can also culminate to a failed outcome.
 
 We included the results of the previous inspection in the model, which was one of the most important variables. We used previous serious and critical violations in the model, looking back one period, but we did not use minor violations as an indicator.
-
-## Business License History
 
 Food inspection history is combined with business license data published by BACP. Any food seller must not only be licensed by the City but also obtain licenses for other activities, such as cigarette sales and liquor licenses before they can start selling such items. The license data provides other information about the business, including when certain licenses were first obtained--an approximation for the age of business which allows for calculating age of the food establishment at inspection. 
 
 Food inspection and Business license datasets are matched based on business names and business addresses. License description information found in the BACP data is also added to the analysis-ready data set. It lists whether a food establishment is a retail food establishment or a tobaco retail over the counter. The BACP data also consists of information whether the license is active or not, when was the application for obtaining a license to do business was filed among other information. 
 
 The BACP dataset is important in the sense that in combination with the Food Inspection dataset it curates a full list of all restaurants in the city on which predictions can be made. 
-
-## Event Data
 
 The location of the businesses are used to calculate nearby activity. Several variables were explored, but after conduting some data mining, we settled on burglaries, sanitation code complaints, and garbage cart requests. The density of each activity was calculated and stored.
 
@@ -380,7 +365,7 @@ $$
 \end{aligned}
 $$
 
-A review of the methods to find this solution is provided by `r citep(citation(package = "glmnet"))`, whose glmnet library for R was used to provide estimates.
+A review of the methods to find this solution is provided by `r citep(citation(package = "glmnet"))`, whose glmnet library for R was used to provide estimates. The `r citep(citation(package = "MASS"))` was also used in the analysis.
 
 ## Significant Variables 
 
