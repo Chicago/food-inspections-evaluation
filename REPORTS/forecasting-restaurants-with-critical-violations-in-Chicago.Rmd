@@ -2,12 +2,12 @@
 title: "Forecasting restaurants with critical violations in Chicago"
 author: Tom Schenk (City of Chicago), Gene Leynes (City of Chicago), Aakash Solanki
   (City of Chicago)
-date: '`r format(Sys.time(), "%B %d, %Y")`'
+date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
   pdf_document:
     number_sections: yes
   html_document:
-    css: ASSETS/journal-chicago/css/journal-chicago.css
+    css: ../assets/journal-chicago/css/journal-chicago.css
     number_sections: yes
   word_document: default
 bibliography: references.bib
