@@ -1,5 +1,82 @@
+# Licenses
+
+## img/The_Hunt-original.jpg
+
+This image was modified from [The Hunt](https://flic.kr/p/edVZ7i) by [Edsel Little](https://www.flickr.com/people/edsel_/) and was licensed under [Creative Commons Attribution-ShareALike 2.0](https://creativecommons.org/licenses/by-sa/2.0/). This image retains the same license.
+
+## fonts/glyphicons-halflings-* files
+
+These files are copyright (c) Jan Kovařík 2010-2015 and is made available through [Creative Commons Attribution 3.0 Unported](http://creativecommons.org/licenses/by/3.0/) (CC BY 3.0). 
+
+## fonts/league-spartan/
+
+Copyright (c) September 22 2014, Micah Rich micah@micahrich.com, with Reserved Font Name: "League Spartan".
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a [FAQ](http://scripts.sil.org/OFL)
+
+Version 1.1 - 26 February 2007
+
+## js/jquery.js
+
+jQuery is licensed under the [MIT license](https://jquery.org/license/), therefore:
+
+Copyright (c) 2005, 2014 jQuery Foundation, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+## js/chart.js
+
+This file is copyright (c) 2015 HighSoft as is licensed under a [Creative Commons Attribution-NonCommercial 3.0 License](http://creativecommons.org/licenses/by-nc/3.0/).
+
+## js/bootstrap.js, js/bootstrap.min.js, and css/bootstrap.min.css
+
+These bootstrap files are licensed under the [MIT license](https://jquery.org/license/), therefore:
+
+Copyright (c) 2011-2014 Twitter, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+## Written documentation found in index.html
+
+Documentation is copyright (c) 2014 City of Chicago and licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/) (CC BY-SA 4.0).
+
+
+## Contents of assets/, css/custom.css, and index.html
 Copyright (c) 2014 Iron Summit Media Strategies, LLC.
-Copyright (c) 2014 City of Chicago 
+Copyright (c) 2014-2015 City of Chicago 
 
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
