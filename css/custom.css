@@ -288,7 +288,7 @@ a.twitter-hashtag-button:focus {
 	margin-bottom: 40px;
 }
 
-
+/* Readjustments to page based on browser */
 @media all and (min-width: 768px) {
   	.navbar-header {
     		float: right;
@@ -329,7 +329,24 @@ a.twitter-hashtag-button:focus {
 	
 	
 } 
-@media all and (max-width: 500px) { #kitchen {background: url(../img/kitchen_tablet.png);} #kitchen main {font-size: 32px;} #kitchen sub {font-size: 18px;}} 
+
+@media all and (max-width: 500px) { 
+	#kitchen {
+		background: url(../img/kitchen_tablet.png);
+	} 
+
+	#kitchen main {
+		font-size: 32px;
+	} 
+
+	#kitchen sub {
+		font-size: 18px;
+	}
+
+	IMG.stamp {
+		width: 280px;
+	}
+} 
 
 @media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) { 
 	#kitchen article {
@@ -343,8 +360,6 @@ a.twitter-hashtag-button:focus {
 		left: 0.5%;
 		margin-right: auto;
 		height: 200px;
-
-		
 	}
 	#kitchen main { 
 		font-size: 32px;
@@ -358,7 +373,6 @@ a.twitter-hashtag-button:focus {
 		text-align:-webkit-center;
 		margin-left: auto;
 		margin-right: auto;
-		
 		width: 66%;
 	}
 }
