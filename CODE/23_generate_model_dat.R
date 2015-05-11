@@ -60,11 +60,13 @@ foodInspect[ , Facility_Type_Clean :=
                            ignore.case = TRUE)]
 
 ##==============================================================================
-## Create basis for model that is subsequently developed
+## Create basis for dat_model, which is the data that will be used in the model
 ##==============================================================================
 dat_model <- foodInspect[i = TRUE , 
                          j = list(Inspection_Date, 
-                                  License), 
+                                  License,
+                                  Inspection_Type,
+                                  Results), 
                          keyby = Inspection_ID]
 
 ##==============================================================================
@@ -83,9 +85,6 @@ dat_model <- merge(
                             Facility_Type = Facility_Type_Clean)],
     by = "Inspection_ID")
 
-## Merge in "results" for pass / fail flag
-dat_model <- merge(dat_model[ , .SD, keyby=Inspection_ID],
-                   foodInspect[ , Results, keyby=Inspection_ID])
 ## Create pass / fail flags
 dat_model[ , pass_flag := ifelse(Results=="Pass",1, 0)]
 dat_model[ , fail_flag := ifelse(Results=="Fail",1, 0)]
@@ -96,8 +95,6 @@ dat_model[ , pastFail := shift(fail_flag, -1, 0), by = License]
 dat_model[ , pastCritical := shift(criticalCount, -1, 0), by = License]
 dat_model[ , pastSerious := shift(seriousCount, -1, 0), by = License]
 dat_model[ , pastMinor := shift(minorCount, -1, 0), by = License]
-## Remove "result" column now that we're done with it
-dat_model[ , Results := NULL]
 
 ## Calcualte time since last inspection.
 ## If the time is NA, this means it's the first inspection; add an inicator 
@@ -139,15 +136,15 @@ business[ , minDate := min(LICENSE_TERM_START_DATE), LICENSE_NUMBER]
 business[ , maxDate := max(LICENSE_TERM_EXPIRATION_DATE), LICENSE_NUMBER]
 
 ## Calculate age at inspection:
-## Temporarily add minDate to dat_model
+## Add minDate to dat_model
 dat_model <- merge(x = dat_model, 
-                   y = business[ , list(minDate, Business_ID = ID)],
+                   y = business[ , list(Business_ID = ID,
+                                        minDate,
+                                        maxDate)], # maxDate's just nice to have
                    by = "Business_ID",
                    all.x = TRUE)
 ## Use minDate to calculate age
 dat_model[ , ageAtInspection := as.numeric(Inspection_Date - minDate) / 365]
-## Remove minDate
-dat_model[ , minDate := NULL]
 
 ## CALCULATE AND MERGE IN OTHER CATEGORIES
 OtherCategories <- GenerateOtherLicenseInfo(dat_model, 
