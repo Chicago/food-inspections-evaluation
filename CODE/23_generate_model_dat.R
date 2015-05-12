@@ -1,7 +1,4 @@
 
-stop()  ## This stop is to prevent *accidental* execution of the entire script
-        ## on hitting CTRL/CMD + ENTER by mistake
-
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
