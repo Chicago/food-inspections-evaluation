@@ -1,35 +1,29 @@
 
-stop()
-
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-## Remove all objects; perform garbage collection
-rm(list=ls())
-gc(reset=TRUE)
-## Check for dependencies
-if(!"geneorama" %in% rownames(installed.packages())){
-    if(!"devtools" %in% rownames(installed.packages())){install.packages('devtools')}
-    devtools::install_github('geneorama/geneorama')}
-## Load libraries
-geneorama::detach_nonstandard_packages()
-# geneorama::loadinstall_libraries(c("geneorama", "data.table"))
+if(interactive()){
+    ## Remove all objects; perform garbage collection
+    rm(list=ls())
+    gc(reset=TRUE)
+    ## Detach libraries that are not used
+    geneorama::detach_nonstandard_packages()
+}
+## Load libraries that are used
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2"))
+## Load custom functions
 geneorama::sourceDir("CODE/functions/")
-
-##==============================================================================
-## DEFINE GLOBAL VARIABLES / MANUAL CODE
-##==============================================================================
-DataDir <- "DATA/20141110"
 
 ##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-dat <- readRDS(file.path(DataDir, "dat_with_inspector.Rds"))
+dat <- readRDS("DATA/dat_model.Rds")
 
-## Remove NA's
-dat[,.N,is.na(heat_burglary)]
-dat <- dat[!is.na(heat_burglary)]
+## Only keep "Retail Food Establishment"
+dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+## Remove License Description
+dat[ , LICENSE_DESCRIPTION := NULL]
+dat <- na.omit(dat)
 
 ## Add criticalFound variable to dat:
 dat[ , criticalFound := pmin(1, criticalCount)]
@@ -39,29 +33,24 @@ setkey(dat, Inspection_ID)
 
 ## Match time period of original results
 # dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
-dat[, .N, Results]
-
-## Remove records where an inspection didn't happen
-dat <- dat[!Results %in% c('Out of Business','Business Not Located','No Entry')]
 
 ##==============================================================================
 ## CREATE MODEL DATA
 ##==============================================================================
 # sort(colnames(dat))
-xmat <- dat[ , list(criticalFound,
-                    Inspector_Assigned,
+xmat <- dat[ , list(Inspector = Inspector_Assigned,
                     pastSerious = pmin(pastSerious, 1),
-                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     pastCritical = pmin(pastCritical, 1),
+                    timeSinceLast,
+                    ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     consumption_on_premises_incidental_activity,
                     tobacco_retail_over_counter,
                     temperatureMax,
                     heat_burglary = pmin(heat_burglary, 70),
                     heat_sanitation = pmin(heat_sanitation, 70),
                     heat_garbage = pmin(heat_garbage, 50),
-                    # risk = as.factor(Risk),
-                    # facility_type = as.factor(Facility_Type),
-                    timeSinceLast),
+                    # Facility_Type,
+                    criticalFound),
             keyby = Inspection_ID]
 mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
 mm <- as.data.table(mm)
@@ -87,12 +76,12 @@ nrow(mm)
 ## GLMNET MODEL
 ##==============================================================================
 # fit ridge regression, alpha = 0, only inspector coefficients penalized
+pen <- ifelse(grepl("^Inspector", colnames(mm)), 1, 0)
 model <- glmnet(x = as.matrix(mm[iiTrain]),
                 y = xmat[iiTrain,  criticalFound],
                 family = "binomial", 
                 alpha = 0,
-                penalty.factor = ifelse(grepl("^Inspector.Assigned", colnames(mm)), 1, 0))
-
+                penalty.factor = pen)
 
 ## See what regularization parameter 'lambda' is optimal on tune set
 ## (We are essentially usin the previous hardcoded value)
@@ -103,22 +92,22 @@ errors <- sapply(model$lambda,
                                         s=lam, 
                                         type="response")[,1], 
                             y = xmat[iiTrain, criticalFound]))
+## Plot of the errors by lambda
 plot(x=log(model$lambda), y=errors, type="l")
 which.min(errors)
 model$lambda[which.min(errors)]
-## manual lambda selection
+## Manual selection of lambda
 w.lam <- 100
 lam <- model$lambda[w.lam]
 coef <- model$beta[,w.lam]
-inspCoef <- coef[grepl("^Inspector.Assigned",names(coef))]
+inspCoef <- coef[grepl("^Inspector",names(coef))]
 inspCoef <- inspCoef[order(-inspCoef)]
-## coefficients for the inspectors, and for other variables
+
+## Print coefficients for the Inspectors (and for other variables)
 inspCoef
-coef[!grepl("^Inspector.Assigned",names(coef))]
+coef[!grepl("^Inspector",names(coef))]
 
-
-## By the way, if we had knowledge of the future, we would have chosen a 
-## different lambda
+## Plot of the errors by Lambda for the out of sample Test data
 errorsTest <- sapply(model$lambda, 
                      function(lam) 
                          logLik(p = predict(model, 
@@ -135,7 +124,7 @@ dat$glm_pred <- predict(model, newx=as.matrix(mm),
                         s=lam, 
                         type="response")[,1]
 
-# show gini performance of inspector model on tune data set
+# Show gini performance of inspector model on tune data set
 dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 
 ## Calculate confusion matrix values for evaluation
@@ -181,24 +170,8 @@ datTest[period_modeled == 1, sum(criticalFound)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
 datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 
-110 / (110 + 90)
-134 / (134 + 66)
-0.67 - .55
+141 / (141 + 117)
+178 / (178 + 80)
+0.6899225 - .5465116
 
-
-## Subset test period
-## Exact match of actual inspection counts in first half
-ratio_of_days <- nrow(datTest[period==1]) / nrow(datTest)
-ratio_of_days
-datTest[ , period_modeled_strict := 
-            ifelse(glm_pred > quantile(glm_pred, 1-ratio_of_days), 1, 2)]
-datTest[,.N,period_modeled_strict]
-datTest[,.N,period]
-
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled_strict)]
-
-110 / (110 + 90)
-130 / (130 + 70)
-0.65 - .55
 

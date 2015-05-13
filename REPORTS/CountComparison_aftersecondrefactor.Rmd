@@ -1,0 +1,166 @@
+---
+title: "Data Integrity Check"
+output: html_document
+---
+
+### Purpose
+
+This document compares monthly counts at various stages of the model process.  We show how many food inspection records (and critical violations) there were
+
+1. In the original download, 
+2. After filtering, and
+2. After taking out any NA's (which indicates that a data sources wasn't able to merged into the food inspection data).
+
+```{r, echo=FALSE, warning=FALSE, results='hide', message=FALSE}
+
+## Initialize and load data... (hidden in report output)
+
+geneorama::set_project_dir("food-inspections-evaluation")
+##==============================================================================
+## INITIALIZE
+##==============================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+## Detach libraries that are not used
+geneorama::detach_nonstandard_packages()
+## Load libraries that are used
+geneorama::loadinstall_libraries(c("data.table", "MASS"))
+## Load custom functions
+geneorama::sourceDir("CODE/functions/")
+
+##==============================================================================
+## LOAD CACHED RDS FILES
+##==============================================================================
+## Import the key data sets used for prediction
+foodInspect <- readRDS("DATA/food_inspections.Rds")
+foodInspect$Violations <- NULL
+violation_dat <- readRDS("DATA/violation_dat.Rds")
+dat_model <- readRDS("DATA/dat_model.Rds")
+
+##==============================================================================
+## ADD FIELDS AND APPLY FILTER TO foodInspect
+##==============================================================================
+## Remove duplicate IDs first
+foodInspect <- foodInspect[!duplicated(Inspection_ID)]
+
+## Limit dates
+foodInspect <- foodInspect[Inspection_Date > as.IDate("2011-09-01")]
+
+## Join in the violation matrix
+foodInspect <- merge(x = foodInspect, 
+                     y = violation_dat, 
+                     by = "Inspection_ID", 
+                     all.x = TRUE)
+
+foodInspect[ , criticalFound := pmin(1, criticalCount)]
+
+foodInspect[i = TRUE, 
+            j = Facility_Type_Clean := 
+                categorize(x = Facility_Type,
+                           primary = list(Restaurant = "restaurant",
+                                          Grocery_Store = "grocery"),
+                           ignore.case = TRUE)]
+foodInspect_filtered <- filter_foodInspect(foodInspect)
+
+##==============================================================================
+## ADD FIELDS AND APPLY FILTER TO dat_model
+##==============================================================================
+dat_model[ , criticalFound := pmin(1, criticalCount)]
+## Only keep "Retail Food Establishment"
+dat_model <- dat_model[LICENSE_DESCRIPTION == "Retail Food Establishment"]
+## Remove License Description
+dat_model[ , LICENSE_DESCRIPTION := NULL]
+dat_model <- na.omit(dat_model)
+
+```
+
+### Construct tables of counts, and critical violations found 
+
+```{r}
+tab_food <- foodInspect[
+    i = TRUE, 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+
+tab_food_open_canvass <- foodInspect[
+    i = Inspection_Type == "Canvass" &
+        !Results %in% c('Out of Business',
+                        'Business Not Located',
+                        'No Entry'), 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+
+tab_food_filtered <- foodInspect_filtered[
+    i = TRUE, 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+
+tab_modeldat <- dat_model[
+    i = TRUE, 
+    j = list(N = .N, 
+             critFound = sum(criticalFound)), 
+    keyby = list(month = round(Inspection_Date, "month"))]
+```
+
+### Monthly counts at each step in "filtering"
+
+```{r}
+tab_food
+tab_food_open_canvass
+tab_food_filtered
+tab_modeldat
+
+```
+
+### Monthly counts at each stage in "filtering", merged into a single table
+
+```{r}
+tab_all <- merge(tab_food, 
+                 merge(tab_food_open_canvass, 
+                       merge(tab_food_filtered,
+                             tab_modeldat, 
+                             all = TRUE,
+                             suffixes = c(".Filtered", ".Model")), 
+                       all=TRUE),
+                 all=TRUE,
+                 suffixes = c(".ALL", ".Open"))
+tab_all
+```
+
+
+### Violations, tabluated by "is.na"
+
+Generally, it looks like data that was incomplete was lower in violation counts.
+
+```{r}
+geneorama::set_project_dir("food-inspections-evaluation")
+
+## Read in the original dat model before any filtering is applied
+dat_model_orig <- readRDS("DATA/dat_model.Rds")
+
+## Luckily the restaurants with missing business data mostly appear to have
+## lower counts of critical and serious violations
+geneorama::NAsummary(dat_model_orig)
+dat_model_orig[ , table(is.na(Business_ID))]
+dat_model_orig[
+    i = TRUE,
+    j = list(mean_critical = mean(criticalCount), sd_critical = sd(criticalCount),
+             mean_serious = mean(seriousCount), sd_serious = sd(seriousCount),
+             mean_minor = mean(minorCount), sd_minor = sd(minorCount)), 
+    is.na(Business_ID)]
+```
+
+
+
+
+
+
+
+
+
+
+
