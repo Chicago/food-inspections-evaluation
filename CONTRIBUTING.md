@@ -1,6 +1,6 @@
 # How to Contribute
 
-We welcome efforts to improve this proect, and we are open to contributions for model improvements, process immprovements, and general good ideas.  Please use this guide to help structure your contributions and to make it easier for us to consider your contributions and provide feedback.  If we do use your work we will acknowledge your contributions to the best of ability, and all contributions will be govenred under the license terms speified in the LICENSE.md file in this project. 
+We welcome efforts to improve this proect, and we are open to contributions for model improvements, process immprovements, and general good ideas.  Please use this guide to help structure your contributions and to make it easier for us to consider your contributions and provide feedback.  If we do use your work we will acknowledge your contributions to the best of ability, and all contributions will be governed under the license terms speified in the LICENSE.md file in this project. To get started, sign the [Contributor License Agreement]("https://www.clahub.com/agreements/Chicago/food-inspections-evaluation").
 
 In general we use the structure provided by github for our work flow management, so if you're new to github please see this guide first: https://guides.github.com/activities/contributing-to-open-source/#contributing
 
