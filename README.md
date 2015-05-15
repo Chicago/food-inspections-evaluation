@@ -4,53 +4,58 @@ Food Inspections Evaluation
 Introduction
 ------------
 
-The [City of Chicago](https://github.com/Chicago) conducts routine food inspections at various food establishments around the city. These food establishments include businesses from your favorite diner to the agency that serves food at a public school nearby your home. While the city public health department does a great job in keep Chicagoans safe from foodborne illnesses, we wondered if preditive analytics could be help. To test the potential of predictive analytics to improve the effectiveness of these food inspections, The City of Chicago recently conducted a pilot using data available on sanitary inspections performed at food establishments in Chicago between September 2011 and November 2014. We built a predictive model to identify food establishments that are most at risk for having ‘critical violations’-, The types of violations that are most likely to spread food borne illnesses. This GitHub repository hosts the code and data used to test and train the predictive model we built. Feel free to clone, fork, send pull requests and file bugs.
+In an effort to reduce the public’s exposure to foodborne illness the [City of Chicago](https://github.com/Chicago) partnered with Allstate’s Quantitative Research & Analytics department to develop a predictive model to help prioritize the city's food inspection staff.  This Github project is a complete working evaluation of the model including the data that was used in the model, the code that was used to produce the statistical results, the evaluation of the validity of the results, and documentation of our methodology.
 
-DATA
-------
+The model evaluation calculates individualized risk scores for more than ten thousand Chicagoland food establishments using publically available data, most of which is updated nightly on [Chicago’s data portal]( https://data.cityofchicago.org/).
 
-Data used for exploration and building, training and testing the predictive model is provided in the ``./DATA`` directory. Most of this data was sourced from the [Chicago’s Open Data Portal](http://data.cityofchicago.org). The following datasets were used in the building the analysis-ready dataset. 
+The evaluation compares two months of Chicago’s Department of Public Health inspections to an alternative data driven approach based on the model. The two month evaluation period is a completely out of sample evaluation based on a model created using test and training data sets from prior time periods.
 
-```
-Crime (Burglaries only)
+The data driven approach predicts which food establishments are most at risk for having ‘critical violations’, which are the types of violations that are most likely to spread food borne illnesses.
 
-Business Licenses(food related)
-
-Food Inspections 
-
-Garbage Carts Complaints
-
-Sanitation Complaints
-
-Weather (Not available at Chicago's Open Data Portal)
-
-Inspectors Information (Not available at Chicago's Open Data Portal)
-```
-
-The various data sources are joined to create a dataset ready for analysis which paints a statistical picture of a ‘business license’- The primary modelling unit / unit of observation in this project.
-
-The data sources are joined(in SQLesque manner) on appropriate composite keys. These keys include Inspection ID, Business License, and Geography expressed as a Latitude / Longitude combination among others. For a more detailed explanation of this process, read the [technical document](http://).
-
+This GitHub repository hosts the code and data used to test and train the predictive model we built. Feel free to clone, fork, send pull requests and to file bugs.  Please note that we will need you to agree to our Contributor License Agreement (CLA) in order to be able to use any pull requests.
 
 REQUIREMENTS
 ------------
 
-Several packages are not compatible with ```R version < 3.1```. Thus, in order to reproduce all results it is advised to use ```R version >= 3.1```. 
+All of the code in this project uses the open source statistical application, R.  We advise that you use ```R version >= 3.1``` for best results. 
 
-The code makes extensive usage of the ``data.table`` package. If you are not familiar with the package, you might want to consult the package manual on [CRAN](http://cran.r-project.org/web/packages/data.table/index.html) and/or on its GitHub [repository](https://github.com/Rdatatable/data.table/wiki).
+The code makes extensive usage of the ``data.table`` package. If you are not familiar with the package, you might want to consult the data.table [FAQ available on CRAN] (http://cran.r-project.org/web/packages/data.table/vignettes/datatable-faq.pdf).
 
-Multi-Core processing works only on Linux and OS X machines. It does not work with Windows machines.
+
+SCRIPT ORGANIZATION
+------
+
+The scripts contained in `./CODE` are ordered numerically and are intended to be executed in order. 
+
+The output for each script is stored in `./DATA`
+
+However, since all prerequisite data files are pre-calculated and stored in the project, so it is possible to clone this repository and run the scripts in any order.  The data acquisition scripts are provided for completeness.
+
+DATA
+------
+
+Data used to develop the model is stored in the ``./DATA`` directory. [Chicago’s Open Data Portal](http://data.cityofchicago.org). The following datasets were used in the building the analysis-ready dataset. 
+
+```
+Business Licenses
+Food Inspections 
+Crime
+Garbage Cart Complaints
+Sanitation Complaints
+Weather
+Sanitarian Information
+```
+
+The data sources are joined to create a tabular dataset that paints a statistical picture of a ‘business license’- The primary modelling unit / unit of observation in this project.
+
+The data sources are joined (in SQLesque manner) on appropriate composite keys. These keys include Inspection ID, Business License, and Geography expressed as a Latitude / Longitude combination among others. 
 
 CODE
 -------------------
-
  
-To get started, first grab the code using the following steps. The [submodule](http://git-scm.com/docs/git-submodule) will be required when you will generate [knitr](http://cran.r-project.org/web/packages/knitr/index.html) reports.
-
-
+To get started, first download the code using the following steps. The [submodule](http://git-scm.com/docs/git-submodule) will be required when you will generate [knitr](http://cran.r-project.org/web/packages/knitr/index.html) reports.
 
 <a name="CODE"></a>
-
 ```
 git clone https://github.com/Chicago/food-inspections-evaluation.git
 cd REPORTS/ASSETS/
@@ -62,35 +67,21 @@ git submodule update
 
 The ``./CODE`` directory contains the scripts to set up your R environment, download the necessary data from Chicago’s open data portal, prepare the analysis-ready data set, and build, train and test the model.
 
-
-
-After you have updated the R version, run the following scripts in the order specified below.
+The scripts are intended to run in their numeric order, detailed below.
 
 +    ```00_Startup.R``` Downloads the necessary packages required to step through the rest of the R scripts
 
-
 +  ```socrata_token.txt``` This is your API token, which is needed to download files from the data portal. Register for an API token [here](https://support.socrata.com/hc/en-us/articles/202950038-How-to-obtain-an-App-Token-aka-API-Key-) and put the token in a new text file called socrata_token.txt in the ``./CODE`` directory. The key must be on the first line of the text file, and can contain white space and trailing comments, e.g. “123456qwerty # this is my key from last year” would be a perfectly valid way to store your key. You could also have more comments / keys stored in the file, as only the first line will be read while finding your key. 
 
-       
++    ```1X_[various data downloads].R``` **OPTIONAL**  Although all of the data needed to reproduce our results is provided in the `./DATA` directory, it is possible to update many data sources using scripts starting with 11 to 15. If you want to modify the model and import your own variables, these scripts may serve as a useful template to download additional data.
 
++    ```21_calculate_violation_matrix.R``` Performs matrix calculations on types of violations in the inspections data. This step is performed in a separate script as it takes some time.
 
-+    ```10_download_data.R``` **OPTIONAL**  Some of the data such as the weather data set is not available at the city data portal and might not be available to you in the format as used in the project from other sources. Thus, it is recommended to use the data provided in the. /DATA directory. However, if you want  to modify the model and import your own variables than most of the data is available at the Data Portal. Make sure you change the value of ``multi`` variable based on the machine where you are running the script.
++	```22_calculate_heat_map_values.R``` Calculates heat maps for garbage, crime(burglary) and sanitation complaints data. 
 
++	```23_generate_model_dat.R``` Filter primary datsets, creates a basis for the model, creates features based on various data sets, merges everything together along with heat map calculations, inspector information, and relevant weather data.
 
-
-+	```11_calculate_violation_matrix.R``` Performs matrix calculations on types of violations in the inspections data. This step is performed in a separate script as it takes some time.
-
-
-
-+	```12_calculate_heat_map_values.R``` Calculates heat maps for garbage, crime(burglary) and sanitation complaints data. 
-
-
-
-+	```13_generate_model_dat.R``` Filter primary datsets, creates a basis for the model, creates features based on various data sets,attaches heat map, inspectors and weather and performs requisite merges to the basis model
-
-
-
-+	```30_glmnet_model.R``` The pre-calculated output from previous scripts is imported and used in the model built, trained and tested in this script. The main data set is indexed by time, and past data is used to independently build the model. The model is then applied to test data.  Finally, this script also includes necessary code to evaluate the effectiveness of the City of Chicago’s data driven food inspections pilot.
++	```30_glmnet_model.R``` The pre-calculated output from previous scripts are imported and used to build the model, tested out of sample data is tested in this script. This script also includes necessary code to evaluate the effectiveness of the City of Chicago’s data driven food inspections pilot, and generate several plots to visualize the results.
 
 REPORTS
 -------
@@ -100,7 +91,7 @@ The reports may be reproduced compiling the knitr documents present in ``./REPOR
 
 Acknowledgements
 ----------------
-This research was conducted by the [City of Chicago](http://www.cityofchicago.org/city/en/depts/doit.html) with support from the [Civic Consulting Alliance](http://www.ccachicago.org/), and [Allstate Insurance](https://www.allstate.com/). The City would especially like to thank Stephen Collins, Gavin Smart for their efforts in developing the predictive model. We also appreciate the help of Kelsey Burr, Christian Hines, and Kiran Pookote in coordinating this research project. We owe a special thanks to our volunteers from Allstate for the developing the predictive model who put in a tremendous amount of work in building the model and writing the various scripts .
+This research was conducted by the [City of Chicago](http://www.cityofchicago.org/city/en/depts/doit.html) with support from the [Civic Consulting Alliance](http://www.ccachicago.org/), and [Allstate Insurance](https://www.allstate.com/). The City would especially like to thank Stephen Collins, Gavin Smart for their efforts in developing the predictive model. We also appreciate the help of Kelsey Burr, Christian Hines, and Kiran Pookote in coordinating this research project. We owe a special thanks to our volunteers from Allstate who put in a tremendous effort to develop the predictive model.
 
 License
 -------
