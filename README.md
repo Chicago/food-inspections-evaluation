@@ -44,23 +44,53 @@ Multi-Core processing works only on Linux and OS X machines. It does not work wi
 CODE
 -------------------
 
- To get started, first grab the code. 
+ 
+To get started, first grab the code using the following steps. The [submodule](http://git-scm.com/docs/git-submodule) will be required when you will generate [knitr](http://cran.r-project.org/web/packages/knitr/index.html) reports.
 
-```bash
+
+
+<a name="CODE"></a>
+
+```
 git clone https://github.com/Chicago/food-inspections-evaluation.git
+cd REPORTS/ASSETS/
+git submodule init
+git submodule update
+
 ```
 
-The ``./CODE`` directory contains the scripts to set up your R
-environment, download the necessary data from Chicago’s open data
-portal, prepare the analysis-ready data set, and build, train and test
-the model.
 
-Run the scripts in the `./CODE` directory in order or do
+The ``./CODE`` directory contains the scripts to set up your R environment, download the necessary data from Chicago’s open data portal, prepare the analysis-ready data set, and build, train and test the model.
 
-```bash
-make dependencies
-make all
-```
+
+
+After you have updated the R version, run the following scripts in the order specified below.
+
++    ```00_Startup.R``` Downloads the necessary packages required to step through the rest of the R scripts
+
+
++  ```socrata_token.txt``` This is your API token, which is needed to download files from the data portal. Register for an API token [here](https://support.socrata.com/hc/en-us/articles/202950038-How-to-obtain-an-App-Token-aka-API-Key-) and put the token in a new text file called socrata_token.txt in the ``./CODE`` directory. The key must be on the first line of the text file, and can contain white space and trailing comments, e.g. “123456qwerty # this is my key from last year” would be a perfectly valid way to store your key. You could also have more comments / keys stored in the file, as only the first line will be read while finding your key. 
+
+       
+
+
++    ```10_download_data.R``` **OPTIONAL**  Some of the data such as the weather data set is not available at the city data portal and might not be available to you in the format as used in the project from other sources. Thus, it is recommended to use the data provided in the. /DATA directory. However, if you want  to modify the model and import your own variables than most of the data is available at the Data Portal. Make sure you change the value of ``multi`` variable based on the machine where you are running the script.
+
+
+
++	```11_calculate_violation_matrix.R``` Performs matrix calculations on types of violations in the inspections data. This step is performed in a separate script as it takes some time.
+
+
+
++	```12_calculate_heat_map_values.R``` Calculates heat maps for garbage, crime(burglary) and sanitation complaints data. 
+
+
+
++	```13_generate_model_dat.R``` Filter primary datsets, creates a basis for the model, creates features based on various data sets,attaches heat map, inspectors and weather and performs requisite merges to the basis model
+
+
+
++	```30_glmnet_model.R``` The pre-calculated output from previous scripts is imported and used in the model built, trained and tested in this script. The main data set is indexed by time, and past data is used to independently build the model. The model is then applied to test data.  Finally, this script also includes necessary code to evaluate the effectiveness of the City of Chicago’s data driven food inspections pilot.
 
 REPORTS
 -------
