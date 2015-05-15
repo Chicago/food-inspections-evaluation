@@ -1,7 +1,8 @@
 ---
 title: "Forecasting restaurants with critical violations in Chicago"
-author: Gene Leynes (City of Chicago), Aakash Solanki (City of Chicago), Tom Schenk,
-  Jr. (City of Chicago)
+author: Tom Schenk Jr. (City of Chicago), Gene Leynes (City of Chicago), and Aakash
+  Solanki (City of Chicago), Stephen Collins (Allstate Insurance), Gavin Smart (Allstate
+  Insurance), Ben Albright, and David Crippin (Allstate Insurance)
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
   html_document:
