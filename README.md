@@ -3,7 +3,9 @@ Food Inspections Evaluation
 
 This is our model for predicting which food establishments are at most risk for the types of violations most likely to spread food-borne illness. Chicago Department of Public Health staff use these predictions to prioritize inspections. During a two month pilot period, we found that that using these predictions meant that inspectors found critical violations much faster.
 
-You can help improve the health of our city by improving this model. This repository contains a training and test set, along with the data used in the current model. Feel free to clone, fork, send pull requests and to file bugs. 
+You can help improve the health of our city by improving this model. This repository contains a training and test set, along with the data used in the current model. 
+
+Feel free to clone, fork, send pull requests and to file bugs. 
 Please note that we will need you to agree to our Contributor License Agreement (CLA) in order to be able to use any pull requests.
 
 
