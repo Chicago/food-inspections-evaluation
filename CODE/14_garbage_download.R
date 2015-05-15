@@ -13,22 +13,10 @@ geneorama::loadinstall_libraries(c("data.table", "RSocrata"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES
-##==============================================================================
-## Application Tokens for Socrata API:
-## Note: only the first line is used , Note: whitespace and comments will be stripped
-if(!file.exists("CODE/socrata_token.txt")){
-    stop(paste0("You need a file called 'socrata_token.txt' containing a token"))
-} else{
-    mytoken <- gsub(" |\\#.+", "", readLines("CODE/socrata_token.txt", n=1))
-}
-
-##==============================================================================
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
 garbageCarts <- read.socrata(
     hostname="https://data.cityofchicago.org",
-    apptoken = mytoken,
     resourcePath="9ksk-na4q",
     keyfield = "service_request_number")
 garbageCarts <- as.data.table(garbageCarts)
