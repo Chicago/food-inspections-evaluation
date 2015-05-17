@@ -1,13 +1,10 @@
 ## INSTALL THESE DEPENDENCIES
-install.packages("devtools",dependencies = TRUE)
-install.packages("Rcpp",dependencies = TRUE)
-
-## UPDATE PACKAGES
-## *NOTE* THIS WILL UPDATE YOUR R LIBRARIES AUTOMATICALLY
-## For most users this is fine, but if you may wish to skip this step
-## if you want to keep your current package versions, and update only 
-## if you experience problems.
-update.packages(ask = FALSE)
+install.packages("devtools",
+                 dependencies = TRUE,
+                 repos='http://cran.us.r-project.org')
+install.packages("Rcpp",
+                 dependencies = TRUE,
+                 repos='http://cran.us.r-project.org')
 
 ## Update two packages not on CRAN using the devtools package.
 devtools::install_github(repo = 'geneorama/geneorama')
