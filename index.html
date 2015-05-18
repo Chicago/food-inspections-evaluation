@@ -18,15 +18,15 @@
     <!-- Custom CSS -->
     <link href="css/custom.css" rel="stylesheet">
     <!-- Define open source fonts -->
-    <link href='http://fonts.googleapis.com/css?family=Rokkitt' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Rokkitt' rel='stylesheet' type='text/css'>
     <!-- Load JavaScript -->
     <!-- jQuery -->
     <script src="js/jquery.js" type="text/javascript"></script>
     <!-- Parallax -->
     <script src="js/parallax.js" type="text/javascript"></script>
-    <!-- Highchart --> 
-    <script src="http://code.highcharts.com/highcharts.js"></script>
-    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <!-- Highchart -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
     <!-- favicon & share buttons -->
     <link rel='icon' href='img/favicon.ico' type='image/x-icon' />
@@ -38,15 +38,16 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    
+
     <!-- Google Analytics snippet -->
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
         ga('create', 'UA-29954971-11', 'auto');
+        ga('set', 'forceSSL', true);
         ga('send', 'pageview');
     </script>
 
@@ -85,18 +86,18 @@
                     <li>
                         <iframe src="github-buttons/github-btn.html?user=chicago&repo=food-inspections-evaluation&type=fork"
   allowtransparency="true" frameborder="0" scrolling="0" width="53" height="20"></iframe>
-                    </li> 
+                    </li>
                     <li>
                         <div class="g-plus" data-action="share" data-annotation="none"></div>
                     </li>
                     <li>
-                        <script src="http://platform.linkedin.com/in.js" type="text/javascript">
+                        <script src="https://platform.linkedin.com/in.js" type="text/javascript">
                         lang: en_US
                         </script>
                         <script type="IN/Share" data-url="chicago.github.io/food-inspections-evaluation" data-counter="right"></script>
                     </li>
                     <li>
-                        <a class="twitter-share-button" href="https://twitter.com/share" class="twitter-share-button" data-url="http://chicago.github.io/food-inspections-evaluation/" data-count="none" data-text="Take a look at @ChicagoCDO optimization of food inspectors:">Tweet</a>
+                        <a class="twitter-share-button" href="https://twitter.com/share" class="twitter-share-button" data-url="https://chicago.github.io/food-inspections-evaluation/" data-count="none" data-text="Take a look at @ChicagoCDO optimization of food inspectors:">Tweet</a>
                         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
                         </a>
                     </li>
@@ -105,12 +106,12 @@
                     </li>
                 </ul>
             </div>
-        </nav>    
+        </nav>
     </div>
             <!-- /.navbar-collapse -->
         <!-- </div> -->
         <!-- /.container -->
-    
+
 
     <!-- Main Title -->
     <div class="row">
@@ -140,7 +141,7 @@
                     Food establishments with critical violations were discovered over one week earlier during a two-month evaluation.
                 </div>
             </div>
-        </div>    
+        </div>
     </div>
     <!-- /.row -->
 
@@ -156,7 +157,7 @@
     <div class="row">
         <div class="col-lg-12">
             A key finding of any food inspection is whether a food establishment commits a critical violation. These violations, which normally pertain to improper temperature control for food, are most susceptible to accommodating the start or spread of food borne illnesses. Just one critical violation will result in a failure, and must be remedied by the establishment to the satisfaction of the Department of Public Health.
-        </div>   
+        </div>
     </div>
     <!-- /.row -->
 
@@ -188,7 +189,7 @@
             <p>After conducting interviews with the Department of Public Health's food inspection team, several data sources--ranging from 311 data to food inspections and weather--were explored. A dozen variables had substantial relationships with the likelihood of an establishment failing a food inspection.</p>
             <p>Information about the food establishment, such as its CDPH-assigned risk level and whether the establishment had failed previous inspections, served as important predictors. Information about the establishment's community, such as its location and nearby sanitation complaints made through 311, was also related to the most severe violations.</p>
             <p> When factoring all of these items together, the research team was able to provide a likelihood of critical violations for each establishment, which was developed to prioritize which ones should be inspected first.</p>
-        </div>    
+        </div>
     </div>
 
     <!-- Open Data & Analytics Heading -->
@@ -211,7 +212,7 @@
                 City of Chicago Open Data Portal
             </div>
            <img class="img-responsive" src="img/data-portal.png" alt="City of Chicago Open Data Portal">
-        </div>    
+        </div>
     </div>
     <!-- /.row -->
 
@@ -236,7 +237,7 @@
                 Optimizing inspections for faster delivery
             </div>
             <img class="img-responsive" src="img/eval-diagram.png" alt="Optimizing inspections for faster delivery">
-        </div>    
+        </div>
     </div>
     <!-- /.row -->
 <!-- Evaluating the effectiveness of the model Row (cont'd) -->
@@ -250,7 +251,7 @@
         <div class="col-md-5">
             <p>The simulation would show if riskier establishments would be inspected first.</p>
             <p>Researchers found that food inspectors could be allocated more efficiently using the computer algorithm. During the simulation, 69 percent of inspections&#8212;178 establishments&#8212;with critical violations were found during the first half of work, compared to 58 percent during normal operations. Over the two month pilot, establishments with violations were found, on average, 7 and a half days earlier. That is, an additional 37 establishments would have been cited for violations in the first month, as opposed to being discovered later, potentially after patrons became ill.</p>
-        </div>    
+        </div>
     </div>
     <!-- Tech Plan Row -->
 
@@ -272,7 +273,7 @@
                 Food Inpsection Model on GitHub
             </div>
            <img class="img-responsive" src="img/github-repo.png" alt="Food Inspections Model on GitHub">
-        </div>    
+        </div>
     </div>
     <!-- /.row -->
     <br />
@@ -289,7 +290,7 @@
     <footer>
         <div class="row">
             <div class="col-lg-12">
-                <p id="footnote">This page and its components are open source. Copyright &copy; <a href="http://cityofchicago.org">City of Chicago</a> 2014-2015 and licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0</a> and <a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>. The introductory image is modified from <em><a href="https://flic.kr/p/edVZ7i">The Hunt</a></em> by <a href="https://www.flickr.com/people/edsel_/">Edsel Little</a>. Open-source fonts by <a href="https://www.theleagueofmoveabletype.com/">League of Moveable Type</a> and <a href="http://glyphicons.com/">GLYPHICONS</a> are incorporated into this project. Full open-source licensing details on this project and its components can be viewed in the project's <a href="https://github.com/Chicago/food-inspections-evaluation/blob/gh-pages/LICENSE.md">license file</a>.</p>
+                <p id="footnote">This page and its components are open source. Copyright &copy; <a href="http://cityofchicago.org">City of Chicago</a> 2014-2015 and licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0</a> and <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>. The introductory image is modified from <em><a href="https://flic.kr/p/edVZ7i">The Hunt</a></em> by <a href="https://www.flickr.com/people/edsel_/">Edsel Little</a>. Open-source fonts by <a href="https://www.theleagueofmoveabletype.com/">League of Moveable Type</a> and <a href="http://glyphicons.com/">GLYPHICONS</a> are incorporated into this project. Full open-source licensing details on this project and its components can be viewed in the project's <a href="https://github.com/Chicago/food-inspections-evaluation/blob/gh-pages/LICENSE.md">license file</a>.</p>
             </div>
         </div>
         <!-- /.row -->
