@@ -24,6 +24,9 @@ REQUIREMENTS
 
 All of the code in this project uses the open source statistical application, R.  We advise that you use ```R version >= 3.1``` for best results. 
 
+Ubunutu users may need to install `libssl-dev`, `libcurl4-gnutls-dev`, and `libxml2-dev`.  This can be accomplished by typing the following command at the command line:
+`sudo apt-get install libssl-dev libcurl4-gnutls-dev libxml2-dev`
+
 The code makes extensive usage of the ``data.table`` package. If you are not familiar with the package, you might want to consult the data.table [FAQ available on CRAN] (http://cran.r-project.org/web/packages/data.table/vignettes/datatable-faq.pdf).
 
 
