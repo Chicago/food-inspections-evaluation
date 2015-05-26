@@ -68,9 +68,9 @@ iiTrain <- dat[ , which(Inspection_Date < "2014-07-01")]
 iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
 
 ## Check to see if any rows didn't make it through the model.matrix formula
-nrow(dat)
-nrow(xmat)
-nrow(mm)
+stopifnot(
+    nrow(dat) == nrow(xmat),
+    nrow(xmat) == nrow(mm))
 
 ##==============================================================================
 ## GLMNET MODEL
