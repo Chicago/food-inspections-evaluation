@@ -31,8 +31,6 @@ sched <- read.csv(args[1])
 
 # Ignore everything about the loaded schedule except the
 # inspection.priority column. Paste that column onto the test set.
-nrow(sched)
-nrow(testSet)
 stopifnot(nrow(sched) == nrow(testSet))
 testSet$inspection.priority <- sched$inspection.priority
 
