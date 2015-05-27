@@ -65,5 +65,17 @@ testSet[, period_modeled := ifelse(inspection.priority > median(inspection.prior
 testSet[period == 1, sum(criticalFound)]
 testSet[period_modeled == 1, sum(criticalFound)]
 
-testSet[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-testSet[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
+BAU_period_violations <- testSet[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
+BAU_period_violations
+Model_period_violations <- testSet[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
+Model_period_violations
+
+print("Percent of critical violations found in period 1 (business as usual):")
+print(BAU_period_violations$Violations[1]
+      /
+      sum(BAU_period_violations$Violations))
+
+print("Percent of critical violations found in period 1 (model):")
+print(Model_period_violations$Violations[1]
+      /
+      sum(Model_period_violations$Violations))
