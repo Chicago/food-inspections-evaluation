@@ -62,6 +62,13 @@ dat$glm_pred <- predict(model, newx=as.matrix(mm),
                         s=lam, 
                         type="response")[,1]
 
+# Generate the expected output format for evaluation.
+#
+# TODO: This is a bit of a mess, but it'll do for now.
+dat$inspection.priority <- dat$glm_pred
+write.csv(dat, file="glm_pred.csv", row.names=FALSE)
+
+
 # Show gini performance of inspector model on tune data set
 dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
 
