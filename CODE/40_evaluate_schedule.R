@@ -41,53 +41,29 @@ testSet$inspection.priority <- sched$inspection.priority
 
 
 # Show gini performance of inspector model on tune data set
-dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
-
-## Calculate confusion matrix values for evaluation
-calculate_confusion_values(actual = xmat[iiTest, criticalFound],
-                           expected = dat[iiTest, glm_pred], 
-                           r = .25)
-
-## Calculate matrix of confusion matrix values for evaluation
-confusion_values_test <- t(sapply(seq(0, 1 ,.01), 
-                                  calculate_confusion_values,
-                                  actual = xmat[iiTest, criticalFound],
-                                  expected = dat[iiTest, glm_pred]))
-confusion_values_test
-ggplot(reshape2::melt(as.data.table(confusion_values_test), 
-                      id.vars="r")) + 
-    aes(x=r, y=value, colour=variable) + geom_line() + 
-    geom_hline(yintercept = c(0,1))
+testSet[gini(inspection.priority, criticalFound, plot=TRUE)]
 
 ##==============================================================================
 ## CALCULATION OF LIFT
 ##==============================================================================
 ## TEST PERIOD: Date range
-dat[iiTest, range(Inspection_Date)]
+testSet[, range(Inspection_Date)]
 ## TEST PERIOD: Total inspections
-dat[iiTest, .N]
+testSet[, .N]
 ## TEST PERIOD: Critical found
-dat[iiTest, sum(criticalCount)]
+testSet[, sum(criticalCount)]
 ## TEST PERIOD: Inspections with any critical violations
-dat[iiTest, sum(criticalFound)]
+testSet[, sum(criticalFound)]
 
-## Subset test period
-datTest <- dat[iiTest]
 ## Identify first period
-datTest[ , period := ifelse(Inspection_Date < median(Inspection_Date),1,2)]
-datTest[, .N, keyby=list(period)]
-datTest[, .N, keyby=list(Inspection_Date, period)]
+testSet[, period := ifelse(Inspection_Date < median(Inspection_Date),1,2)]
+testSet[, .N, keyby=list(period)]
+testSet[, .N, keyby=list(Inspection_Date, period)]
 ## Identify top half of scores (which would have been the first period)
-datTest[ , period_modeled := ifelse(glm_pred > median(glm_pred), 1, 2)]
+testSet[, period_modeled := ifelse(inspection.priority > median(inspection.priority), 1, 2)]
 
-datTest[period == 1, sum(criticalFound)]
-datTest[period_modeled == 1, sum(criticalFound)]
+testSet[period == 1, sum(criticalFound)]
+testSet[period_modeled == 1, sum(criticalFound)]
 
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
-
-141 / (141 + 117)
-178 / (178 + 80)
-0.6899225 - .5465116
-
-
+testSet[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
+testSet[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
