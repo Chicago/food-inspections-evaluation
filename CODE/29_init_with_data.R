@@ -72,3 +72,7 @@ stopifnot(
     nrow(dat) == nrow(xmat),
     nrow(xmat) == nrow(mm))
 
+## Generate the "train" and "test" sets as distinct objects.
+trainSet <- dat[iiTrain]
+testSet <- dat[iiTest]
+stopifnot(nrow(trainSet) + nrow(testSet) == nrow(dat))
