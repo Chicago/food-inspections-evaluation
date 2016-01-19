@@ -19,7 +19,6 @@ geneorama::sourceDir("CODE/functions/")
 ## LOAD CACHED RDS FILES
 ##==============================================================================
 foodInspect <- readRDS("DATA/food_inspections.Rds")
-foodInspect <- filter_foodInspect(foodInspect)
 
 ##==============================================================================
 ## CALCULATE FEATURES BASED ON FOOD INSPECTION DATA
