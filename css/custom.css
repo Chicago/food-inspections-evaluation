@@ -50,7 +50,7 @@ body {
 	}
 
 h1,.h1 {
-	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "Arial", sans-serif";
+	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "Arial", sans-serif;
 	font-size: 64px;
 	font-weight: bold;
 	color: black;
@@ -349,20 +349,20 @@ a.twitter-hashtag-button:focus {
 
 @media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) {
 	#kitchen article {
-		left: 2%;
-		top: 20%;
+		/*left: 2%;
+		top: 20%;*/
 	}
 }
 @media all and (min-color-index:0) and(-webkit-min-device-pixel-ratio:2) {
 	#kitchen article {
-		top: 15%;
-		left: 0.5%;
+		/*top: 15%;
+		left: 0.5%;*/
 		margin-right: auto;
 		height: 200px;
 	}
 	#kitchen main {
 		font-size: 32px;
-    		text-align:-webkit-center;
+    	text-align:-webkit-center;
 		margin-left:auto;
 		margin-right:auto;
 		width: 66%;
