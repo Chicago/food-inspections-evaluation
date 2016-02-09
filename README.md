@@ -35,9 +35,8 @@ SCRIPT ORGANIZATION
 
 The scripts are contained in `./CODE`. 
 
-The most important scripts are `00_Startup.R` which installs R dependencies and  `30_glmnet_model.R`, which contains our current risk model. 
+Our results can be reproduced by running `00_Startup.R` which installs R dependencies and `30_glmnet_model.R`, which contains our current risk model. The data have already been downloaded and prepared. The data files are in the `./DATA` directory. The data preparation scripts are a useful reference for those seeking to extract additional features from the raw data.  
 
-The other scripts download and prepare the data. These data are already in the `./DATA` directory, so you should not need to run thes scripts.
 
 DATA
 ------
