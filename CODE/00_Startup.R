@@ -10,6 +10,5 @@ install.packages("Rcpp",
 devtools::install_github(repo = 'geneorama/geneorama')
 devtools::install_github(repo = 'yihui/printr')
 
-## Update RSocrata to a particular build not yet released:
-devtools::install_github(repo = 'chicago/RSocrata', ref = "sprint7")
+## removed RSocrata install because the data is available in the repository
 
