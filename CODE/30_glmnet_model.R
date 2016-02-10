@@ -120,23 +120,23 @@ which.min(errorsTest)
 model$lambda[which.min(errorsTest)]
 
 ## ATTACH PREDICTIONS TO DAT
-dat$glm_pred <- predict(model, newx=as.matrix(mm), 
-                        s=lam, 
-                        type="response")[,1]
+dat$score <- predict(model, newx=as.matrix(mm), 
+                     s=lam, 
+                     type="response")[,1]
 
 # Show gini performance of inspector model on tune data set
-dat[iiTest, gini(glm_pred, criticalFound, plot=TRUE)]
+dat[iiTest, gini(score, criticalFound, plot=TRUE)]
 
 ## Calculate confusion matrix values for evaluation
 calculate_confusion_values(actual = xmat[iiTest, criticalFound],
-                           expected = dat[iiTest, glm_pred], 
+                           expected = dat[iiTest, score], 
                            r = .25)
 
 ## Calculate matrix of confusion matrix values for evaluation
 confusion_values_test <- t(sapply(seq(0, 1 ,.01), 
                                   calculate_confusion_values,
                                   actual = xmat[iiTest, criticalFound],
-                                  expected = dat[iiTest, glm_pred]))
+                                  expected = dat[iiTest, score]))
 confusion_values_test
 ggplot(reshape2::melt(as.data.table(confusion_values_test), 
                       id.vars="r")) + 
@@ -162,7 +162,7 @@ datTest[ , period := ifelse(Inspection_Date < median(Inspection_Date),1,2)]
 datTest[, .N, keyby=list(period)]
 datTest[, .N, keyby=list(Inspection_Date, period)]
 ## Identify top half of scores (which would have been the first period)
-datTest[ , period_modeled := ifelse(glm_pred > median(glm_pred), 1, 2)]
+datTest[ , period_modeled := ifelse(score > median(score), 1, 2)]
 
 datTest[period == 1, sum(criticalFound)]
 datTest[period_modeled == 1, sum(criticalFound)]
@@ -174,4 +174,8 @@ datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
 178 / (178 + 80)
 0.6899225 - .5465116
 
+##==============================================================================
+## CALCULATION OF TIME ADVANTAGE OF NEW SCHEDULE
+##==============================================================================
+print(eval_model(datTest))
 
