@@ -16,7 +16,7 @@ geneorama::sourceDir("CODE/functions/")
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
 garbageCarts <- read.socrata("https://data.cityofchicago.org/resource/9ksk-na4q.csv")
-str(garbageCarts)
+# str(garbageCarts)
 
 # garbageCarts <- as.data.table(garbageCarts)
 #
