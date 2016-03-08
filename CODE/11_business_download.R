@@ -13,52 +13,29 @@ geneorama::loadinstall_libraries(c("data.table", "RSocrata"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES
-##==============================================================================
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
-business <- read.socrata("https://data.cityofchicago.org/resource/r5kz-chrr.csv")
-# saveRDS(business, "DATA/bus_license_RAW_BACKUP.Rds")
-# business <- readRDS("DATA/bus_license_RAW_BACKUP.Rds")
+
+## DEFINE URL
+url <- "https://data.cityofchicago.org/resource/r5kz-chrr.csv"
+
+## READ DATA
+business <- read.socrata(url, stringsAsFactors = FALSE)
 # str(business)
 
-business$APPLICATION.CREATED.DATE <- as.IDate(business$APPLICATION.CREATED.DATE)
-business$APPLICATION.REQUIREMENTS.COMPLETE <- as.IDate(business$APPLICATION.REQUIREMENTS.COMPLETE)
-business$PAYMENT.DATE <- as.IDate(business$PAYMENT.DATE)
-business$LICENSE.APPROVED.FOR.ISSUANCE <- as.IDate(business$LICENSE.APPROVED.FOR.ISSUANCE)
-business$DATE.ISSUED <- as.IDate(business$DATE.ISSUED)
-business$LICENSE.STATUS.CHANGE.DATE <- as.IDate(business$LICENSE.STATUS.CHANGE.DATE)
-
-business$LICENSE.TERM.START.DATE <- as.IDate(business$LICENSE.TERM.START.DATE, "%m/%d/%Y")
-business$LICENSE.TERM.EXPIRATION.DATE <- as.IDate(business$LICENSE.TERM.EXPIRATION.DATE, "%m/%d/%Y")
-
-business$ID <- as.character(business$ID)
-business$LEGAL.NAME <- as.character(business$LEGAL.NAME)
-business$DOING.BUSINESS.AS.NAME <- as.character(business$DOING.BUSINESS.AS.NAME)
-business$ADDRESS <- as.character(business$ADDRESS)
-business$CITY <- as.character(business$CITY)
-business$STATE <- as.character(business$STATE)
-business$LICENSE.DESCRIPTION <- as.character(business$LICENSE.DESCRIPTION)
-business$APPLICATION.TYPE <- as.character(business$APPLICATION.TYPE)
-business$CONDITIONAL.APPROVAL <- as.character(business$CONDITIONAL.APPROVAL)
-business$LICENSE.STATUS <- as.character(business$LICENSE.STATUS)
-business$LOCATION <- as.character(business$LOCATION)
-
+## CONVERT TO DATA TABLE
 business <- as.data.table(business)
 
+## Replace .'s in column names
 setnames(business, gsub("\\.","_",colnames(business)))
 
 ## MODIFY DATA
 geneorama::convert_datatable_IntNum(business)
-# geneorama::convert_datatable_DateIDate(business)
+geneorama::convert_datatable_DateIDate(business)
 
+## FIX TWO DATE COLUMNS THAT MAY NOT DOWNLOAD PROPERLY
+business[ , LICENSE_TERM_START_DATE := as.IDate(LICENSE_TERM_START_DATE, "%m/%d/%Y")]
+business[ , LICENSE_TERM_EXPIRATION_DATE := as.IDate(LICENSE_TERM_EXPIRATION_DATE, "%m/%d/%Y")]
 
-# orig <- readRDS("DATA - Copy/bus_license.Rds")
-# str(orig)
-# str(business)
-
-
-## SAVE ANSWER
+## SAVE RESULT
 saveRDS(business, "DATA/bus_license.Rds")
-
-

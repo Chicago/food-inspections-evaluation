@@ -16,26 +16,19 @@ geneorama::sourceDir("CODE/functions/")
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
 
-## Example with date filter
-# examp <- "https://data.cityofchicago.org/resource/ijzp-q8t2.csv?primary_type=BURGLARY&$where=date>'2016-02-01'"
-# str(read.socrata(examp))
+## DEFINE URL AND QUERY
+url <- "https://data.cityofchicago.org/resource/ijzp-q8t2.csv"
+# q <- "?primary_type=BURGLARY&$where=date>'2016-02-01'" # date filter examp
+q <- "?primary_type=BURGLARY"
 
-crime <- read.socrata("https://data.cityofchicago.org/resource/ijzp-q8t2.csv?primary_type=BURGLARY")
+## READ DATA (BURGLARY ONLY)
+crime <- read.socrata(paste0(url, q), stringsAsFactors = FALSE)
 # str(crime)
 
-crime$Date <- as.POSIXct(crime$Date)
-crime$Updated.On <- as.POSIXct(crime$Updated.On)
-
-crime$Case.Number <- as.character(crime$Case.Number)
-crime$Block <- as.character(crime$Block)
-crime$Primary.Type <- as.character(crime$Primary.Type)
-crime$Description <- as.character(crime$Description)
-crime$Location.Description <- as.character(crime$Location.Description)
-crime$Arrest <- as.character(crime$Arrest)
-crime$Domestic <- as.character(crime$Domestic)
-crime$Location <- as.character(crime$Location)
-
+## CONVERT TO DATA TABLE
 crime <- as.data.table(crime)
+
+## Replace .'s in column names
 setnames(crime, gsub("\\.","_",colnames(crime)))
 
 ## MODIFY DATA
@@ -44,10 +37,5 @@ geneorama::convert_datatable_DateIDate(crime)
 crime[ , Arrest := as.logical(Arrest)]
 crime[ , Domestic := as.logical(Domestic)]
 
-
-# orig <- readRDS("DATA - Copy/crime.Rds")
-# str(orig)
-# str(crime)
-
-## SAVE ANSWER
+## SAVE RESULT
 saveRDS(crime , "DATA/crime.Rds")

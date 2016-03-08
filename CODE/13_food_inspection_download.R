@@ -15,23 +15,18 @@ geneorama::sourceDir("CODE/functions/")
 ##==============================================================================
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
-foodInspect <- read.socrata("https://data.cityofchicago.org/resource/4ijn-s7e5.csv")
+
+## DEFINE URL
+url <- "https://data.cityofchicago.org/resource/4ijn-s7e5.csv"
+
+## READ DATA
+foodInspect <- read.socrata(url, stringsAsFactors = FALSE)
+str(foodInspect)
+
+## CONVERT TO DATA TABLE
 foodInspect <- as.data.table(foodInspect)
 
-foodInspect[ , DBA.Name := as.character(DBA.Name)]
-foodInspect[ , AKA.Name := as.character(AKA.Name)]
-foodInspect[ , Facility.Type := as.character(Facility.Type)]
-foodInspect[ , Risk := as.character(Risk)]
-foodInspect[ , Address := as.character(Address)]
-foodInspect[ , City := as.character(City)]
-foodInspect[ , State := as.character(State)]
-foodInspect[ , Inspection.Type := as.character(Inspection.Type)]
-foodInspect[ , Results := as.character(Results)]
-foodInspect[ , Violations := as.character(Violations)]
-foodInspect[ , Location := as.character(Location)]
-
-foodInspect[ , Inspection.Date := as.POSIXct(Inspection.Date)]
-
+## Replace .'s in column names, and extra underscores
 setnames(foodInspect, gsub("\\.","_",colnames(foodInspect)))
 setnames(foodInspect, gsub("_+$","",colnames(foodInspect)))
 
