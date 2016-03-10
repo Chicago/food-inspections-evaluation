@@ -8,7 +8,7 @@ Your contributions have the potential to have a positive impact on not just us, 
 
 ## Reporting an Issue
 
-Food Inspections Evaluation uses [GitHub Issue Tracking](https://github.com/Chicago/food-inspections-evaluation/issues) to track issues. This is usually a good place to start, and can be a helpful place to manage both technical and non-technical issues. 
+Food Inspections Evaluation uses [GitHub Issue Tracking](https://github.com/Chicago/food-inspections-evaluation/issues) to track issues. This is a good place to start and can be a helpful place to manage both technical and non-technical issues. 
 
 ## Submitting Code Changes
 
@@ -16,7 +16,7 @@ Please send a [GitHub Pull Request to City of Chicago](https://github.com/chicag
 
 ## Demonstrating Model Performance
 
-WWe welcome improvements to the analytic model that creates predictions for the Department of Public Health. The city may adopt a pull request that sufficiently improves the accuracy and prediction, thus, allowing you to contribute to the inspection practice for the City.
+We welcome improvements to the analytic model that creates predictions for the Department of Public Health. The city may adopt a pull request that sufficiently improves the accuracy and prediction, thus, allowing you to contribute to the inspection practice for the City.
 
 If your pull request is to improve the model, please consider the following steps when submitting a pull request:
 * Identify how your model is improving prior results
