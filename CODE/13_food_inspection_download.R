@@ -15,12 +15,18 @@ geneorama::sourceDir("CODE/functions/")
 ##==============================================================================
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
-foodInspect <- read.socrata(
-    hostname="https://data.cityofchicago.org",
-    resourcePath="4ijn-s7e5",
-    pagesize = 25000,
-    keyfield = "inspection_id")
+
+## DEFINE URL
+url <- "https://data.cityofchicago.org/resource/4ijn-s7e5.csv"
+
+## READ DATA
+foodInspect <- read.socrata(url, stringsAsFactors = FALSE)
+str(foodInspect)
+
+## CONVERT TO DATA TABLE
 foodInspect <- as.data.table(foodInspect)
+
+## Replace .'s in column names, and extra underscores
 setnames(foodInspect, gsub("\\.","_",colnames(foodInspect)))
 setnames(foodInspect, gsub("_+$","",colnames(foodInspect)))
 

@@ -13,7 +13,7 @@ Original Analysis and Reports
 -----------------------------
 In an effort to reduce the public’s exposure to foodborne illness the [City of Chicago](https://github.com/Chicago) partnered with Allstate’s Quantitative Research & Analytics department to develop a predictive model to help prioritize the city's food inspection staff.  This Github project is a complete working evaluation of the model including the data that was used in the model, the code that was used to produce the statistical results, the evaluation of the validity of the results, and documentation of our methodology.
 
-The model evaluation calculates individualized risk scores for more than ten thousand Chicagoland food establishments using publically available data, most of which is updated nightly on [Chicago’s data portal]( https://data.cityofchicago.org/). The sole exception is infortmation about the inspectors.
+The model evaluation calculates individualized risk scores for more than ten thousand Chicagoland food establishments using publically available data, most of which is updated nightly on [Chicago’s data portal](https://data.cityofchicago.org/). The sole exception is infortmation about the inspectors.
 
 The evaluation compares two months of Chicago’s Department of Public Health inspections to an alternative data driven approach based on the model. The two month evaluation period is a completely out of sample evaluation based on a model created using test and training data sets from prior time periods.
 
@@ -30,14 +30,24 @@ Ubunutu users may need to install `libssl-dev`, `libcurl4-gnutls-dev`, and `libx
 The code makes extensive usage of the ``data.table`` package. If you are not familiar with the package, you might want to consult the data.table [FAQ available on CRAN] (http://cran.r-project.org/web/packages/data.table/vignettes/datatable-faq.pdf).
 
 
-SCRIPT ORGANIZATION
+FILE LAYOUT
 ------
 
-The scripts are contained in `./CODE`. 
+The following directory structure is used:
 
-The most important scripts are `00_Startup.R` which installs R dependencies and  `30_glmnet_model.R`, which contains our current risk model. 
+DIRECTORY           | DESCRIPTION
+--------------------|----------------------
+`.`                 | Project files such as README and LICENSE
+`./CODE/`           | Sequential scripts used to develop model
+`./CODE/functions/` | General function definitions, which could be used in any script
+`./DATA/`           | Data files created by scripts in `./CODE/`, or static
+`./REPORTS/`        | Reports and other output are located in 
 
-The other scripts download and prepare the data. These data are already in the `./DATA` directory, so you should not need to run thes scripts.
+We have included all of the steps used to develop the model, evaluate the results, and document the results in the above directory structure.
+
+The scripts located in the `./CODE/` folder are organized sequentially, meaning that the numeric prefix indicates the order in which the script was / should be run in order to reproduce our results.
+
+Although we include all the necessary steps to download and transform the data used in the model, we also have stored a snapshot of the data in the repository.  So, to run the model as it stands, it is only necessary to download the repository, install the dependencies, and step through the code in `CODE/30_glmnet_model.R`.  If you do not already have them, the dependencies can be installed using the startup script `CODE/00_Startup.R`.
 
 DATA
 ------

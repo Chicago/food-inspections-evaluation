@@ -13,22 +13,29 @@ geneorama::loadinstall_libraries(c("data.table", "RSocrata"))
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
-## DEFINE GLOBAL VARIABLES
-##==============================================================================
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
-business <- read.socrata(
-    hostname="https://data.cityofchicago.org",
-    #apptoken = mytoken,
-    resourcePath="r5kz-chrr",
-    keyfield = "id")
+
+## DEFINE URL
+url <- "https://data.cityofchicago.org/resource/r5kz-chrr.csv"
+
+## READ DATA
+business <- read.socrata(url, stringsAsFactors = FALSE)
+# str(business)
+
+## CONVERT TO DATA TABLE
 business <- as.data.table(business)
 
+## Replace .'s in column names
 setnames(business, gsub("\\.","_",colnames(business)))
 
 ## MODIFY DATA
 geneorama::convert_datatable_IntNum(business)
 geneorama::convert_datatable_DateIDate(business)
 
-## SAVE ANSWER
+## FIX TWO DATE COLUMNS THAT MAY NOT DOWNLOAD PROPERLY
+business[ , LICENSE_TERM_START_DATE := as.IDate(LICENSE_TERM_START_DATE, "%m/%d/%Y")]
+business[ , LICENSE_TERM_EXPIRATION_DATE := as.IDate(LICENSE_TERM_EXPIRATION_DATE, "%m/%d/%Y")]
+
+## SAVE RESULT
 saveRDS(business, "DATA/bus_license.Rds")

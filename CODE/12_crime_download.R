@@ -15,12 +15,20 @@ geneorama::sourceDir("CODE/functions/")
 ##==============================================================================
 ## DOWNLOAD FILES FROM DATA PORTAL
 ##==============================================================================
-crime <- read.socrata(
-    hostname="https://data.cityofchicago.org",
-    resourcePath="ijzp-q8t2",
-    query = "primary_type='BURGLARY'",
-    keyfield = "id")
+
+## DEFINE URL AND QUERY
+url <- "https://data.cityofchicago.org/resource/ijzp-q8t2.csv"
+# q <- "?primary_type=BURGLARY&$where=date>'2016-02-01'" # date filter examp
+q <- "?primary_type=BURGLARY"
+
+## READ DATA (BURGLARY ONLY)
+crime <- read.socrata(paste0(url, q), stringsAsFactors = FALSE)
+# str(crime)
+
+## CONVERT TO DATA TABLE
 crime <- as.data.table(crime)
+
+## Replace .'s in column names
 setnames(crime, gsub("\\.","_",colnames(crime)))
 
 ## MODIFY DATA
@@ -29,5 +37,5 @@ geneorama::convert_datatable_DateIDate(crime)
 crime[ , Arrest := as.logical(Arrest)]
 crime[ , Domestic := as.logical(Domestic)]
 
-## SAVE ANSWER
+## SAVE RESULT
 saveRDS(crime , "DATA/crime.Rds")
