@@ -144,38 +144,37 @@ ggplot(reshape2::melt(as.data.table(confusion_values_test),
     geom_hline(yintercept = c(0,1))
 
 ##==============================================================================
-## CALCULATION OF LIFT
+## MODEL EVALUATION
+##    - TIME SAVINGS
+##    - PERIOD A vs PERIOD B
 ##==============================================================================
-## TEST PERIOD: Date range
-dat[iiTest, range(Inspection_Date)]
-## TEST PERIOD: Total inspections
-dat[iiTest, .N]
-## TEST PERIOD: Critical found
-dat[iiTest, sum(criticalCount)]
-## TEST PERIOD: Inspections with any critical violations
-dat[iiTest, sum(criticalFound)]
-
-## Subset test period
+## Subset of just observations during test period:
 datTest <- dat[iiTest]
-## Identify first period
-datTest[ , period := ifelse(Inspection_Date < median(Inspection_Date),1,2)]
-datTest[, .N, keyby=list(period)]
-datTest[, .N, keyby=list(Inspection_Date, period)]
-## Identify top half of scores (which would have been the first period)
-datTest[ , period_modeled := ifelse(score > median(score), 1, 2)]
 
-datTest[period == 1, sum(criticalFound)]
-datTest[period_modeled == 1, sum(criticalFound)]
+## Mean time savings:
+datTest[ , simulated_date_diff_mean(Inspection_Date, score, criticalFound)]
 
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period)]
-datTest[, list(.N, Violations = sum(criticalFound)), keyby=list(period_modeled)]
+## Detailed time savings:
+bins <- datTest[ , simulated_bin_summary(Inspection_Date, score, criticalFound)]
+bins
 
-141 / (141 + 117)
-178 / (178 + 80)
-0.6899225 - .5465116
+## This calculation is the weighted average date difference, which should match
+## the previous result from `simulated_bin_summary`
+bins[ , sum(as.integer(date) * POS) / sum(POS)] -
+    bins[ , sum(as.integer(date) * POS_SIM) / sum(POS_SIM)]
 
-##==============================================================================
-## CALCULATION OF TIME ADVANTAGE OF NEW SCHEDULE
-##==============================================================================
-print(eval_model(datTest))
+## Find the midpoint of the inspections to divide bins into period A & B
+mid <- bins[ , sum(N)/2]
+
+## Divide the bins into period A & B based on midpoint
+## Note: GT and LT is strict, so ties would be excluded.  Although there are no
+##       ties for now (as of 2015 publication).
+binsA <- bins[NTOT < mid]
+binsB <- bins[NTOT > mid]
+
+tot_crit <- sum(bins$POS)
+
+binsA[ , sum(POS)/tot_crit]     ## [1] 0.5465116
+binsA[ , sum(POS_SIM)/tot_crit] ## [1] 0.6821705
+
 
