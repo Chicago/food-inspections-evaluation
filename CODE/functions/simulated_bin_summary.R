@@ -1,12 +1,12 @@
 
-simulated_bin_summary <- function(dates, scores, pos) {
+simulated_bin_summary <- function(dates, scores, positives) {
     require(data.table)
     
     ##--------------------------------------------------------------------------
     ## Create base data
     ##--------------------------------------------------------------------------
     ## Assemble components into a data.table for convenience
-    dat <- data.table(date=dates, score=scores, pos)
+    dat <- data.table(date=dates, score=scores, positives)
     
     ##--------------------------------------------------------------------------
     ## Add simulated result
@@ -29,7 +29,7 @@ simulated_bin_summary <- function(dates, scores, pos) {
     ## Note: Using `keyby` forces the result to be sorted, which is necessary
     ##       for the cumulative summation.
     bins <- dat[i = TRUE,
-                j = list(POS = sum(pos), 
+                j = list(POS = sum(positives), 
                          .N), 
                 keyby = date]
     bins <- bins[ , NTOT := cumsum(N)][]
@@ -38,7 +38,7 @@ simulated_bin_summary <- function(dates, scores, pos) {
     ## Caluclate simulated counts / day
     ## Note: Here we key by the simulated date
     bins_sim <- dat[i = TRUE,
-                    j = list(POS = sum(pos), 
+                    j = list(POS = sum(positives), 
                              .N), 
                     keyby = simulated_date]
     bins_sim <- bins_sim[ , NTOT := cumsum(N)][]
