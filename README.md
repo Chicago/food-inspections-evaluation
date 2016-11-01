@@ -13,7 +13,7 @@ Original Analysis and Reports
 -----------------------------
 In an effort to reduce the public’s exposure to foodborne illness the [City of Chicago](https://github.com/Chicago) partnered with Allstate’s Quantitative Research & Analytics department to develop a predictive model to help prioritize the city's food inspection staff.  This Github project is a complete working evaluation of the model including the data that was used in the model, the code that was used to produce the statistical results, the evaluation of the validity of the results, and documentation of our methodology.
 
-The model evaluation calculates individualized risk scores for more than ten thousand Chicagoland food establishments using publically available data, most of which is updated nightly on [Chicago’s data portal](https://data.cityofchicago.org/). The sole exception is infortmation about the inspectors.
+The model evaluation calculates individualized risk scores for more than ten thousand Chicagoland food establishments using publically available data, most of which is updated nightly on [Chicago’s data portal](https://data.cityofchicago.org/). The sole exception is information about the inspectors.
 
 The evaluation compares two months of Chicago’s Department of Public Health inspections to an alternative data driven approach based on the model. The two month evaluation period is a completely out of sample evaluation based on a model created using test and training data sets from prior time periods.
 
@@ -24,7 +24,7 @@ REQUIREMENTS
 
 All of the code in this project uses the open source statistical application, R.  We advise that you use ```R version >= 3.1``` for best results. 
 
-Ubunutu users may need to install `libssl-dev`, `libcurl4-gnutls-dev`, and `libxml2-dev`.  This can be accomplished by typing the following command at the command line:
+Ubuntu users may need to install `libssl-dev`, `libcurl4-gnutls-dev`, and `libxml2-dev`.  This can be accomplished by typing the following command at the command line:
 `sudo apt-get install libssl-dev libcurl4-gnutls-dev libxml2-dev`
 
 The code makes extensive usage of the ``data.table`` package. If you are not familiar with the package, you might want to consult the data.table [FAQ available on CRAN] (http://cran.r-project.org/web/packages/data.table/vignettes/datatable-faq.pdf).
