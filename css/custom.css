@@ -4,15 +4,24 @@
  * For details, see http://www.apache.org/licenses/LICENSE-2.0.
  */
 
- @font-face {
-    font-family: 'League Spartan';
-    src: url('../fonts/league-spartan/_webfonts/leaguespartan-bold.eot');
-    src: url('../fonts/league-spartan/_webfonts/leaguespartan-bold.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/league-spartan/_webfonts/leaguespartan-bold.woff2') format('woff2'),
-         url('../fonts/league-spartan/_webfonts/leaguespartan-bold.woff') format('woff'),
-         url('../fonts/league-spartan/_webfonts/leaguespartan-bold.ttf') format('truetype'),
-         url('../fonts/league-spartan/_webfonts/leaguespartan-bold.svg#league_spartanbold') format('svg');
-    font-weight: bold;
+@font-face {
+    font-family: 'Poppins';
+    src: url('../fonts/poppins/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('../fonts/poppins/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+	font-family: 'Poppins';
+    src: url('../fonts/poppins/Poppins-Light.ttf') format('truetype');
+    font-weight: 200;
     font-style: normal;
 }
 
@@ -50,7 +59,7 @@ body {
 	}
 
 h1,.h1 {
-	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "Arial", sans-serif;
+	font-family: "Poppins", "Avenir Black", "futura_md_btbold", "Arial", sans-serif;
 	font-size: 64px;
 	font-weight: bold;
 	color: black;
@@ -254,8 +263,9 @@ a.twitter-hashtag-button:focus {
 }
 
 #kitchen main,sub{
-	font-family: "League Spartan", "Avenir Black", "futura_md_btbold", "Arial", "sans-serif";
+	font-family: "Poppins", "Avenir Black", "futura_md_btbold", "Arial", "sans-serif";
 	color: white;
+	font-weight: 200;
 	margin-left: auto;
 	margin-right: auto;
 	text-transform: uppercase;
