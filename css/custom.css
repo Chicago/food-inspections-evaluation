@@ -298,11 +298,11 @@ a.twitter-hashtag-button:focus {
 }
 
 /* Readjustments to page based on browser */
-@media all and (min-width: 768px) {
+/*@media all and (min-width: 768px) {
   	.navbar-header {
     		float: right;
   	}
-}
+}*/
 
 
 @media all and (max-width: 1024px) {
