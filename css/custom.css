@@ -34,6 +34,15 @@ body {
 	font-size:24px;
 }
 
+.navbar-default {
+	background-color: white;
+	border: none;
+}
+
+.container-fluid {
+	padding-top: 5px;
+}
+
 #title {
 		-webkit-box-sizing: content-box;
 		-moz-box-sizing: content-box;
@@ -76,14 +85,14 @@ h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
 	text-indent: 1%;
 }
 
-ul {
-	list-style-type: none;
+.predictions ul {
 	margin-top: 0;
 }
 
-li {
+.predictions li {
 	border-bottom: 2px solid rgba(107,206,250,1);
 	padding: 1% 2% 1% 2%;
+	list-style-type: none;
 }
 
 p {
@@ -168,64 +177,10 @@ IMG.stamp {
 	width: 370.5px;
 }
 
-
-
-.header a {
-	display: block;
-	color: #9F9F9F;
-}
-
 .header li {
-	display: inline;
-	float: right;
-	font-family: 'Times New Roman', 'Times', serif;
+	font-family: "Poppins";
 	font-size: 14px;
-	font-style: italic;
-	border: none;
-	padding-left: 0;
-	padding-right: 2%;
-}
-
-.header ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	background: white;
-}
-
-/*#twitter-spacer {
-	padding-right: 2%;
-}*/
-
-a.twitter-share-button,
-a.twitter-mention-button,
-a.twitter-hashtag-button {
-  display: inline-block;
-  padding: 1px 3px 0 19px;
-  border: #ccc solid 1px;
-  border-radius: 3px;
-  background: #f8f8f8 url(https://platform.twitter.com/images/bird.png) 2px 3px no-repeat;
-  background: url(https://platform.twitter.com/images/bird.png) 2px 3px no-repeat,
-              -webkit-linear-gradient(#fff, #dedede);
-  background: url(https://platform.twitter.com/images/bird.png) 2px 3px no-repeat,
-              linear-gradient(#fff, #dedede);
-  background-size: 16px 13px, auto auto;
-
-  /*Text */
-  font: bold 11px/17px Helvetica, Arial, sans-serif;
-  text-decoration: none;
-  color: #333;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
-  white-space: nowrap;
-}
-
-/* Color Highlight for keyboard navigation */
-a.twitter-share-button:focus,
-a.twitter-mention-button:focus,
-a.twitter-hashtag-button:focus {
-  outline: none;
-  border-color: #0089cb;
+	font-weight: 600;
 }
 
 #footnote {

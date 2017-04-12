@@ -54,6 +54,35 @@
 </head>
 
 <body>
+<!-- Page Content -->
+<!-- <div class="container"> -->
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 5px">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-header">
+                    <img alt="City Seal" src="/img/city-seal.png">
+                </a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse header" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/map">Map of Inspections</a></li>
+                    <li><a href="https://www.github.com/Chicago/food-inspections-evaluation">Code</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
 <!-- Head Parallax -->
 <section id="kitchen" data-speed="4" data-type="background">
     <div class="container">
@@ -64,56 +93,8 @@
     </div>
 </section>
 
-
-<!-- Page Content -->
-<div class="container">
-
-    <!-- Navigation -->
-    <div class="container">
-        <nav class="navbar navbar-fixed-top" role="navigation">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <!--  <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div> -->
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="header">
-                <ul>
-                    <li>
-                        <iframe src="github-buttons/github-btn.html?user=chicago&repo=food-inspections-evaluation&type=fork"
-  allowtransparency="true" frameborder="0" scrolling="0" width="53" height="20"></iframe>
-                    </li>
-                    <li>
-                        <div class="g-plus" data-action="share" data-annotation="none"></div>
-                    </li>
-                    <li>
-                        <script src="https://platform.linkedin.com/in.js" type="text/javascript">
-                        lang: en_US
-                        </script>
-                        <script type="IN/Share" data-url="chicago.github.io/food-inspections-evaluation" data-counter="right"></script>
-                    </li>
-                    <li>
-                        <a class="twitter-share-button" href="https://twitter.com/share" class="twitter-share-button" data-url="https://chicago.github.io/food-inspections-evaluation/" data-count="none" data-text="Take a look at @ChicagoCDO optimization of food inspectors:">Tweet</a>
-                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-                        </a>
-                    </li>
-                    <li>
-                        <div class="fb-like" data-href="https://github.com/Chicago/food-inspections-evaluation/" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
-            <!-- /.navbar-collapse -->
-        <!-- </div> -->
-        <!-- /.container -->
-
-
     <!-- Main Title -->
+<div class="container">
     <div class="row">
 <!--         <div class="col-lg-12">
             <h1 id="title">Food Inspection<br />forecasting</h1>
@@ -168,7 +149,7 @@
                 <div class="caption">
                     Predictors of food inspection outcomes
                 </div>
-                <ul>
+                <ul class="predictions">
                     <li>Establishments that had previous critical or serious violations</li>
                     <li>Three-day average high temperature</li>
                     <li>Nearby garbage and sanitation complaints</li>
@@ -289,7 +270,7 @@
     <footer>
         <div class="row">
             <div class="col-lg-12">
-                <p id="footnote">This page and its components are open source. Copyright &copy; <a href="http://cityofchicago.org">City of Chicago</a> 2014-2016 and licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0</a> and <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>. The introductory image is modified from <em><a href="https://flic.kr/p/edVZ7i">The Hunt</a></em> by <a href="https://www.flickr.com/people/edsel_/">Edsel Little</a>. Open-source fonts by <a href="https://www.indiantypefoundry.com/">Indian Type Foundry</a> and <a href="http://glyphicons.com/">GLYPHICONS</a> are incorporated into this project. Full open-source licensing details on this project and its components can be viewed in the project's <a href="https://github.com/Chicago/food-inspections-evaluation/blob/gh-pages/LICENSE.md">license file</a>.</p>
+                <p id="footnote">This page and its components are open source. Copyright &copy; <a href="http://cityofchicago.org">City of Chicago</a> 2014-2017 and licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0</a> and <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>. The introductory image is modified from <em><a href="https://flic.kr/p/edVZ7i">The Hunt</a></em> by <a href="https://www.flickr.com/people/edsel_/">Edsel Little</a>. Open-source fonts by <a href="https://www.indiantypefoundry.com/">Indian Type Foundry</a> and <a href="http://glyphicons.com/">GLYPHICONS</a> are incorporated into this project. Full open-source licensing details on this project and its components can be viewed in the project's <a href="https://github.com/Chicago/food-inspections-evaluation/blob/gh-pages/LICENSE.md">license file</a>.</p>
             </div>
         </div>
         <!-- /.row -->
