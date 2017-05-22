@@ -75,7 +75,7 @@
             <div class="collapse navbar-collapse header" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="../">Home</a></li>
-                    <li><a href="../predictions">Predictions</a></li>
+                    <li><a href="../map">Inspections</a></li>
                     <li><a href="https://www.github.com/Chicago/food-inspections-evaluation">Code</a></li>
                 </ul>
             </div>
@@ -88,19 +88,20 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h2 class="page-header">Restaurants failing to pass inspections: 2015-2016</h2>
+                <h2 class="page-header">Food Inspection Predictions: August 2015</h2>
             </div>
         </div>
     <!-- /.row -->
 
         <div class="row">
-            <iframe width="100%" height="800" frameborder="0" src="https://chicago.carto.com/builder/c2b6567c-d9b0-4fe6-97cf-f7134baf3fd4/embed" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>
+            <iframe width="100%" height="800" frameborder="0" src="https://chicago.carto.com/builder/0e1ed152-1d9f-11e7-ad96-0e3ebc282e83/embed" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>
         </div>
 
         <!-- Forecasting Critical Violations Row -->
         <div class="row">
             <div class="col-lg-12">
-                Chicago's predictive food inspection model was launched in 2015. Below is a map of <a href="https://data.cityofchicago.org/view/2bnm-jnvb">restaurants that did not pass canvass inspections</a> from 2015 through 2016.
+                <p>The algorithm developed by the City of Chicago estimates the chance that a restaurant will have a critical violations. The chances, which range from 0 to 1 and represent the "probability" of critical violations, are then used to prioritize canvas inspections. This map shows the estimates probability for restaurants in August 2015.</p>
+                <p>These predictions were generated from the sample data and code that is available <a href="https://www.github.com/Chicago/food-inspections-evaluation">here</a>.</p>
             </div>
         </div>
         <!-- /.row -->
