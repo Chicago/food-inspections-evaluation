@@ -38,4 +38,4 @@ crime[ , Arrest := as.logical(Arrest)]
 crime[ , Domestic := as.logical(Domestic)]
 
 ## SAVE RESULT
-saveRDS(crime , "DATA/crime.Rds")
+saveRDS(crime , "DATA/12_crime.Rds")
