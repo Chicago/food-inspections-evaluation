@@ -1,54 +1,43 @@
 
-## Requires a vector of violations in text format, 
-## where each element is a collapsed list of violations
-## separated by |
-## Requires a vector of key values to be assigned to the 
-## result for merging after the function is run.
+## Requirements for calculate_violation_types:
+##       1 Requires a matrix (within a keyed data.table) of violation 
+##         indicators where each row contains 0 or 1 to indicate the presence
+##         of a violation.  There should be columns 1:44, named "1" to "44" 
+##         (plus a key column) corresponding to the 44 violation types found in 
+##         the data.
+##
+## Uses the function calculate_violation_matrix
+## to calculate intermediate result (indicator matrix)
 ##
 
-calculate_violation_types <- function(violation_text, ...){
+calculate_violation_types <- function(violation_mat){
     
     require(data.table)
     
-    ## Tabluate voilation types
-    ## 1) Split violoation description by "|"
-    ## 2) use regex to extract leading digits of code number
-    ## 3) create indicator matrix of code violations
-    ## 4) use apply to total up each group of code violations
-    vio <- strsplit(violation_text,"| ",fixed=T)
-    vio_nums <- lapply(vio, 
-                       function(item) regmatches(x = item, 
-                                                 m = gregexpr(pattern = "^[0-9]+", 
-                                                              text = item)))
-    vio_mat <- geneorama::list2matrix(vio_nums, count = T)
-    vio_mat <- vio_mat[ , order(as.numeric(colnames(vio_mat)))]
-    # colnames(vio_mat)
-    # range(vio_mat)
+    ## Check that violation_mat is a data.table
+    if(!inherits(x = violation_mat, what = "data.table")){
+        stop("violation_mat should be a data.table, and have a defined key")
+    }
     
+    ## Check for the key
+    if(length(key(violation_mat)) == 0) {
+        stop("The violation matrix should have a defined key")
+    }
+    
+    vio_mat <- as.matrix(nokey(violation_mat))
+    vio_key <- violation_mat[ , key(violation_mat), with = FALSE]
+    
+    ## Tabluate voilation types
+    ## use apply to total up each group of code violations
     criticalCount <- apply(vio_mat[ , colnames(vio_mat) %in% 1:14], 1, sum)
     seriousCount <- apply(vio_mat[ , colnames(vio_mat) %in% 15:29], 1, sum)
     minorCount <- apply(vio_mat[ , colnames(vio_mat) %in% 30:44], 1, sum)
-    
-    ## Extract the key from the ...'s
-    key_vec <- list(...)
-    
-    ## Check if the key is in the ...'s
-    if(length(key_vec) != 1) {
-        stop("A key vector is required as the second argument")
-    }
-    
-    ## Check key length
-    if(length(key_vec[[1]]) != length(violation_text)){
-        stop("The length of the key must match the length of the first argument")
-    }
-    
+
     ## Construct return values
     ret <- data.table(criticalCount,
                       seriousCount,
-                      minorCount)
-    data.table::set(x = ret, 
-                    j = names(key_vec), 
-                    value = key_vec[[1]])
-    setkeyv(ret, names(key_vec))
+                      minorCount,
+                      vio_key,
+                      key = key(violation_mat))
     return(ret)
 }
