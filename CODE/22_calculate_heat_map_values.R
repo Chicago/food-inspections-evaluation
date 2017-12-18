@@ -1,15 +1,16 @@
 
-##==============================================================================
-## INITIALIZE
-##==============================================================================
-## Remove all objects; perform garbage collection
-rm(list=ls())
-gc(reset=TRUE)
-## Detach libraries that are not used
-geneorama::detach_nonstandard_packages()
-## Load libraries that are used
+if(interactive()){
+    ##==========================================================================
+    ## INITIALIZE
+    ##==========================================================================
+    ## Remove all objects; perform garbage collection
+    rm(list=ls())
+    gc(reset=TRUE)
+    ## Detach any non-standard libraries
+    geneorama::detach_nonstandard_packages()
+}
+## Load libraries & project functions
 geneorama::loadinstall_libraries(c("data.table", "MASS"))
-## Load custom functions
 geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
@@ -17,10 +18,10 @@ geneorama::sourceDir("CODE/functions/")
 ##==============================================================================
 
 ## Import the key data sets used for prediction
-foodInspect <- readRDS("DATA/food_inspections.Rds")
-crime <-  readRDS("DATA/crime.Rds")
-garbageCarts <- readRDS("DATA/garbage_carts.Rds")
-sanitationComplaints <- readRDS("DATA/sanitation_code.Rds")
+foodInspect <- readRDS("DATA/13_food_inspections.Rds")
+crime <-  readRDS("DATA/12_crime.Rds")
+garbageCarts <- readRDS("DATA/14_garbage_carts.Rds")
+sanitationComplaints <- readRDS("DATA/15_sanitation_code.Rds")
 
 ## Apply filters by omitting rows that are not used in the model
 foodInspect <- filter_foodInspect(foodInspect)
@@ -58,8 +59,8 @@ sanitationComplaints_heat <-
 ##==============================================================================
 ## SAVE HEAT MAP VALUES
 ##==============================================================================
-saveRDS(burglary_heat, "DATA/burglary_heat.Rds")
-saveRDS(garbageCarts_heat, "DATA/garbageCarts_heat.Rds")
-saveRDS(sanitationComplaints_heat, "DATA/sanitationComplaints_heat.Rds")
+saveRDS(burglary_heat, "DATA/22_burglary_heat.Rds")
+saveRDS(garbageCarts_heat, "DATA/22_garbageCarts_heat.Rds")
+saveRDS(sanitationComplaints_heat, "DATA/22_sanitationComplaints_heat.Rds")
 
 

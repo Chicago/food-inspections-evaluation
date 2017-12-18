@@ -34,5 +34,5 @@ setnames(foodInspect, gsub("_+$","",colnames(foodInspect)))
 geneorama::convert_datatable_IntNum(foodInspect)
 geneorama::convert_datatable_DateIDate(foodInspect)
 
-## SAVE ANSWER
-saveRDS(foodInspect , "DATA/food_inspections.Rds")
+## SAVE RESULT
+saveRDS(foodInspect , "DATA/13_food_inspections.Rds")

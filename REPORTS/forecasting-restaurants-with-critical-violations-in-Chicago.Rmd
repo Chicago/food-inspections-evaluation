@@ -70,7 +70,7 @@ rm(confusion_values_test, dat, errors, errorsTest, iiTest, iiTrain,
 geneorama::lll()
 
 ## Load Food Inspection Data
-food <- readRDS("DATA/food_inspections.Rds")
+food <- readRDS("DATA/13_food_inspections.Rds")
 ```
 
 

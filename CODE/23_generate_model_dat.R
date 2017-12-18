@@ -20,8 +20,8 @@ shift <- geneorama::shift
 ##==============================================================================
 
 ## Import the key data sets used for prediction
-foodInspect <- readRDS("DATA/food_inspections.Rds")
-business <- readRDS("DATA/bus_license.Rds")
+foodInspect <- readRDS("DATA/13_food_inspections.Rds")
+business <- readRDS("DATA/11_bus_license.Rds")
 
 ## For clarity, remove violations from food inspection
 ## This information is caputured in the violation matrix (below)
@@ -29,7 +29,7 @@ foodInspect$Violations <- NULL
 
 ## Import violation matrix which lists violations by categories:
 ##       Critical, serious, and minor violations
-violation_dat <- readRDS("DATA/violation_dat.Rds")
+violation_dat <- readRDS("DATA/21_violation_dat.Rds")
 
 ## Import the inspectors
 inspectors <- readRDS("DATA/inspectors.Rds")
@@ -40,9 +40,9 @@ weather_3day <- weather_3day_calc(weather)
 rm(weather)
 
 ## Import the heat density values, previously calculated
-burglary_heat <- readRDS("DATA/burglary_heat.Rds")
-garbage_heat <- readRDS("DATA/garbageCarts_heat.Rds")
-sanitation_heat <- readRDS("DATA/sanitationComplaints_heat.Rds")
+burglary_heat <- readRDS("DATA/22_burglary_heat.Rds")
+garbage_heat <- readRDS("DATA/22_garbageCarts_heat.Rds")
+sanitation_heat <- readRDS("DATA/22_sanitationComplaints_heat.Rds")
 
 ##==============================================================================
 ## Filter the primary data sets to remove unnecessary rows
@@ -221,7 +221,7 @@ dat_model <- merge(dat_model,
 ##==============================================================================
 ## Set the key for dat_model
 setkey(dat_model, Inspection_ID)
-saveRDS(dat_model, file.path("DATA/dat_model.Rds"))
+saveRDS(dat_model, file.path("DATA/23_dat_model.Rds"))
 
 
 
