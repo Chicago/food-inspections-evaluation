@@ -22,11 +22,9 @@
 #' package).
 #' 
 #' @example
-#' dat <- c("restaurant", "Restaurant and bar", "grocery", "Grocery Store",
-#'          "stadium", "school", "church", "high school", "school restaurant")
-#' other = "Other"
-#' 
-#' categorize(x = dat, 
+#' categorize(x = c("restaurant", "Restaurant and bar", "grocery", 
+#'                  "Grocery Store", "stadium", "school", "church", 
+#'                  "high school", "school restaurant"), 
 #'            primary = list(Restaurant = "restaurant",
 #'                           Grocery_Store = "grocery",
 #'                           "School"), 
