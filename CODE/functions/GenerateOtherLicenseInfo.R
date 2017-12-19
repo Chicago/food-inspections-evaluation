@@ -49,7 +49,7 @@ GenerateOtherLicenseInfo <- function(inspection_data,
                                      keep.rownames = TRUE)[order(-V2)]
     setnames(category_totals, c("cat", "N"))
     ## LIMIT CATEGORY COLUMNS
-    categories_keep <- category_totals[1:min(max_cat, nrow(category_totals)-3), 
+    categories_keep <- category_totals[1:max(min(max_cat, nrow(category_totals)-3), 1), 
                                        cat]
     tab_final <- tab[,c("dba", "addr", "d_insp", categories_keep), with=F]
     
