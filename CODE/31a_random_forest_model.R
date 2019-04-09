@@ -1,14 +1,10 @@
-
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-if(interactive()){
-    ## Remove all objects; perform garbage collection
-    rm(list=ls())
-    gc(reset=TRUE)
-    ## Detach libraries that are not used
-    geneorama::detach_nonstandard_packages()
-}
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+
 ## Load libraries that are used
 geneorama::loadinstall_libraries(c("data.table", "randomForest", "ggplot2"))
 ## Load custom functions
