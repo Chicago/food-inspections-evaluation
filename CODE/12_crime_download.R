@@ -1,13 +1,10 @@
-if(interactive()){
-    ##==========================================================================
-    ## INITIALIZE
-    ##==========================================================================
-    ## Remove all objects; perform garbage collection
-    rm(list=ls())
-    gc(reset=TRUE)
-    ## Detach any non-standard libraries
-    geneorama::detach_nonstandard_packages()
-}
+##==============================================================================
+## INITIALIZE
+##==============================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+
 ## Load libraries & project functions
 geneorama::loadinstall_libraries(c("data.table", "RSocrata"))
 geneorama::sourceDir("CODE/functions/")

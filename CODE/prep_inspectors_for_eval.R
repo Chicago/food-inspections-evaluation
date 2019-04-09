@@ -7,17 +7,13 @@
 ## 2015 and is still available as of Dec 2017. 
 ##
 
+##==========================================================================
+## INITIALIZE
+##==========================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
 
-if(interactive()){
-    ##==========================================================================
-    ## INITIALIZE
-    ##==========================================================================
-    ## Remove all objects; perform garbage collection
-    rm(list=ls())
-    gc(reset=TRUE)
-    ## Detach any non-standard libraries
-    geneorama::detach_nonstandard_packages()
-}
 ## Load libraries & project functions
 geneorama::loadinstall_libraries(c("data.table"))
 geneorama::sourceDir("CODE/functions/")
