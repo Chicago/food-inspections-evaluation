@@ -33,10 +33,10 @@ geneorama::sourceDir("CODE/functions/")
 ## LOAD CACHED RDS FILES
 ##==============================================================================
 ## Import the key data sets used for prediction
-foodInspect <- readRDS("DATA/food_inspections.Rds")
+foodInspect <- readRDS("DATA/13_food_inspections.Rds")
 foodInspect$Violations <- NULL
-violation_dat <- readRDS("DATA/violation_dat.Rds")
-dat_model <- readRDS("DATA/dat_model.Rds")
+violation_dat <- readRDS("DATA/22_violation_dat.Rds")
+dat_model <- readRDS("DATA/23_dat_model.Rds")
 
 ##==============================================================================
 ## ADD FIELDS AND APPLY FILTER TO foodInspect

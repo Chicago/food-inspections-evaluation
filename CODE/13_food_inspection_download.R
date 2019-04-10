@@ -1,13 +1,10 @@
-if(interactive()){
-    ##==========================================================================
-    ## INITIALIZE
-    ##==========================================================================
-    ## Remove all objects; perform garbage collection
-    rm(list=ls())
-    gc(reset=TRUE)
-    ## Detach any non-standard libraries
-    geneorama::detach_nonstandard_packages()
-}
+##==========================================================================
+## INITIALIZE
+##==========================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+
 ## Load libraries & project functions
 geneorama::loadinstall_libraries(c("data.table", "RSocrata"))
 geneorama::sourceDir("CODE/functions/")
@@ -34,5 +31,5 @@ setnames(foodInspect, gsub("_+$","",colnames(foodInspect)))
 geneorama::convert_datatable_IntNum(foodInspect)
 geneorama::convert_datatable_DateIDate(foodInspect)
 
-## SAVE ANSWER
-saveRDS(foodInspect , "DATA/food_inspections.Rds")
+## SAVE RESULT
+saveRDS(foodInspect , "DATA/13_food_inspections.Rds")

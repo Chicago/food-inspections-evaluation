@@ -1,13 +1,10 @@
-if(interactive()){
-    ##==========================================================================
-    ## INITIALIZE
-    ##==========================================================================
-    ## Remove all objects; perform garbage collection
-    rm(list=ls())
-    gc(reset=TRUE)
-    ## Detach any non-standard libraries
-    geneorama::detach_nonstandard_packages()
-}
+##==============================================================================
+## INITIALIZE
+##==============================================================================
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
+    
 ## Load libraries & project functions
 geneorama::loadinstall_libraries(c("data.table", "RSocrata"))
 geneorama::sourceDir("CODE/functions/")
@@ -38,4 +35,4 @@ business[ , LICENSE_TERM_START_DATE := as.IDate(LICENSE_TERM_START_DATE, "%m/%d/
 business[ , LICENSE_TERM_EXPIRATION_DATE := as.IDate(LICENSE_TERM_EXPIRATION_DATE, "%m/%d/%Y")]
 
 ## SAVE RESULT
-saveRDS(business, "DATA/bus_license.Rds")
+saveRDS(business, "DATA/11_bus_license.Rds")

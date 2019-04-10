@@ -293,7 +293,7 @@ ggplot(melt(comp_summary_cumsum_diff_multi,
 
 ```{r}
 geneorama::set_project_dir("food-inspections-evaluation")
-foodInspect <- readRDS("DATA/food_inspections.Rds")
+foodInspect <- readRDS("DATA/13_food_inspections.Rds")
 foodInspect <- foodInspect[ , Violations := NULL]
 
 setkey(foodInspect, Inspection_ID)
