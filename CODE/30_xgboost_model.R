@@ -1,90 +1,107 @@
-install.packages("geneorama", dependencies=TRUE, repos='https://github.com/geneorama/geneorama')
-library("data.table")
-library("xgboost")
-
-setwd("C:/home/Project/food-inspections-evaluation")
-
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-if(interactive()){
-    ## Remove all objects; perform garbage collection
-    rm(list=ls())
-    gc(reset=TRUE)
-    ## Detach libraries that are not used
-    geneorama::detach_nonstandard_packages()
-}
-## Load libraries that are used
-geneorama::loadinstall_libraries(c("data.table", "xgboost", "ggplot2"))
-## Load custom functions
-geneorama::sourceDir("CODE/functions/")
+## Remove all objects; perform garbage collection
+rm(list=ls())
+gc(reset=TRUE)
 
+## Load libraries & project functions
+geneorama::loadinstall_libraries(c("data.table", "xgboost", "ggplot2"))
+geneorama::sourceDir("CODE/functions/")
 
 ##==============================================================================
 ## LOAD CACHED RDS FILES
 ##==============================================================================
-dat <- readRDS("DATA/dat_model.Rds")
+food <- readRDS("DATA/23_food_insp_features.Rds")
+bus <- readRDS("DATA/24_bus_features.Rds")
+sanitarians <- readRDS("DATA/19_inspector_assignments.Rds")
+weather <- readRDS("DATA/17_mongo_weather_update.Rds")
+heat_burglary <- readRDS("DATA/22_burglary_heat.Rds")
+heat_garbage <- readRDS("DATA/22_garbageCarts_heat.Rds")
+heat_sanitation <- readRDS("DATA/22_sanitationComplaints_heat.Rds")
 
-## Only keep "Retail Food Establishment"
-dat <- dat[LICENSE_DESCRIPTION == "Retail Food Establishment"]
-## Remove License Description
-dat[ , LICENSE_DESCRIPTION := NULL]
-dat <- na.omit(dat)
+##==============================================================================
+## MERGE IN FEATURES
+##==============================================================================
+sanitarians <- sanitarians[,list(Inspection_ID=inspectionID), keyby=sanitarian]
+setnames(heat_burglary, "heat_values", "heat_burglary")
+setnames(heat_garbage, "heat_values", "heat_garbage")
+setnames(heat_sanitation, "heat_values", "heat_sanitation")
 
-## Add criticalFound variable to dat:
-dat[ , criticalFound := pmin(1, criticalCount)]
+dat <- copy(food)
+dat <- dat[bus]
+dat <- merge(x = dat,  y = sanitarians,  by = "Inspection_ID")
+dat <- merge(x = dat, y = weather_3day_calc(weather), by = "Inspection_Date")
+dat <- merge(dat, na.omit(heat_burglary),  by = "Inspection_ID")
+dat <- merge(dat, na.omit(heat_garbage),  by = "Inspection_ID")
+dat <- merge(dat, na.omit(heat_sanitation),  by = "Inspection_ID")
 
 ## Set the key for dat
 setkey(dat, Inspection_ID)
 
-## Match time period of original results
-# dat <- dat[Inspection_Date < "2013-09-01" | Inspection_Date > "2014-07-01"]
+## Remove unnecessary data
+rm(food, bus, sanitarians, weather, heat_burglary, heat_garbage, heat_sanitation)
+
+## Only the model data should be present
+geneorama::lll()
+
+##==============================================================================
+## FILTER ROWS
+##==============================================================================
+dat <- dat[LICENSE_DESCRIPTION=="Retail Food Establishment"]
+dat
+
+##==============================================================================
+## DISPLAY AVAILABLE VARIABLES
+##==============================================================================
+geneorama::NAsummary(dat)
+
+##==============================================================================
+## Add criticalFound variable to dat:
+##==============================================================================
+dat[ , criticalFound := pmin(1, criticalCount)]
+
+##==============================================================================
+## Calculate index for training data (last three months)
+##==============================================================================
+dat[ , Test := Inspection_Date >= (max(Inspection_Date) - 90)]
 
 ##==============================================================================
 ## CREATE MODEL DATA
 ##==============================================================================
 # sort(colnames(dat))
-xmat <- dat[ , list(Inspector = Inspector_Assigned,
+xmat <- dat[ , list(Inspector = as.character(sanitarian),
                     pastSerious = pmin(pastSerious, 1),
                     pastCritical = pmin(pastCritical, 1),
                     timeSinceLast,
                     ageAtInspection = ifelse(ageAtInspection > 4, 1L, 0L),
                     consumption_on_premises_incidental_activity,
-                    tobacco_retail_over_counter,
+                    tobacco,
                     temperatureMax,
                     heat_burglary = pmin(heat_burglary, 70),
                     heat_sanitation = pmin(heat_sanitation, 70),
                     heat_garbage = pmin(heat_garbage, 50),
-                    # Facility_Type,
                     criticalFound),
-             keyby = Inspection_ID]
-mm <- model.matrix(criticalFound ~ . -1, data=xmat[ , -1, with=F])
-mm <- as.data.table(mm)
-str(mm)
-colnames(mm)
+             keyby = list(Inspection_ID, Test)]
 
-##==============================================================================
-## CREATE TEST / TRAIN PARTITIONS
-##==============================================================================
-## 2014-07-01 is an easy separator
-dat[Inspection_Date < "2014-07-01", range(Inspection_Date)]
-dat[Inspection_Date > "2014-07-01", range(Inspection_Date)]
-
-iiTrain <- dat[ , which(Inspection_Date < "2014-07-01")]
-iiTest <- dat[ , which(Inspection_Date > "2014-07-01")]
-
-## Check to see if any rows didn't make it through the model.matrix formula
-nrow(dat)
-nrow(xmat)
-nrow(mm)
+## View the structure of the final xmat
+str(xmat)
 
 ##==============================================================================
 ## XGBOOST MODEL
 ##==============================================================================
-# Extract train data set
-train <- mm[iiTrain]
 
-test  <- mm[iiTest]
+mm <- model.matrix(criticalFound ~ . -1, 
+                   data = xmat[ , .SD, .SDcol=-key(xmat)])
+
+iiTest <- dat$Test
+iiTrain <- !dat$Test
+
+
+# Extract train data set
+train <- mm[iiTrain, ]
+test  <- mm[iiTest, ]
+
 train.target <- xmat[iiTrain, criticalFound]
 test.target  <- xmat[iiTest, criticalFound]
 
@@ -99,26 +116,27 @@ h <- c( sample(which(train.target == 0), 733), sample(which(train.target == 1), 
 # Create validation data set based on the above rows
 dval   <- xgb.DMatrix(data = data.matrix(train[h, ]), label = train.target[h])
 dtrain <- xgb.DMatrix(data = data.matrix(train), label = train.target)
+
 watchlist <- list(val = dval, train = dtrain)
 
 # Run xgbmodel
 set.seed(1)
 xgbmodel <- xgb.train(data = dtrain, 
-		    nfold = 5,
-                eta = 0.02,
-                max_depth = 6,
-                nround=500, 
-                subsample = 0.75,
-                colsample_bytree = 0.75,
-                eval_metric = "mlogloss",
-                objective = "multi:softprob",
-                num_class = 2,
-                nthread = 4,
-                num_parallel_trees = 500,
-		        early_stopping_rounds = 25,
-                watchlist = watchlist,
-                verbose = 1, 
-		    gamma = 0
+                      nfold = 5,
+                      eta = 0.02,
+                      max_depth = 6,
+                      nround=500, 
+                      subsample = 0.75,
+                      colsample_bytree = 0.75,
+                      eval_metric = "mlogloss",
+                      objective = "multi:softprob",
+                      num_class = 2,
+                      nthread = 4,
+                      num_parallel_trees = 500,
+                      early_stopping_rounds = 25,
+                      watchlist = watchlist,
+                      verbose = 1, 
+                      gamma = 0
 )
 
 # Predict Test data set score
@@ -145,11 +163,14 @@ RMSE
 
 ## ATTACH PREDICTIONS TO DAT
 y_pred_mm <- predict(xgbmodel, data.matrix(mm), ntree = xgbmodel$bestInd)
+
+
+
 dat$score <- data.frame(matrix(y_pred_mm, byrow = TRUE, ncol = 2))[, 2]
 
 ## Identify each row as test / train
-dat$Test <- 1:nrow(dat) %in% iiTest
-dat$Train <- 1:nrow(dat) %in% iiTrain
+dat$Test <- iiTest
+dat$Train <- iiTrain
 
 ##==============================================================================
 ## SAVE RESULTS
@@ -157,3 +178,5 @@ dat$Train <- 1:nrow(dat) %in% iiTrain
 
 saveRDS(dat, "DATA/30_xgboost_data.Rds")
 saveRDS(xgbmodel, "DATA/30_xgboost_model.Rds")
+
+
