@@ -1,9 +1,10 @@
+
+```{r, warning=FALSE, message=FALSE}
+
 ##==============================================================================
 ## INITIALIZE
 ##==============================================================================
-## Remove all objects; perform garbage collection
-rm(list=ls())
-gc(reset=TRUE)
+geneorama::set_project_dir("food-inspections-evaluation")
 
 ## Load libraries that are used
 geneorama::loadinstall_libraries(c("data.table", "glmnet", "ggplot2", "ROCR"))
@@ -17,6 +18,17 @@ dat <- readRDS("DATA/30_dat.Rds")
 cvfit <- readRDS("DATA/30_model_eval.Rds")
 mm <- readRDS("DATA/30_modelmatrix.Rds")
 
+## Structure of input data
+str(dat)
+
+## Show date ranges for test / train
+dat[i = TRUE ,
+    j = list(Date_Start = min(Inspection_Date), 
+             Date_End = max(Inspection_Date), 
+             N = .N), 
+    keyby = list(Test)]
+
+## Structure of cvfit model
 str(cvfit)
 str(cvfit$glmnet.fit$beta)
 
@@ -47,7 +59,7 @@ iLambda <- which.min((cvfit$glmnet.fit$lambda - cvfit$lambda.min)^2)
 
 ## Print the coefficients
 coef <- cvfit$glmnet.fit$beta[,iLambda]
-coef
+as.data.frame(coef)
 
 ## Performance for different values of lambda:
 plot(cvfit$cvm ~ log(cvfit$lambda))
@@ -169,4 +181,4 @@ plot(performance(predTest, measure = "acc"))
 
 ## AUC
 performance(predTest, measure = "auc")@y.values[[1]]
-
+```
